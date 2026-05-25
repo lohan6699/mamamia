@@ -67,7 +67,7 @@
   <div id="menu">
     <h1>ESTUDANTE AVENTUREIRO</h1>
     <p>Derrote o Boss <strong>MATEMÁTICA</strong>!</p>
-    <p style="font-size:18px;">← → Mover | ESPAÇO Pular | J Atirar Livro</p>
+    <p style="font-size:18px;">← → ou A D : Mover | ESPAÇO : Pular | J : Atirar Livro</p>
     <button onclick="startGame()">INICIAR JOGO</button>
   </div>
 
@@ -159,6 +159,7 @@
         ctx.translate(estudante.x - cameraX, estudante.y);
       }
 
+      // Cabelo, rosto, óculos, camisa, gravata, mochila, calça, sapatos
       ctx.fillStyle = '#2C2C2C'; ctx.fillRect(14, 10, 24, 12);
       ctx.fillStyle = '#FFDBB4'; ctx.fillRect(16, 16, 20, 16);
       ctx.fillStyle = '#000'; ctx.fillRect(19,20,7,6); ctx.fillRect(28,20,7,6);
@@ -169,6 +170,7 @@
       ctx.fillStyle = '#1E3A8A'; ctx.fillRect(16,48,24,10);
       ctx.fillStyle = '#111'; ctx.fillRect(16,56,9,6); ctx.fillRect(27,56,9,6);
 
+      // Livro (arma)
       ctx.fillStyle = '#8B4513';
       ctx.fillRect(38, 38, 12, 10);
 
@@ -281,7 +283,7 @@
         }
       });
 
-      // Atirar
+      // Atirar com J
       if (keys['j'] || keys['J']) {
         if (!estudante.lastShot || Date.now() - estudante.lastShot > 250) {
           projectiles.push({
@@ -306,7 +308,7 @@
           boss.health--;
           projectiles.splice(i, 1);
           if (boss.health <= 0) {
-            alert("🏆 VITÓRIA! Você derrotou MATEMÁTICA!");
+            alert("🏆 PARABÉNS! Você derrotou o Boss MATEMÁTICA!\nPontuação Final: " + score);
             menu.style.display = 'block';
             gameState = 'MENU';
           }
