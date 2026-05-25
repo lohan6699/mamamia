@@ -138,51 +138,141 @@
     }
 
     function drawBackground() {
-      // Céu com gradiente
+      // Gradiente de céu
       const grad = ctx.createLinearGradient(0, 0, 0, 400);
       grad.addColorStop(0, '#5C94FC');
       grad.addColorStop(1, '#A0C4FF');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Nuvens em camadas (parallax)
+      // Nuvens com parallax (várias camadas)
       ctx.fillStyle = '#FFFFFF';
-      ctx.globalAlpha = 0.9;
-      ctx.fillRect(80 - cameraX*0.2, 60, 90, 28);
-      ctx.fillRect(420 - cameraX*0.2, 45, 110, 30);
-      ctx.fillRect(850 - cameraX*0.2, 75, 80, 25);
-      ctx.fillRect(1250 - cameraX*0.2, 55, 95, 27);
+      ctx.globalAlpha = 0.95;
+      ctx.fillRect(60 - cameraX*0.15, 55, 95, 28);
+      ctx.fillRect(380 - cameraX*0.15, 40, 120, 32);
+      ctx.fillRect(920 - cameraX*0.15, 70, 85, 26);
+      ctx.fillRect(1350 - cameraX*0.15, 50, 100, 29);
 
-      ctx.globalAlpha = 0.6;
-      ctx.fillRect(200 - cameraX*0.4, 90, 70, 22);
-      ctx.fillRect(700 - cameraX*0.4, 70, 85, 25);
-      ctx.fillRect(1400 - cameraX*0.4, 100, 65, 20);
+      ctx.globalAlpha = 0.65;
+      ctx.fillRect(180 - cameraX*0.35, 85, 75, 22);
+      ctx.fillRect(680 - cameraX*0.35, 65, 95, 27);
+      ctx.fillRect(1180 - cameraX*0.35, 95, 70, 20);
       ctx.globalAlpha = 1.0;
     }
 
     function drawPlatforms() {
       platforms.forEach(p => {
-        // Base da plataforma (terra)
+        // Terra / base
         ctx.fillStyle = '#0B6623';
         ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
         
-        // Grama em cima
+        // Grama superior
         ctx.fillStyle = '#0F8B2E';
-        ctx.fillRect(p.x - cameraX, p.y, p.width, 8);
+        ctx.fillRect(p.x - cameraX, p.y, p.width, 10);
         
-        // Detalhe de grama
+        // Detalhes de grama
         ctx.fillStyle = '#1EB43C';
-        ctx.fillRect(p.x - cameraX + 10, p.y - 4, 8, 6);
-        ctx.fillRect(p.x - cameraX + p.width - 25, p.y - 4, 7, 6);
+        for (let i = 15; i < p.width; i += 35) {
+          ctx.fillRect(p.x - cameraX + i, p.y - 6, 8, 8);
+        }
       });
     }
 
-    // ... (drawEstudante, drawGoombas, drawBoss, drawHealthBar permanecem os mesmos)
+    function drawEstudante() {
+      ctx.save();
+      if (!estudante.facingRight) {
+        ctx.translate(estudante.x - cameraX + estudante.width, estudante.y);
+        ctx.scale(-1, 1);
+      } else {
+        ctx.translate(estudante.x - cameraX, estudante.y);
+      }
 
-    function drawEstudante() { /* mesmo código anterior */ }
-    function drawGoombas() { /* mesmo código anterior */ }
-    function drawBoss() { /* mesmo código anterior */ }
-    function drawHealthBar() { /* mesmo código anterior */ }
+      ctx.fillStyle = '#2C2C2C'; ctx.fillRect(14, 10, 24, 12);
+      ctx.fillStyle = '#FFDBB4'; ctx.fillRect(16, 16, 20, 16);
+      ctx.fillStyle = '#000'; ctx.fillRect(19,20,7,6); ctx.fillRect(28,20,7,6);
+      ctx.fillStyle = '#FFF'; ctx.fillRect(21,21,3,3); ctx.fillRect(30,21,3,3);
+      ctx.fillStyle = '#F0F0F0'; ctx.fillRect(14,32,26,18);
+      ctx.fillStyle = '#C8102E'; ctx.fillRect(22,34,8,12);
+      ctx.fillStyle = '#8B4513'; ctx.fillRect(36,34,10,16);
+      ctx.fillStyle = '#1E3A8A'; ctx.fillRect(16,48,24,10);
+      ctx.fillStyle = '#111'; ctx.fillRect(16,56,9,6); ctx.fillRect(27,56,9,6);
+
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(38, 38, 12, 10);
+
+      ctx.restore();
+    }
+
+    function drawGoombas() {
+      goombas.forEach(g => {
+        if (!g.alive) return;
+        ctx.save();
+        ctx.translate(g.x - cameraX, g.y);
+
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(6, 5, 28, 10);
+        ctx.fillRect(4, 12, 32, 6);
+
+        ctx.fillStyle = '#FFDBB4';
+        ctx.fillRect(10, 16, 20, 16);
+
+        ctx.fillStyle = '#000';
+        ctx.fillRect(14, 20, 5, 7);
+        ctx.fillRect(21, 20, 5, 7);
+
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(28, 18, 12, 16);
+
+        ctx.restore();
+      });
+    }
+
+    function drawBoss() {
+      if (!boss || boss.health <= 0) return;
+      ctx.save();
+      ctx.translate(boss.x - cameraX, boss.y);
+
+      ctx.fillStyle = '#F0F0F0';
+      ctx.fillRect(12, 35, 62, 58);
+
+      ctx.fillStyle = '#2C3E50';
+      ctx.fillRect(18, 82, 52, 22);
+
+      ctx.fillStyle = '#FFDBB4';
+      ctx.fillRect(25, 18, 38, 32);
+
+      ctx.fillStyle = '#444';
+      ctx.fillRect(20, 15, 48, 12);
+
+      ctx.fillStyle = '#111';
+      ctx.fillRect(28, 25, 13, 9);
+      ctx.fillRect(43, 25, 13, 9);
+
+      ctx.fillStyle = '#555';
+      ctx.fillRect(27, 40, 30, 12);
+
+      ctx.fillStyle = '#F1C40F';
+      ctx.fillRect(70, 45, 8, 42);
+
+      ctx.restore();
+
+      ctx.fillStyle = '#FFF';
+      ctx.font = 'bold 15px Arial';
+      ctx.fillText('PROF. MATEMÁTICA', boss.x - cameraX - 18, boss.y - 12);
+    }
+
+    function drawHealthBar() {
+      if (!boss || boss.health <= 0) return;
+      const barWidth = 220;
+      const percent = boss.health / boss.maxHealth;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(290, 25, barWidth, 22);
+      ctx.fillStyle = percent > 0.4 ? '#00FF00' : '#FF0000';
+      ctx.fillRect(290, 25, barWidth * percent, 22);
+      ctx.fillStyle = '#FFF';
+      ctx.font = '18px Arial';
+      ctx.fillText('PROFESSOR MATEMÁTICA', 300, 20);
+    }
 
     function drawCoins() {
       ctx.fillStyle = '#FFD700';
@@ -222,7 +312,6 @@
         }
       }
 
-      // Moedas, Goombas, Tiro, etc... (mantido igual)
       coins.forEach(coin => {
         if (!coin.collected && 
             estudante.x < coin.x + 20 && estudante.x + estudante.width > coin.x &&
@@ -266,7 +355,6 @@
         }
       }
 
-      // (resto do update permanece igual)
       for (let i = projectiles.length - 1; i >= 0; i--) {
         let p = projectiles[i];
         p.x += p.speed;
