@@ -103,7 +103,7 @@
       projectiles = [];
       enemyProjectiles = [];
 
-      platforms = [ /* mesmas plataformas */ 
+      platforms = [
         {x: 0, y: 350, width: WORLD_WIDTH, height: 50},
         {x: 250, y: 280, width: 180, height: 20},
         {x: 550, y: 210, width: 140, height: 20},
@@ -112,7 +112,12 @@
         {x: 1450, y: 240, width: 120, height: 20},
       ];
 
-      coins = [ /* mesmas moedas */ ];
+      coins = [
+        {x: 320, y: 220, collected: false},
+        {x: 620, y: 150, collected: false},
+        {x: 920, y: 200, collected: false},
+        {x: 1220, y: 120, collected: false},
+      ];
 
       goombas = [
         {x: 450, y: 310, width: 40, height: 38, speed: -2, alive: true},
@@ -120,7 +125,7 @@
       ];
 
       boss = {
-        x: 1550, y: 140, width: 85, height: 95,
+        x: 1550, y: 130, width: 85, height: 105,
         health: 12, maxHealth: 12,
         shootTimer: 0
       };
@@ -167,30 +172,29 @@
       ctx.restore();
     }
 
-    // ==================== NOVO VISUAL DOS INIMIGOS ====================
     function drawGoombas() {
       goombas.forEach(g => {
         if (!g.alive) return;
         ctx.save();
         ctx.translate(g.x - cameraX, g.y);
 
-        // Boné (aluno rebelde)
+        // Boné vermelho
         ctx.fillStyle = '#FF0000';
-        ctx.fillRect(8, 4, 24, 8);
-        ctx.fillRect(6, 10, 28, 6);
+        ctx.fillRect(6, 5, 28, 10);
+        ctx.fillRect(4, 12, 32, 6);
 
         // Rosto
         ctx.fillStyle = '#FFDBB4';
-        ctx.fillRect(10, 14, 20, 14);
+        ctx.fillRect(10, 16, 20, 16);
 
-        // Olhos raivosos
+        // Olhos
         ctx.fillStyle = '#000';
-        ctx.fillRect(14, 18, 5, 6);
-        ctx.fillRect(21, 18, 5, 6);
+        ctx.fillRect(14, 20, 5, 7);
+        ctx.fillRect(21, 20, 5, 7);
 
         // Mochila
         ctx.fillStyle = '#8B4513';
-        ctx.fillRect(28, 16, 10, 14);
+        ctx.fillRect(28, 18, 12, 16);
 
         ctx.restore();
       });
@@ -201,41 +205,51 @@
       ctx.save();
       ctx.translate(boss.x - cameraX, boss.y);
 
-      // Jaleco branco do professor
-      ctx.fillStyle = '#F0F0F0';
-      ctx.fillRect(10, 30, 65, 55);
+      // Jaleco branco
+      ctx.fillStyle = '#EEEEEE';
+      ctx.fillRect(12, 35, 62, 55);
 
       // Calça
-      ctx.fillStyle = '#1E3A8A';
-      ctx.fillRect(15, 70, 55, 20);
+      ctx.fillStyle = '#2C3E50';
+      ctx.fillRect(18, 80, 52, 20);
+
+      // Sapatos
+      ctx.fillStyle = '#111';
+      ctx.fillRect(20, 95, 18, 8);
+      ctx.fillRect(48, 95, 18, 8);
 
       // Cabeça
       ctx.fillStyle = '#FFDBB4';
-      ctx.fillRect(22, 15, 40, 35);
+      ctx.fillRect(25, 18, 38, 32);
 
-      // Cabelo / Careca com laterais
-      ctx.fillStyle = '#555555';
-      ctx.fillRect(18, 12, 48, 12);
+      // Cabelo lateral
+      ctx.fillStyle = '#444444';
+      ctx.fillRect(20, 18, 10, 25);
+      ctx.fillRect(53, 18, 10, 25);
 
-      // Óculos de professor
-      ctx.fillStyle = '#000';
-      ctx.fillRect(26, 24, 12, 8);
-      ctx.fillRect(42, 24, 12, 8);
-      ctx.fillRect(38, 27, 4, 2);
+      // Óculos
+      ctx.fillStyle = '#111';
+      ctx.fillRect(28, 26, 13, 8);
+      ctx.fillRect(43, 26, 13, 8);
+      ctx.fillRect(41, 29, 4, 2);
 
       // Barba
       ctx.fillStyle = '#555555';
-      ctx.fillRect(26, 38, 30, 8);
+      ctx.fillRect(28, 42, 28, 10);
 
-      // Régua (arma)
-      ctx.fillStyle = '#FFD700';
-      ctx.fillRect(65, 35, 8, 35);
+      // Boca séria
+      ctx.fillStyle = '#000';
+      ctx.fillRect(32, 48, 20, 3);
+
+      // Régua na mão
+      ctx.fillStyle = '#F1C40F';
+      ctx.fillRect(68, 45, 10, 38);
 
       ctx.restore();
 
       ctx.fillStyle = '#FFF';
-      ctx.font = 'bold 14px Arial';
-      ctx.fillText('PROF. MATEMÁTICA', boss.x - cameraX - 10, boss.y - 10);
+      ctx.font = 'bold 15px Arial';
+      ctx.fillText('PROF. MATEMÁTICA', boss.x - cameraX - 15, boss.y - 10);
     }
 
     function drawHealthBar() {
@@ -251,7 +265,6 @@
       ctx.fillText('PROFESSOR MATEMÁTICA', 300, 20);
     }
 
-    // Restante do código (update e draw) permanece igual...
     function update() {
       if (gameState !== 'PLAYING') return;
 
@@ -278,7 +291,6 @@
         }
       }
 
-      // Moedas, Goombas, Tiro, etc... (mesmo código anterior)
       coins.forEach(coin => {
         if (!coin.collected && 
             estudante.x < coin.x + 20 && estudante.x + estudante.width > coin.x &&
@@ -343,7 +355,7 @@
         if (boss.shootTimer > 60) {
           enemyProjectiles.push({
             x: boss.x + 40,
-            y: boss.y + 50,
+            y: boss.y + 55,
             width: 16,
             height: 16,
             speed: -5
