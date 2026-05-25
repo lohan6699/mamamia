@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mario Pixel Art</title>
+  <title>Mario Pixel Art - Animado</title>
   <style>
     body {
       margin: 0;
@@ -21,7 +21,7 @@
       border: 8px solid #000;
       border-radius: 8px;
       box-shadow: 0 15px 40px rgba(0,0,0,0.7);
-      image-rendering: pixelated; /* Isso deixa tudo bem pixelado */
+      image-rendering: pixelated;
     }
 
     #score {
@@ -49,6 +49,7 @@
 
     let score = 0;
     let gameOver = false;
+    let frame = 0;
 
     const mario = {
       x: 80,
@@ -59,7 +60,8 @@
       jump: -18,
       velocityY: 0,
       grounded: false,
-      facingRight: true
+      facingRight: true,
+      animFrame: 0
     };
 
     const gravity = 0.85;
@@ -86,6 +88,19 @@
       {x: 620, y: 310, width: 40, height: 38, speed: 2, alive: true},
     ];
 
+    // Nuvens
+    const clouds = [
+      {x: 100, y: 60},
+      {x: 400, y: 40},
+      {x: 650, y: 80},
+    ];
+
+    function drawCloud(x, y) {
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(x, y, 60, 20);
+      ctx.fillRect(x+10, y-10, 40, 20);
+    }
+
     function drawPixelMario() {
       ctx.save();
       if (!mario.facingRight) {
@@ -95,10 +110,10 @@
         ctx.translate(mario.x, mario.y);
       }
 
-      // Pixel Art Mario (mais detalhado)
-      ctx.fillStyle = '#000000'; // contorno
+      const isJumping = !mario.grounded;
+      const isRunning = (keys['ArrowRight'] || keys['d'] || keys['ArrowLeft'] || keys['a']) && mario.grounded;
 
-      // Chapéu vermelho
+      // Chapéu
       ctx.fillStyle = '#E4000F';
       ctx.fillRect(12, 8, 28, 10);
       ctx.fillRect(8, 14, 36, 8);
@@ -109,17 +124,17 @@
 
       // Olhos
       ctx.fillStyle = '#000000';
-      ctx.fillRect(22, 22, 4, 6);
-      ctx.fillRect(30, 22, 4, 6);
+      ctx.fillRect(22, 22, 5, 6);
+      ctx.fillRect(30, 22, 5, 6);
 
       // Bigode
       ctx.fillRect(17, 30, 18, 4);
 
-      // Corpo (macacão vermelho)
+      // Corpo
       ctx.fillStyle = '#E4000F';
       ctx.fillRect(12, 34, 28, 18);
 
-      // Macacão azul
+      // Macacão
       ctx.fillStyle = '#0040A0';
       ctx.fillRect(14, 44, 24, 10);
 
@@ -135,7 +150,6 @@
       ctx.fillStyle = '#0B6623';
       platforms.forEach(p => {
         ctx.fillRect(p.x, p.y, p.width, p.height);
-        // Detalhe de grama
         ctx.fillStyle = '#0F8B2E';
         ctx.fillRect(p.x, p.y, p.width, 6);
         ctx.fillStyle = '#0B6623';
@@ -144,17 +158,14 @@
 
     function drawPixelCoin(x, y) {
       ctx.fillStyle = '#FFD700';
-      ctx.fillRect(x+4, y+2, 16, 20);
+      ctx.fillRect(x+4, y+4, 16, 16);
       ctx.fillStyle = '#B8860B';
-      ctx.fillRect(x+6, y+6, 12, 4);
-      ctx.fillRect(x+8, y+12, 8, 4);
+      ctx.fillRect(x+7, y+8, 10, 4);
     }
 
     function drawCoins() {
       coins.forEach(coin => {
-        if (!coin.collected) {
-          drawPixelCoin(coin.x, coin.y);
-        }
+        if (!coin.collected) drawPixelCoin(coin.x, coin.y);
       });
     }
 
@@ -163,19 +174,20 @@
       ctx.fillStyle = '#8B4513';
       ctx.fillRect(g.x, g.y, g.width, g.height);
       
-      // Olhos
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(g.x + 8, g.y + 10, 8, 10);
       ctx.fillRect(g.x + 24, g.y + 10, 8, 10);
       
       ctx.fillStyle = '#000000';
-      ctx.fillRect(g.x + 10, g.y + 12, 4, 6);
-      ctx.fillRect(g.x + 26, g.y + 12, 4, 6);
+      ctx.fillRect(g.x + 10, g.y + 13, 4, 5);
+      ctx.fillRect(g.x + 26, g.y + 13, 4, 5);
     }
 
     function update() {
       if (gameOver) return;
+      frame++;
 
+      // Movimento
       if (keys['ArrowRight'] || keys['d']) {
         mario.x += mario.speed;
         mario.facingRight = true;
@@ -185,6 +197,7 @@
         mario.facingRight = false;
       }
 
+      // Pulo
       if ((keys[' '] || keys['ArrowUp'] || keys['w']) && mario.grounded) {
         mario.velocityY = mario.jump;
         mario.grounded = false;
@@ -193,13 +206,12 @@
       mario.velocityY += gravity;
       mario.y += mario.velocityY;
 
+      // Colisão plataformas
       mario.grounded = false;
       for (let p of platforms) {
         if (
-          mario.x < p.x + p.width &&
-          mario.x + mario.width > p.x &&
-          mario.y < p.y + p.height &&
-          mario.y + mario.height > p.y
+          mario.x < p.x + p.width && mario.x + mario.width > p.x &&
+          mario.y < p.y + p.height && mario.y + mario.height > p.y
         ) {
           if (mario.velocityY > 0) {
             mario.y = p.y - mario.height;
@@ -242,6 +254,7 @@
         if (g.x <= 0 || g.x + g.width >= canvas.width) g.speed *= -1;
       });
 
+      // Limites
       if (mario.x < 0) mario.x = 0;
       if (mario.x + mario.width > canvas.width) mario.x = canvas.width - mario.width;
       if (mario.y > canvas.height) {
@@ -252,6 +265,10 @@
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Nuvens
+      clouds.forEach(c => drawCloud(c.x, c.y));
+
       drawPlatforms();
       drawCoins();
       goombas.forEach(drawPixelGoomba);
