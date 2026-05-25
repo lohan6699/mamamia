@@ -125,7 +125,7 @@
       ];
 
       boss = {
-        x: 1550, y: 130, width: 85, height: 105,
+        x: 1550, y: 125, width: 85, height: 105,
         health: 12, maxHealth: 12,
         shootTimer: 0
       };
@@ -178,23 +178,26 @@
         ctx.save();
         ctx.translate(g.x - cameraX, g.y);
 
-        // Boné vermelho
+        // Boné virado para trás (estilo rebelde)
         ctx.fillStyle = '#FF0000';
-        ctx.fillRect(6, 5, 28, 10);
-        ctx.fillRect(4, 12, 32, 6);
+        ctx.fillRect(5, 6, 30, 9);
+        ctx.fillRect(8, 12, 24, 6);
 
         // Rosto
         ctx.fillStyle = '#FFDBB4';
-        ctx.fillRect(10, 16, 20, 16);
+        ctx.fillRect(10, 15, 20, 16);
 
-        // Olhos
+        // Olhos malandros
         ctx.fillStyle = '#000';
-        ctx.fillRect(14, 20, 5, 7);
-        ctx.fillRect(21, 20, 5, 7);
+        ctx.fillRect(14, 19, 5, 6);
+        ctx.fillRect(21, 19, 5, 6);
+
+        // Sorriso malicioso
+        ctx.fillRect(15, 27, 10, 2);
 
         // Mochila
         ctx.fillStyle = '#8B4513';
-        ctx.fillRect(28, 18, 12, 16);
+        ctx.fillRect(28, 17, 12, 18);
 
         ctx.restore();
       });
@@ -205,51 +208,50 @@
       ctx.save();
       ctx.translate(boss.x - cameraX, boss.y);
 
-      // Jaleco branco
-      ctx.fillStyle = '#EEEEEE';
-      ctx.fillRect(12, 35, 62, 55);
+      // Jaleco do professor
+      ctx.fillStyle = '#F8F8F8';
+      ctx.fillRect(12, 35, 62, 58);
 
       // Calça
       ctx.fillStyle = '#2C3E50';
-      ctx.fillRect(18, 80, 52, 20);
+      ctx.fillRect(18, 82, 52, 22);
 
       // Sapatos
       ctx.fillStyle = '#111';
-      ctx.fillRect(20, 95, 18, 8);
-      ctx.fillRect(48, 95, 18, 8);
+      ctx.fillRect(20, 98, 18, 8);
+      ctx.fillRect(48, 98, 18, 8);
 
       // Cabeça
       ctx.fillStyle = '#FFDBB4';
       ctx.fillRect(25, 18, 38, 32);
 
-      // Cabelo lateral
-      ctx.fillStyle = '#444444';
-      ctx.fillRect(20, 18, 10, 25);
-      ctx.fillRect(53, 18, 10, 25);
+      // Cabelo grisalho
+      ctx.fillStyle = '#555555';
+      ctx.fillRect(20, 15, 48, 12);
 
       // Óculos
       ctx.fillStyle = '#111';
-      ctx.fillRect(28, 26, 13, 8);
-      ctx.fillRect(43, 26, 13, 8);
+      ctx.fillRect(28, 25, 13, 9);
+      ctx.fillRect(43, 25, 13, 9);
       ctx.fillRect(41, 29, 4, 2);
 
       // Barba
       ctx.fillStyle = '#555555';
-      ctx.fillRect(28, 42, 28, 10);
+      ctx.fillRect(27, 40, 30, 12);
 
       // Boca séria
       ctx.fillStyle = '#000';
       ctx.fillRect(32, 48, 20, 3);
 
-      // Régua na mão
+      // Régua na mão direita
       ctx.fillStyle = '#F1C40F';
-      ctx.fillRect(68, 45, 10, 38);
+      ctx.fillRect(70, 45, 8, 42);
 
       ctx.restore();
 
       ctx.fillStyle = '#FFF';
       ctx.font = 'bold 15px Arial';
-      ctx.fillText('PROF. MATEMÁTICA', boss.x - cameraX - 15, boss.y - 10);
+      ctx.fillText('PROF. MATEMÁTICA', boss.x - cameraX - 18, boss.y - 12);
     }
 
     function drawHealthBar() {
@@ -343,7 +345,7 @@
           boss.health--;
           projectiles.splice(i, 1);
           if (boss.health <= 0) {
-            alert("🏆 VITÓRIA! Você derrotou o Professor Matemática!");
+            alert("🏆 PARABÉNS! Você derrotou o Professor Matemática!");
             menu.style.display = 'block';
             gameState = 'MENU';
           }
@@ -354,7 +356,7 @@
         boss.shootTimer++;
         if (boss.shootTimer > 60) {
           enemyProjectiles.push({
-            x: boss.x + 40,
+            x: boss.x + 45,
             y: boss.y + 55,
             width: 16,
             height: 16,
