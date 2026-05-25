@@ -74,10 +74,12 @@
     const gravity = 0.85;
     const keys = {};
 
-    let platforms = [], coins = [], goombas = [];
+    let platforms = [];
+    let coins = [];
+    let goombas = [];
     let boss = null;
-    let projectiles = [];     // Projéteis do jogador
-    let enemyProjectiles = []; // Projéteis do boss
+    let projectiles = [];      // Livros do jogador
+    let enemyProjectiles = []; // Equações do boss
 
     function loadLevel() {
       score = 0;
@@ -95,9 +97,17 @@
         {x: 1450, y: 240, width: 120, height: 20},
       ];
 
-      coins = [ /* moedas */ ];
+      coins = [
+        {x: 320, y: 220, collected: false},
+        {x: 620, y: 150, collected: false},
+        {x: 920, y: 200, collected: false},
+        {x: 1220, y: 120, collected: false},
+      ];
 
-      goombas = [ /* goombas */ ];
+      goombas = [
+        {x: 450, y: 310, width: 40, height: 38, speed: -2, alive: true},
+        {x: 780, y: 310, width: 40, height: 38, speed: 2, alive: true},
+      ];
 
       boss = {
         x: 1550, y: 160, width: 80, height: 90,
@@ -115,7 +125,12 @@
     function drawBackground() {
       ctx.fillStyle = '#5C94FC';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      // nuvens...
+
+      // Nuvens
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(80 - cameraX*0.3, 60, 70, 25);
+      ctx.fillRect(500 - cameraX*0.3, 40, 90, 25);
+      ctx.fillRect(1100 - cameraX*0.3, 70, 80, 25);
     }
 
     function drawEstudante() {
@@ -127,11 +142,13 @@
         ctx.translate(estudante.x - cameraX, estudante.y);
       }
 
-      // Corpo do estudante (mesmo anterior)
+      // Cabelo, rosto, óculos
       ctx.fillStyle = '#2C2C2C'; ctx.fillRect(14, 10, 24, 12);
       ctx.fillStyle = '#FFDBB4'; ctx.fillRect(16, 16, 20, 16);
       ctx.fillStyle = '#000'; ctx.fillRect(19,20,7,6); ctx.fillRect(28,20,7,6);
       ctx.fillStyle = '#FFF'; ctx.fillRect(21,21,3,3); ctx.fillRect(30,21,3,3);
+
+      // Camisa e gravata
       ctx.fillStyle = '#F0F0F0'; ctx.fillRect(14,32,26,18);
       ctx.fillStyle = '#C8102E'; ctx.fillRect(22,34,8,12);
 
@@ -142,9 +159,9 @@
       ctx.fillStyle = '#1E3A8A'; ctx.fillRect(16,48,24,10);
       ctx.fillStyle = '#111'; ctx.fillRect(16,56,9,6); ctx.fillRect(27,56,9,6);
 
-      // === ARMA (Livro) ===
+      // Livro na mão (arma)
       ctx.fillStyle = '#8B4513';
-      ctx.fillRect(38, 38, 12, 10);   // livro na mão
+      ctx.fillRect(38, 38, 12, 10);
 
       ctx.restore();
     }
@@ -154,8 +171,8 @@
       ctx.fillStyle = '#8B0000';
       ctx.fillRect(boss.x - cameraX, boss.y, boss.width, boss.height);
       ctx.fillStyle = '#FFD700';
-      ctx.font = 'bold 28px Arial';
-      ctx.fillText('📐', boss.x - cameraX + 22, boss.y + 55);
+      ctx.font = 'bold 32px Arial';
+      ctx.fillText('📐', boss.x - cameraX + 22, boss.y + 58);
       ctx.fillStyle = '#FFF';
       ctx.font = 'bold 14px Arial';
       ctx.fillText('MATEMÁTICA', boss.x - cameraX + 5, boss.y - 8);
@@ -178,8 +195,8 @@
       if (gameState !== 'PLAYING') return;
 
       // Movimento
-      if (keys['ArrowRight'] || keys['d']) estudante.x += estudante.speed, estudante.facingRight = true;
-      if (keys['ArrowLeft'] || keys['a']) estudante.x -= estudante.speed, estudante.facingRight = false;
+      if (keys['ArrowRight'] || keys['d']) { estudante.x += estudante.speed; estudante.facingRight = true; }
+      if (keys['ArrowLeft'] || keys['a']) { estudante.x -= estudante.speed; estudante.facingRight = false; }
 
       if ((keys[' '] || keys['ArrowUp'] || keys['w']) && estudante.grounded) {
         estudante.velocityY = estudante.jump;
@@ -189,7 +206,7 @@
       estudante.velocityY += gravity;
       estudante.y += estudante.velocityY;
 
-      // Colisão plataformas (simplificado)
+      // Colisão com plataformas
       estudante.grounded = false;
       for (let p of platforms) {
         if (estudante.x < p.x + p.width && estudante.x + estudante.width > p.x &&
@@ -204,16 +221,15 @@
 
       // Atirar com J
       if (keys['j'] || keys['J']) {
-        if (!estudante.lastShot || Date.now() - estudante.lastShot > 300) {
+        if (!estudante.lastShot || Date.now() - estudante.lastShot > 250) {
           projectiles.push({
-            x: estudante.facingRight ? estudante.x + 45 : estudante.x - 10,
-            y: estudante.y + 25,
+            x: estudante.facingRight ? estudante.x + 45 : estudante.x - 5,
+            y: estudante.y + 28,
             width: 14,
             height: 12,
-            speed: estudante.facingRight ? 9 : -9
+            speed: estudante.facingRight ? 10 : -10
           });
           estudante.lastShot = Date.now();
-          delete keys['j']; delete keys['J']; // evita tiro contínuo
         }
       }
 
@@ -222,42 +238,41 @@
         let p = projectiles[i];
         p.x += p.speed;
 
-        // Colisão com Boss
-        if (boss && boss.health > 0 &&
+        if (boss && boss.health > 0 && 
             p.x < boss.x + boss.width && p.x + p.width > boss.x &&
             p.y < boss.y + boss.height && p.y + p.height > boss.y) {
           boss.health--;
           projectiles.splice(i, 1);
           if (boss.health <= 0) {
-            alert("🏆 VITÓRIA! Você derrotou MATEMÁTICA com seus livros!");
+            alert("🏆 VITÓRIA! Você derrotou o Boss MATEMÁTICA!");
             menu.style.display = 'block';
             gameState = 'MENU';
           }
         }
       }
 
-      // Lógica do Boss (atira equações)
+      // Boss atira
       if (boss && boss.health > 0) {
         boss.shootTimer++;
-        if (boss.shootTimer > 70) {
+        if (boss.shootTimer > 60) {
           enemyProjectiles.push({
             x: boss.x + 30,
             y: boss.y + 40,
-            width: 18,
-            height: 18,
-            speed: -4
+            width: 16,
+            height: 16,
+            speed: -5
           });
           boss.shootTimer = 0;
         }
       }
 
-      // Atualiza projéteis inimigos
+      // Projéteis inimigos
       for (let i = enemyProjectiles.length - 1; i >= 0; i--) {
         let p = enemyProjectiles[i];
         p.x += p.speed;
-        if (estudante.x < p.x && estudante.x + estudante.width > p.x &&
-            estudante.y < p.y && estudante.y + estudante.height > p.y) {
-          alert("Você foi atingido por uma equação difícil!");
+        if (estudante.x < p.x + p.width && estudante.x + estudante.width > p.x &&
+            estudante.y < p.y + p.height && estudante.y + estudante.height > p.y) {
+          alert("Você foi atingido por uma equação!");
           menu.style.display = 'block';
           gameState = 'MENU';
         }
@@ -269,22 +284,24 @@
 
     function draw() {
       drawBackground();
-      // plataformas, moedas, goombas...
+
+      // Plataformas
+      ctx.fillStyle = '#0B6623';
+      platforms.forEach(p => {
+        ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
+      });
+
       drawBoss();
       drawHealthBar();
       drawEstudante();
 
-      // Projéteis do jogador (livros)
+      // Projéteis do jogador
       ctx.fillStyle = '#8B4513';
-      projectiles.forEach(p => {
-        ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
-      });
+      projectiles.forEach(p => ctx.fillRect(p.x - cameraX, p.y, p.width, p.height));
 
-      // Projéteis do boss (equações)
+      // Projéteis do boss
       ctx.fillStyle = '#FFFF00';
-      enemyProjectiles.forEach(p => {
-        ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
-      });
+      enemyProjectiles.forEach(p => ctx.fillRect(p.x - cameraX, p.y, p.width, p.height));
     }
 
     function gameLoop() {
