@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mario Mini - Com Inimigo</title>
+  <title>Mario Pixel Art</title>
   <style>
     body {
       margin: 0;
@@ -18,10 +18,10 @@
     }
 
     #game {
-      border: 6px solid #000;
-      border-radius: 10px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-      image-rendering: pixelated;
+      border: 8px solid #000;
+      border-radius: 8px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+      image-rendering: pixelated; /* Isso deixa tudo bem pixelado */
     }
 
     #score {
@@ -51,12 +51,12 @@
     let gameOver = false;
 
     const mario = {
-      x: 100,
+      x: 80,
       y: 250,
-      width: 45,
-      height: 55,
+      width: 48,
+      height: 48,
       speed: 6,
-      jump: -17,
+      jump: -18,
       velocityY: 0,
       grounded: false,
       facingRight: true
@@ -67,27 +67,26 @@
 
     const platforms = [
       {x: 0, y: 350, width: 800, height: 50},
-      {x: 200, y: 280, width: 150, height: 20},
-      {x: 450, y: 220, width: 130, height: 20},
-      {x: 650, y: 160, width: 180, height: 20},
-      {x: 100, y: 150, width: 100, height: 20},
+      {x: 180, y: 280, width: 160, height: 20},
+      {x: 420, y: 220, width: 140, height: 20},
+      {x: 650, y: 170, width: 180, height: 20},
+      {x: 80, y: 160, width: 110, height: 20},
     ];
 
     let coins = [
-      {x: 260, y: 230, collected: false},
-      {x: 500, y: 170, collected: false},
-      {x: 720, y: 110, collected: false},
-      {x: 150, y: 100, collected: false},
+      {x: 240, y: 230, collected: false},
+      {x: 480, y: 170, collected: false},
+      {x: 710, y: 120, collected: false},
+      {x: 130, y: 110, collected: false},
       {x: 380, y: 250, collected: false},
     ];
 
-    // Goomba (Inimigo)
     let goombas = [
-      {x: 380, y: 300, width: 40, height: 35, speed: -2, alive: true},
-      {x: 620, y: 300, width: 40, height: 35, speed: 2, alive: true},
+      {x: 380, y: 310, width: 40, height: 38, speed: -2, alive: true},
+      {x: 620, y: 310, width: 40, height: 38, speed: 2, alive: true},
     ];
 
-    function drawMario() {
+    function drawPixelMario() {
       ctx.save();
       if (!mario.facingRight) {
         ctx.translate(mario.x + mario.width, mario.y);
@@ -96,25 +95,38 @@
         ctx.translate(mario.x, mario.y);
       }
 
-      // Corpo
+      // Pixel Art Mario (mais detalhado)
+      ctx.fillStyle = '#000000'; // contorno
+
+      // Chapéu vermelho
       ctx.fillStyle = '#E4000F';
-      ctx.fillRect(8, 20, 30, 35);
-      // Macacão
-      ctx.fillStyle = '#0040A0';
-      ctx.fillRect(10, 40, 26, 15);
-      // Chapéu
-      ctx.fillStyle = '#E4000F';
-      ctx.fillRect(5, 10, 35, 15);
-      ctx.fillRect(12, 5, 22, 10);
+      ctx.fillRect(12, 8, 28, 10);
+      ctx.fillRect(8, 14, 36, 8);
+
       // Rosto
       ctx.fillStyle = '#FFDBB4';
-      ctx.fillRect(15, 22, 18, 18);
-      // Olho
-      ctx.fillStyle = '#000';
-      ctx.fillRect(25, 27, 6, 6);
+      ctx.fillRect(16, 18, 20, 14);
+
+      // Olhos
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(22, 22, 4, 6);
+      ctx.fillRect(30, 22, 4, 6);
+
       // Bigode
-      ctx.fillStyle = '#000';
-      ctx.fillRect(16, 38, 15, 3);
+      ctx.fillRect(17, 30, 18, 4);
+
+      // Corpo (macacão vermelho)
+      ctx.fillStyle = '#E4000F';
+      ctx.fillRect(12, 34, 28, 18);
+
+      // Macacão azul
+      ctx.fillStyle = '#0040A0';
+      ctx.fillRect(14, 44, 24, 10);
+
+      // Botões
+      ctx.fillStyle = '#FFD700';
+      ctx.fillRect(18, 46, 4, 4);
+      ctx.fillRect(30, 46, 4, 4);
 
       ctx.restore();
     }
@@ -123,43 +135,47 @@
       ctx.fillStyle = '#0B6623';
       platforms.forEach(p => {
         ctx.fillRect(p.x, p.y, p.width, p.height);
-        ctx.fillStyle = '#0A5A1F';
-        ctx.fillRect(p.x, p.y, p.width, 8);
+        // Detalhe de grama
+        ctx.fillStyle = '#0F8B2E';
+        ctx.fillRect(p.x, p.y, p.width, 6);
         ctx.fillStyle = '#0B6623';
       });
     }
 
-    function drawCoins() {
+    function drawPixelCoin(x, y) {
       ctx.fillStyle = '#FFD700';
+      ctx.fillRect(x+4, y+2, 16, 20);
+      ctx.fillStyle = '#B8860B';
+      ctx.fillRect(x+6, y+6, 12, 4);
+      ctx.fillRect(x+8, y+12, 8, 4);
+    }
+
+    function drawCoins() {
       coins.forEach(coin => {
         if (!coin.collected) {
-          ctx.beginPath();
-          ctx.arc(coin.x + 10, coin.y + 10, 12, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#B8860B';
-          ctx.font = 'bold 14px Arial';
-          ctx.fillText('$', coin.x + 6, coin.y + 15);
-          ctx.fillStyle = '#FFD700';
+          drawPixelCoin(coin.x, coin.y);
         }
       });
     }
 
-    function drawGoombas() {
-      goombas.forEach(g => {
-        if (g.alive) {
-          ctx.fillStyle = '#8B4513';
-          ctx.fillRect(g.x, g.y, g.width, g.height);
-          ctx.fillStyle = '#000';
-          ctx.fillRect(g.x + 8, g.y + 8, 8, 8);   // olho
-          ctx.fillRect(g.x + 24, g.y + 8, 8, 8);
-        }
-      });
+    function drawPixelGoomba(g) {
+      if (!g.alive) return;
+      ctx.fillStyle = '#8B4513';
+      ctx.fillRect(g.x, g.y, g.width, g.height);
+      
+      // Olhos
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(g.x + 8, g.y + 10, 8, 10);
+      ctx.fillRect(g.x + 24, g.y + 10, 8, 10);
+      
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(g.x + 10, g.y + 12, 4, 6);
+      ctx.fillRect(g.x + 26, g.y + 12, 4, 6);
     }
 
     function update() {
       if (gameOver) return;
 
-      // Movimento Mario
       if (keys['ArrowRight'] || keys['d']) {
         mario.x += mario.speed;
         mario.facingRight = true;
@@ -169,7 +185,6 @@
         mario.facingRight = false;
       }
 
-      // Pulo
       if ((keys[' '] || keys['ArrowUp'] || keys['w']) && mario.grounded) {
         mario.velocityY = mario.jump;
         mario.grounded = false;
@@ -178,7 +193,6 @@
       mario.velocityY += gravity;
       mario.y += mario.velocityY;
 
-      // Colisão com plataformas
       mario.grounded = false;
       for (let p of platforms) {
         if (
@@ -197,9 +211,9 @@
 
       // Moedas
       coins.forEach(coin => {
-        if (!coin.collected &&
-            mario.x < coin.x + 20 && mario.x + mario.width > coin.x &&
-            mario.y < coin.y + 20 && mario.y + mario.height > coin.y) {
+        if (!coin.collected && 
+            mario.x < coin.x + 24 && mario.x + mario.width > coin.x &&
+            mario.y < coin.y + 24 && mario.y + mario.height > coin.y) {
           coin.collected = true;
           score += 100;
           scoreElement.textContent = String(score).padStart(5, '0');
@@ -209,35 +223,27 @@
       // Goombas
       goombas.forEach(g => {
         if (!g.alive) return;
-        
         g.x += g.speed;
 
-        // Colisão Mario com Goomba
-        if (
-          mario.x < g.x + g.width && mario.x + mario.width > g.x &&
-          mario.y < g.y + g.height && mario.y + mario.height > g.y
-        ) {
+        if (mario.x < g.x + g.width && mario.x + mario.width > g.x &&
+            mario.y < g.y + g.height && mario.y + mario.height > g.y) {
+          
           if (mario.velocityY > 0 && mario.y + mario.height - 20 < g.y) {
-            // Pulou em cima
             g.alive = false;
-            mario.velocityY = -12; // pequeno rebote
+            mario.velocityY = -13;
             score += 200;
             scoreElement.textContent = String(score).padStart(5, '0');
           } else {
-            // Tocou de lado ou por baixo
             gameOver = true;
             alert('💀 Game Over!\nPontos: ' + score);
           }
         }
 
-        // Inverte direção do Goomba nas bordas
         if (g.x <= 0 || g.x + g.width >= canvas.width) g.speed *= -1;
       });
 
-      // Limites
       if (mario.x < 0) mario.x = 0;
       if (mario.x + mario.width > canvas.width) mario.x = canvas.width - mario.width;
-
       if (mario.y > canvas.height) {
         gameOver = true;
         alert('💀 Game Over!\nPontos: ' + score);
@@ -248,8 +254,8 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawPlatforms();
       drawCoins();
-      drawGoombas();
-      drawMario();
+      goombas.forEach(drawPixelGoomba);
+      drawPixelMario();
     }
 
     function gameLoop() {
@@ -265,7 +271,7 @@
   </script>
 
   <p style="position:absolute;bottom:15px;color:white;text-align:center;width:100%;font-size:14px;">
-    ← → ou A D : mover | ESPAÇO : pular | Pule em cima dos Goombas!
+    ← → ou A D : mover | ESPAÇO : pular | Pule nos Goombas!
   </p>
 </body>
 </html>
