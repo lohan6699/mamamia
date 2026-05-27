@@ -138,44 +138,62 @@
     }
 
     function drawBackground() {
-      // Gradiente de céu
+      // Céu gradiente
       const grad = ctx.createLinearGradient(0, 0, 0, 400);
-      grad.addColorStop(0, '#5C94FC');
-      grad.addColorStop(1, '#A0C4FF');
+      grad.addColorStop(0, '#4A7CFF');
+      grad.addColorStop(1, '#A8D0FF');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Nuvens com parallax (várias camadas)
-      ctx.fillStyle = '#FFFFFF';
-      ctx.globalAlpha = 0.95;
-      ctx.fillRect(60 - cameraX*0.15, 55, 95, 28);
-      ctx.fillRect(380 - cameraX*0.15, 40, 120, 32);
-      ctx.fillRect(920 - cameraX*0.15, 70, 85, 26);
-      ctx.fillRect(1350 - cameraX*0.15, 50, 100, 29);
+      // Montanhas ao fundo
+      ctx.fillStyle = '#4A6B8A';
+      ctx.fillRect(100 - cameraX*0.08, 220, 180, 180);
+      ctx.fillRect(650 - cameraX*0.08, 200, 220, 200);
+      ctx.fillRect(1200 - cameraX*0.08, 240, 160, 160);
 
-      ctx.globalAlpha = 0.65;
-      ctx.fillRect(180 - cameraX*0.35, 85, 75, 22);
-      ctx.fillRect(680 - cameraX*0.35, 65, 95, 27);
-      ctx.fillRect(1180 - cameraX*0.35, 95, 70, 20);
+      // Nuvens (parallax)
+      ctx.fillStyle = '#FFFFFF';
+      ctx.globalAlpha = 0.9;
+      ctx.fillRect(50 - cameraX*0.15, 55, 110, 28);
+      ctx.fillRect(420 - cameraX*0.15, 40, 130, 32);
+      ctx.fillRect(950 - cameraX*0.15, 70, 90, 26);
+
+      ctx.globalAlpha = 0.7;
+      ctx.fillRect(200 - cameraX*0.35, 80, 80, 25);
+      ctx.fillRect(780 - cameraX*0.35, 60, 100, 28);
+      ctx.fillRect(1400 - cameraX*0.35, 90, 75, 22);
+
       ctx.globalAlpha = 1.0;
     }
 
     function drawPlatforms() {
       platforms.forEach(p => {
-        // Terra / base
+        // Terra marrom
+        ctx.fillStyle = '#8B5F2B';
+        ctx.fillRect(p.x - cameraX, p.y + 10, p.width, p.height - 10);
+        
+        // Grama principal
         ctx.fillStyle = '#0B6623';
-        ctx.fillRect(p.x - cameraX, p.y, p.width, p.height);
+        ctx.fillRect(p.x - cameraX, p.y, p.width, 14);
         
-        // Grama superior
+        // Grama clara
         ctx.fillStyle = '#0F8B2E';
-        ctx.fillRect(p.x - cameraX, p.y, p.width, 10);
-        
+        ctx.fillRect(p.x - cameraX, p.y, p.width, 8);
+
         // Detalhes de grama
         ctx.fillStyle = '#1EB43C';
-        for (let i = 15; i < p.width; i += 35) {
-          ctx.fillRect(p.x - cameraX + i, p.y - 6, 8, 8);
+        for (let i = 18; i < p.width - 15; i += 32) {
+          ctx.fillRect(p.x - cameraX + i, p.y - 6, 7, 9);
         }
       });
+    }
+
+    function drawBushes() {
+      // Arbustos
+      ctx.fillStyle = '#0F8B2E';
+      ctx.fillRect(180 - cameraX, 315, 45, 35);
+      ctx.fillRect(720 - cameraX, 318, 38, 32);
+      ctx.fillRect(1320 - cameraX, 312, 42, 38);
     }
 
     function drawEstudante() {
