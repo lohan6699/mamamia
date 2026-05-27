@@ -1,3 +1,6 @@
+**✅ Aqui está o CÓDIGO COMPLETO e mais atualizado!**
+
+```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -151,10 +154,15 @@
 
     function drawBackground() {
       const grad = ctx.createLinearGradient(0, 0, 0, 400);
-      grad.addColorStop(0, '#4A7CFF');
-      grad.addColorStop(1, '#A8D0FF');
+      grad.addColorStop(0, '#1E4A8C');
+      grad.addColorStop(1, '#87CEEB');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#455A7A';
+      ctx.fillRect(80 - cameraX*0.08, 210, 220, 190);
+      ctx.fillRect(680 - cameraX*0.08, 190, 260, 210);
+      ctx.fillRect(1250 - cameraX*0.08, 230, 190, 170);
 
       ctx.fillStyle = '#FFFFFF';
       ctx.globalAlpha = 0.9;
@@ -172,10 +180,14 @@
         ctx.fillRect(p.x - cameraX, p.y, p.width, 14);
         ctx.fillStyle = '#0F8B2E';
         ctx.fillRect(p.x - cameraX, p.y, p.width, 8);
+
+        ctx.fillStyle = '#1EB43C';
+        for (let i = 20; i < p.width - 20; i += 32) {
+          ctx.fillRect(p.x - cameraX + i, p.y - 6, 7, 9);
+        }
       });
     }
 
-    // ==================== ANIMAÇÃO DE CAMINHADA ====================
     function drawEstudante() {
       ctx.save();
       if (!estudante.facingRight) {
@@ -227,7 +239,7 @@
       ctx.fillStyle = '#1E3A8A';
       ctx.fillRect(16, 50, 24, 12);
 
-      // Pernas com Animação
+      // Pernas com animação
       ctx.fillStyle = '#1E3A8A';
       if (isJumping) {
         ctx.fillRect(18, 58, 7, 10);
@@ -256,10 +268,77 @@
       ctx.restore();
     }
 
-    function drawGoombas() { /* mesmo anterior */ }
-    function drawBoss() { /* mesmo anterior */ }
-    function drawHealthBar() { /* mesmo anterior */ }
-    function drawCoins() { /* mesmo anterior */ }
+    function drawGoombas() {
+      goombas.forEach(g => {
+        if (!g.alive) return;
+        ctx.save();
+        ctx.translate(g.x - cameraX, g.y);
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(6, 5, 28, 10);
+        ctx.fillRect(4, 12, 32, 6);
+        ctx.fillStyle = '#FFDBB4';
+        ctx.fillRect(10, 16, 20, 16);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(14, 20, 5, 7);
+        ctx.fillRect(21, 20, 5, 7);
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(28, 18, 12, 16);
+        ctx.restore();
+      });
+    }
+
+    function drawBoss() {
+      if (!boss || boss.health <= 0) return;
+      ctx.save();
+      ctx.translate(boss.x - cameraX, boss.y);
+
+      ctx.fillStyle = '#F0F0F0';
+      ctx.fillRect(12, 35, 62, 58);
+      ctx.fillStyle = '#2C3E50';
+      ctx.fillRect(18, 82, 52, 22);
+      ctx.fillStyle = '#FFDBB4';
+      ctx.fillRect(25, 18, 38, 32);
+      ctx.fillStyle = '#444';
+      ctx.fillRect(20, 15, 48, 12);
+      ctx.fillStyle = '#111';
+      ctx.fillRect(28, 25, 13, 9);
+      ctx.fillRect(43, 25, 13, 9);
+      ctx.fillStyle = '#555';
+      ctx.fillRect(27, 40, 30, 12);
+      ctx.fillStyle = '#F1C40F';
+      ctx.fillRect(70, 45, 8, 42);
+
+      ctx.restore();
+
+      ctx.fillStyle = '#FFF';
+      ctx.font = 'bold 15px Arial';
+      ctx.fillText('PROF. MATEMÁTICA', boss.x - cameraX - 18, boss.y - 12);
+    }
+
+    function drawHealthBar() {
+      if (!boss || boss.health <= 0) return;
+      const barWidth = 220;
+      const percent = boss.health / boss.maxHealth;
+      ctx.fillStyle = '#000';
+      ctx.fillRect(290, 25, barWidth, 22);
+      ctx.fillStyle = percent > 0.4 ? '#00FF00' : '#FF0000';
+      ctx.fillRect(290, 25, barWidth * percent, 22);
+      ctx.fillStyle = '#FFF';
+      ctx.font = '18px Arial';
+      ctx.fillText('PROFESSOR MATEMÁTICA', 300, 20);
+    }
+
+    function drawCoins() {
+      ctx.fillStyle = '#FFD700';
+      coins.forEach(coin => {
+        if (!coin.collected) {
+          ctx.fillRect(coin.x - cameraX + 4, coin.y + 4, 16, 16);
+          ctx.fillStyle = '#B8860B';
+          ctx.fillRect(coin.x - cameraX + 7, coin.y + 8, 10, 4);
+          ctx.fillStyle = '#FFD700';
+        }
+      });
+    }
 
     function update() {
       if (gameState !== 'PLAYING') return;
@@ -298,7 +377,6 @@
         }
       }
 
-      // Moedas, Goombas, Tiro, Boss... (mantido)
       coins.forEach(coin => {
         if (!coin.collected && 
             estudante.x < coin.x + 20 && estudante.x + estudante.width > coin.x &&
@@ -342,7 +420,6 @@
         }
       }
 
-      // Projéteis do jogador
       for (let i = projectiles.length - 1; i >= 0; i--) {
         let p = projectiles[i];
         p.x += p.speed;
