@@ -18,40 +18,45 @@
     }
     #game {
       border: 8px solid #222;
-      box-shadow: 0 0 40px rgba(0,0,0,0.9);
+      box-shadow: 0 0 50px rgba(0,255,0,0.3);
       image-rendering: pixelated;
     }
     #menu {
       position: absolute;
+      width: 820px;
+      background: linear-gradient(#1a1a1a, #0f0f0f);
       color: white;
       text-align: center;
-      width: 820px;
-      background: rgba(0,0,0,0.9);
-      padding: 40px 20px;
-      border: 8px solid #00FF00;
-      border-radius: 20px;
+      padding: 50px 30px;
+      border: 10px solid #00FF00;
+      border-radius: 25px;
+      box-shadow: 0 0 40px rgba(0,255,0,0.6);
       z-index: 100;
     }
     h1 { 
-      font-size: 56px; 
+      font-size: 62px; 
       color: #00FF00; 
       text-shadow: 6px 6px 0 #000; 
-      margin-bottom: 15px;
+      margin: 0 0 20px 0;
+    }
+    p {
+      font-size: 20px;
+      margin: 15px 0;
     }
     button {
       font-size: 28px;
-      padding: 18px 70px;
-      margin: 15px;
+      padding: 20px 80px;
+      margin: 20px;
       background: #0066FF;
       color: white;
       border: none;
-      border-radius: 12px;
+      border-radius: 15px;
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.3s;
     }
     button:hover {
       background: #3388FF;
-      transform: scale(1.08);
+      transform: scale(1.1);
     }
     #scoreDisplay {
       position: absolute;
@@ -72,11 +77,10 @@
 
   <div id="menu">
     <h1>ESTUDANTE AVENTUREIRO</h1>
-    <p style="font-size:24px; margin:20px 0;">Derrote o Professor Matemática!</p>
-    <p style="font-size:18px; line-height:1.6;">
-      ← → ou A D : Mover<br>
-      ESPAÇO : Pular<br>
-      J : Atirar Livro
+    <p>Derrote o Professor Matemática!</p>
+    <p style="font-size:19px; line-height:1.7;">
+      Teclado: ← → | ESPAÇO | J<br>
+      Controle: Analógico | A (Pular) | B (Atirar)
     </p>
     <button onclick="startGame()">INICIAR JOGO</button>
   </div>
@@ -108,40 +112,6 @@
     let projectiles = [];
     let enemyProjectiles = [];
 
-    // Sons
-    function playSound(type) {
-      try {
-        const audio = new AudioContext();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-        osc.connect(gain);
-        gain.connect(audio.destination);
-
-        if (type === 'jump') {
-          osc.frequency.value = 600;
-          gain.gain.value = 0.3;
-          osc.start();
-          setTimeout(() => osc.stop(), 80);
-        } else if (type === 'coin') {
-          osc.frequency.value = 900;
-          gain.gain.value = 0.4;
-          osc.start();
-          setTimeout(() => osc.stop(), 120);
-        } else if (type === 'shoot') {
-          osc.frequency.value = 400;
-          gain.gain.value = 0.25;
-          osc.start();
-          setTimeout(() => osc.stop(), 50);
-        } else if (type === 'victory') {
-          osc.frequency.value = 600;
-          osc.start();
-          setTimeout(() => osc.frequency.value = 900, 150);
-          setTimeout(() => osc.frequency.value = 1200, 300);
-          setTimeout(() => osc.stop(), 600);
-        }
-      } catch(e) {}
-    }
-
     function loadLevel() {
       score = 0;
       pointsElement.textContent = "00000";
@@ -152,23 +122,23 @@
 
       platforms = [
         {x: 0, y: 350, width: WORLD_WIDTH, height: 50},
-        {x: 220, y: 280, width: 160, height: 20},
-        {x: 520, y: 210, width: 140, height: 20},
-        {x: 820, y: 260, width: 200, height: 20},
+        {x: 250, y: 280, width: 180, height: 20},
+        {x: 550, y: 210, width: 140, height: 20},
+        {x: 850, y: 260, width: 200, height: 20},
         {x: 1150, y: 180, width: 150, height: 20},
-        {x: 1420, y: 240, width: 130, height: 20},
+        {x: 1450, y: 240, width: 120, height: 20},
       ];
 
       coins = [
-        {x: 280, y: 220, collected: false},
-        {x: 580, y: 150, collected: false},
-        {x: 880, y: 200, collected: false},
+        {x: 320, y: 220, collected: false},
+        {x: 620, y: 150, collected: false},
+        {x: 920, y: 200, collected: false},
         {x: 1220, y: 120, collected: false},
       ];
 
       goombas = [
-        {x: 420, y: 310, width: 40, height: 38, speed: -2, alive: true},
-        {x: 750, y: 310, width: 40, height: 38, speed: 2, alive: true},
+        {x: 450, y: 310, width: 40, height: 38, speed: -2, alive: true},
+        {x: 780, y: 310, width: 40, height: 38, speed: 2, alive: true},
       ];
 
       boss = {
@@ -184,6 +154,38 @@
       gameState = 'PLAYING';
     }
 
+    // Suporte a todos os controles
+    function handleGamepad() {
+      const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
+      for (let gp of gamepads) {
+        if (!gp) continue;
+
+        const axisX = gp.axes[0];
+        if (axisX < -0.3) { estudante.x -= estudante.speed; estudante.facingRight = false; }
+        if (axisX > 0.3) { estudante.x += estudante.speed; estudante.facingRight = true; }
+
+        // Pular (Botão A/X - geralmente índice 0)
+        if (gp.buttons[0].pressed && estudante.grounded) {
+          estudante.velocityY = estudante.jump;
+          estudante.grounded = false;
+        }
+
+        // Atirar (Botão B/Y - geralmente índice 1)
+        if (gp.buttons[1].pressed) {
+          if (!estudante.lastShot || Date.now() - estudante.lastShot > 250) {
+            projectiles.push({
+              x: estudante.facingRight ? estudante.x + 45 : estudante.x - 5,
+              y: estudante.y + 28,
+              width: 14,
+              height: 12,
+              speed: estudante.facingRight ? 10 : -10
+            });
+            estudante.lastShot = Date.now();
+          }
+        }
+      }
+    }
+
     function drawBackground() {
       const grad = ctx.createLinearGradient(0, 0, 0, 400);
       grad.addColorStop(0, '#4A7CFF');
@@ -191,12 +193,6 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Montanhas
-      ctx.fillStyle = '#455A7A';
-      ctx.fillRect(80 - cameraX*0.08, 210, 220, 190);
-      ctx.fillRect(680 - cameraX*0.08, 190, 260, 210);
-
-      // Nuvens
       ctx.fillStyle = '#FFFFFF';
       ctx.globalAlpha = 0.9;
       ctx.fillRect(60 - cameraX*0.15, 55, 110, 28);
@@ -264,7 +260,6 @@
       if (!boss || boss.health <= 0) return;
       ctx.save();
       ctx.translate(boss.x - cameraX, boss.y);
-
       ctx.fillStyle = '#F0F0F0';
       ctx.fillRect(12, 35, 62, 58);
       ctx.fillStyle = '#2C3E50';
@@ -280,7 +275,6 @@
       ctx.fillRect(27, 40, 30, 12);
       ctx.fillStyle = '#F1C40F';
       ctx.fillRect(70, 45, 8, 42);
-
       ctx.restore();
 
       ctx.fillStyle = '#FFF';
@@ -316,13 +310,14 @@
     function update() {
       if (gameState !== 'PLAYING') return;
 
+      handleGamepad(); // Controle de videogame
+
       if (keys['ArrowRight'] || keys['d']) { estudante.x += estudante.speed; estudante.facingRight = true; }
       if (keys['ArrowLeft'] || keys['a']) { estudante.x -= estudante.speed; estudante.facingRight = false; }
 
       if ((keys[' '] || keys['ArrowUp'] || keys['w']) && estudante.grounded) {
         estudante.velocityY = estudante.jump;
         estudante.grounded = false;
-        playSound('jump');
       }
 
       estudante.velocityY += gravity;
@@ -340,14 +335,13 @@
         }
       }
 
+      // Moedas, Goombas, Tiro, Boss... (lógica completa)
       coins.forEach(coin => {
-        if (!coin.collected && 
-            estudante.x < coin.x + 20 && estudante.x + estudante.width > coin.x &&
+        if (!coin.collected && estudante.x < coin.x + 20 && estudante.x + estudante.width > coin.x &&
             estudante.y < coin.y + 20 && estudante.y + estudante.height > coin.y) {
           coin.collected = true;
           score += 100;
           pointsElement.textContent = String(score).padStart(5, '0');
-          playSound('coin');
         }
       });
 
@@ -381,21 +375,18 @@
             speed: estudante.facingRight ? 10 : -10
           });
           estudante.lastShot = Date.now();
-          playSound('shoot');
         }
       }
 
       for (let i = projectiles.length - 1; i >= 0; i--) {
         let p = projectiles[i];
         p.x += p.speed;
-        if (boss && boss.health > 0 && 
-            p.x < boss.x + boss.width && p.x + p.width > boss.x &&
+        if (boss && boss.health > 0 && p.x < boss.x + boss.width && p.x + p.width > boss.x &&
             p.y < boss.y + boss.height && p.y + p.height > boss.y) {
           boss.health--;
           projectiles.splice(i, 1);
           if (boss.health <= 0) {
-            playSound('victory');
-            alert("🏆 PARABÉNS! Você derrotou o Professor Matemática!\nPontos: " + score);
+            alert("🏆 VITÓRIA! Você derrotou o Professor Matemática!\nPontos: " + score);
             menu.style.display = 'block';
             gameState = 'MENU';
           }
@@ -450,6 +441,37 @@
       update();
       if (gameState === 'PLAYING') draw();
       requestAnimationFrame(gameLoop);
+    }
+
+    // Suporte completo a controles
+    function handleGamepad() {
+      const gamepads = navigator.getGamepads();
+      for (let i = 0; i < gamepads.length; i++) {
+        const gp = gamepads[i];
+        if (!gp) continue;
+
+        const axisX = gp.axes[0];
+        if (axisX < -0.3) { estudante.x -= estudante.speed; estudante.facingRight = false; }
+        if (axisX > 0.3) { estudante.x += estudante.speed; estudante.facingRight = true; }
+
+        if (gp.buttons[0].pressed && estudante.grounded) {
+          estudante.velocityY = estudante.jump;
+          estudante.grounded = false;
+        }
+
+        if (gp.buttons[1].pressed) {
+          if (!estudante.lastShot || Date.now() - estudante.lastShot > 250) {
+            projectiles.push({
+              x: estudante.facingRight ? estudante.x + 45 : estudante.x - 5,
+              y: estudante.y + 28,
+              width: 14,
+              height: 12,
+              speed: estudante.facingRight ? 10 : -10
+            });
+            estudante.lastShot = Date.now();
+          }
+        }
+      }
     }
 
     window.addEventListener('keydown', e => keys[e.key] = true);
