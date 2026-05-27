@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estudante Aventureiro</title>
+  <title>Adventurous Student</title>
   <style>
     body {
       margin: 0;
@@ -24,44 +24,36 @@
     }
     #menu {
       position: absolute;
-      width: 860px;
-      background: linear-gradient(135deg, #1a0033, #2a0055);
+      width: 820px;
+      background: rgba(0, 0, 0, 0.92);
       color: white;
       text-align: center;
-      padding: 50px 40px;
-      border: 10px solid #00ffcc;
-      border-radius: 25px;
-      box-shadow: 0 0 80px rgba(0, 255, 204, 0.7);
+      padding: 60px 40px;
+      border: 8px solid #00ffcc;
+      border-radius: 20px;
       z-index: 100;
     }
     h1 { 
-      font-size: 68px; 
-      background: linear-gradient(90deg, #00ffcc, #ffffff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 20px #00ffcc;
-      margin-bottom: 10px;
-    }
-    p {
-      font-size: 22px;
-      margin: 15px 0;
-      color: #aaffff;
+      font-size: 72px; 
+      color: #00ffcc; 
+      text-shadow: 0 0 30px #00ffcc;
+      margin: 0 0 30px 0;
+      letter-spacing: 4px;
     }
     button {
       font-size: 28px;
       padding: 20px 80px;
-      margin: 25px 10px;
-      background: linear-gradient(#00aaff, #0088cc);
+      margin-top: 30px;
+      background: linear-gradient(#0066ff, #0044aa);
       color: white;
       border: none;
       border-radius: 50px;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(0, 170, 255, 0.4);
-      transition: all 0.3s;
+      transition: 0.3s;
     }
     button:hover {
-      transform: scale(1.12) translateY(-5px);
-      box-shadow: 0 15px 30px rgba(0, 170, 255, 0.6);
+      transform: scale(1.1);
+      background: #00aaff;
     }
     #scoreDisplay {
       position: absolute;
@@ -69,7 +61,7 @@
       left: 50%;
       transform: translateX(-50%);
       color: #00ffcc;
-      font-size: 32px;
+      font-size: 30px;
       font-weight: bold;
       text-shadow: 0 0 15px #00ffcc;
       z-index: 50;
@@ -81,14 +73,8 @@
   <div id="scoreDisplay">Pontos: <span id="points">00000</span></div>
 
   <div id="menu">
-    <h1>ESTUDANTE AVENTUREIRO</h1>
-    <p>Derrote o Professor Matemática!</p>
-    <p style="font-size:19px; line-height:1.7;">
-      ← → ou A D : Mover<br>
-      ESPAÇO : Pular<br>
-      J : Atirar Livro
-    </p>
-    <button onclick="startGame()">INICIAR AVENTURA</button>
+    <h1>ADVENTUROUS STUDENT</h1>
+    <button onclick="startGame()">INICIAR JOGO</button>
   </div>
 
   <canvas id="game" width="800" height="400"></canvas>
