@@ -17,56 +17,61 @@
       overflow: hidden;
     }
     #game {
-      border: 8px solid #222;
-      box-shadow: 0 0 50px rgba(0,255,0,0.3);
+      border: 10px solid #00ffcc;
+      border-radius: 15px;
+      box-shadow: 0 0 60px rgba(0, 255, 200, 0.6);
       image-rendering: pixelated;
     }
     #menu {
       position: absolute;
-      width: 820px;
-      background: linear-gradient(#1a1a1a, #0f0f0f);
+      width: 860px;
+      background: linear-gradient(135deg, #1a0033, #2a0055);
       color: white;
       text-align: center;
-      padding: 50px 30px;
-      border: 10px solid #00FF00;
+      padding: 50px 40px;
+      border: 10px solid #00ffcc;
       border-radius: 25px;
-      box-shadow: 0 0 40px rgba(0,255,0,0.6);
+      box-shadow: 0 0 80px rgba(0, 255, 204, 0.7);
       z-index: 100;
     }
     h1 { 
-      font-size: 62px; 
-      color: #00FF00; 
-      text-shadow: 6px 6px 0 #000; 
-      margin: 0 0 20px 0;
+      font-size: 68px; 
+      background: linear-gradient(90deg, #00ffcc, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 20px #00ffcc;
+      margin-bottom: 10px;
     }
     p {
-      font-size: 20px;
+      font-size: 22px;
       margin: 15px 0;
+      color: #aaffff;
     }
     button {
       font-size: 28px;
       padding: 20px 80px;
-      margin: 20px;
-      background: #0066FF;
+      margin: 25px 10px;
+      background: linear-gradient(#00aaff, #0088cc);
       color: white;
       border: none;
-      border-radius: 15px;
+      border-radius: 50px;
       cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 170, 255, 0.4);
       transition: all 0.3s;
     }
     button:hover {
-      background: #3388FF;
-      transform: scale(1.1);
+      transform: scale(1.12) translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 170, 255, 0.6);
     }
     #scoreDisplay {
       position: absolute;
-      top: 20px;
+      top: 25px;
       left: 50%;
       transform: translateX(-50%);
-      color: white;
-      font-size: 28px;
+      color: #00ffcc;
+      font-size: 32px;
       font-weight: bold;
-      text-shadow: 2px 2px 4px black;
+      text-shadow: 0 0 15px #00ffcc;
       z-index: 50;
     }
   </style>
@@ -79,10 +84,11 @@
     <h1>ESTUDANTE AVENTUREIRO</h1>
     <p>Derrote o Professor Matemática!</p>
     <p style="font-size:19px; line-height:1.7;">
-      Teclado: ← → | ESPAÇO | J<br>
-      Controle: Analógico | A (Pular) | B (Atirar)
+      ← → ou A D : Mover<br>
+      ESPAÇO : Pular<br>
+      J : Atirar Livro
     </p>
-    <button onclick="startGame()">INICIAR JOGO</button>
+    <button onclick="startGame()">INICIAR AVENTURA</button>
   </div>
 
   <canvas id="game" width="800" height="400"></canvas>
@@ -152,38 +158,6 @@
       loadLevel();
       menu.style.display = 'none';
       gameState = 'PLAYING';
-    }
-
-    // Suporte a todos os controles
-    function handleGamepad() {
-      const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-      for (let gp of gamepads) {
-        if (!gp) continue;
-
-        const axisX = gp.axes[0];
-        if (axisX < -0.3) { estudante.x -= estudante.speed; estudante.facingRight = false; }
-        if (axisX > 0.3) { estudante.x += estudante.speed; estudante.facingRight = true; }
-
-        // Pular (Botão A/X - geralmente índice 0)
-        if (gp.buttons[0].pressed && estudante.grounded) {
-          estudante.velocityY = estudante.jump;
-          estudante.grounded = false;
-        }
-
-        // Atirar (Botão B/Y - geralmente índice 1)
-        if (gp.buttons[1].pressed) {
-          if (!estudante.lastShot || Date.now() - estudante.lastShot > 250) {
-            projectiles.push({
-              x: estudante.facingRight ? estudante.x + 45 : estudante.x - 5,
-              y: estudante.y + 28,
-              width: 14,
-              height: 12,
-              speed: estudante.facingRight ? 10 : -10
-            });
-            estudante.lastShot = Date.now();
-          }
-        }
-      }
     }
 
     function drawBackground() {
@@ -260,6 +234,7 @@
       if (!boss || boss.health <= 0) return;
       ctx.save();
       ctx.translate(boss.x - cameraX, boss.y);
+
       ctx.fillStyle = '#F0F0F0';
       ctx.fillRect(12, 35, 62, 58);
       ctx.fillStyle = '#2C3E50';
@@ -275,6 +250,7 @@
       ctx.fillRect(27, 40, 30, 12);
       ctx.fillStyle = '#F1C40F';
       ctx.fillRect(70, 45, 8, 42);
+
       ctx.restore();
 
       ctx.fillStyle = '#FFF';
@@ -310,8 +286,6 @@
     function update() {
       if (gameState !== 'PLAYING') return;
 
-      handleGamepad(); // Controle de videogame
-
       if (keys['ArrowRight'] || keys['d']) { estudante.x += estudante.speed; estudante.facingRight = true; }
       if (keys['ArrowLeft'] || keys['a']) { estudante.x -= estudante.speed; estudante.facingRight = false; }
 
@@ -335,9 +309,9 @@
         }
       }
 
-      // Moedas, Goombas, Tiro, Boss... (lógica completa)
       coins.forEach(coin => {
-        if (!coin.collected && estudante.x < coin.x + 20 && estudante.x + estudante.width > coin.x &&
+        if (!coin.collected && 
+            estudante.x < coin.x + 20 && estudante.x + estudante.width > coin.x &&
             estudante.y < coin.y + 20 && estudante.y + estudante.height > coin.y) {
           coin.collected = true;
           score += 100;
@@ -381,7 +355,8 @@
       for (let i = projectiles.length - 1; i >= 0; i--) {
         let p = projectiles[i];
         p.x += p.speed;
-        if (boss && boss.health > 0 && p.x < boss.x + boss.width && p.x + p.width > boss.x &&
+        if (boss && boss.health > 0 && 
+            p.x < boss.x + boss.width && p.x + p.width > boss.x &&
             p.y < boss.y + boss.height && p.y + p.height > boss.y) {
           boss.health--;
           projectiles.splice(i, 1);
@@ -441,37 +416,6 @@
       update();
       if (gameState === 'PLAYING') draw();
       requestAnimationFrame(gameLoop);
-    }
-
-    // Suporte completo a controles
-    function handleGamepad() {
-      const gamepads = navigator.getGamepads();
-      for (let i = 0; i < gamepads.length; i++) {
-        const gp = gamepads[i];
-        if (!gp) continue;
-
-        const axisX = gp.axes[0];
-        if (axisX < -0.3) { estudante.x -= estudante.speed; estudante.facingRight = false; }
-        if (axisX > 0.3) { estudante.x += estudante.speed; estudante.facingRight = true; }
-
-        if (gp.buttons[0].pressed && estudante.grounded) {
-          estudante.velocityY = estudante.jump;
-          estudante.grounded = false;
-        }
-
-        if (gp.buttons[1].pressed) {
-          if (!estudante.lastShot || Date.now() - estudante.lastShot > 250) {
-            projectiles.push({
-              x: estudante.facingRight ? estudante.x + 45 : estudante.x - 5,
-              y: estudante.y + 28,
-              width: 14,
-              height: 12,
-              speed: estudante.facingRight ? 10 : -10
-            });
-            estudante.lastShot = Date.now();
-          }
-        }
-      }
     }
 
     window.addEventListener('keydown', e => keys[e.key] = true);
