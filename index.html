@@ -147,12 +147,20 @@
     }
 
     function drawBackground() {
+      // Céu
       const grad = ctx.createLinearGradient(0, 0, 0, 400);
       grad.addColorStop(0, '#4A7CFF');
       grad.addColorStop(1, '#A8D0FF');
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      // Montanhas ao fundo
+      ctx.fillStyle = '#455A7A';
+      ctx.fillRect(80 - cameraX*0.08, 210, 220, 190);
+      ctx.fillRect(680 - cameraX*0.08, 190, 260, 210);
+      ctx.fillRect(1250 - cameraX*0.08, 230, 190, 170);
+
+      // Nuvens
       ctx.fillStyle = '#FFFFFF';
       ctx.globalAlpha = 0.9;
       ctx.fillRect(60 - cameraX*0.15, 55, 110, 28);
@@ -163,13 +171,31 @@
 
     function drawPlatforms() {
       platforms.forEach(p => {
+        // Terra marrom
         ctx.fillStyle = '#8B5F2B';
         ctx.fillRect(p.x - cameraX, p.y + 10, p.width, p.height - 10);
+        
+        // Grama principal
         ctx.fillStyle = '#0B6623';
         ctx.fillRect(p.x - cameraX, p.y, p.width, 14);
+        
+        // Grama clara
         ctx.fillStyle = '#0F8B2E';
         ctx.fillRect(p.x - cameraX, p.y, p.width, 8);
+
+        // Detalhes de grama
+        ctx.fillStyle = '#1EB43C';
+        for (let i = 20; i < p.width - 20; i += 32) {
+          ctx.fillRect(p.x - cameraX + i, p.y - 6, 7, 9);
+        }
       });
+    }
+
+    function drawBushes() {
+      ctx.fillStyle = '#0F8B2E';
+      ctx.fillRect(180 - cameraX, 315, 45, 35);
+      ctx.fillRect(720 - cameraX, 318, 38, 32);
+      ctx.fillRect(1320 - cameraX, 312, 42, 38);
     }
 
     function drawEstudante() {
@@ -202,16 +228,25 @@
         if (!g.alive) return;
         ctx.save();
         ctx.translate(g.x - cameraX, g.y);
+
+        // Boné
         ctx.fillStyle = '#FF0000';
         ctx.fillRect(6, 5, 28, 10);
         ctx.fillRect(4, 12, 32, 6);
+
+        // Rosto
         ctx.fillStyle = '#FFDBB4';
         ctx.fillRect(10, 16, 20, 16);
+
+        // Olhos
         ctx.fillStyle = '#000';
         ctx.fillRect(14, 20, 5, 7);
         ctx.fillRect(21, 20, 5, 7);
+
+        // Mochila
         ctx.fillStyle = '#8B4513';
         ctx.fillRect(28, 18, 12, 16);
+
         ctx.restore();
       });
     }
@@ -221,19 +256,32 @@
       ctx.save();
       ctx.translate(boss.x - cameraX, boss.y);
 
+      // Jaleco
       ctx.fillStyle = '#F0F0F0';
       ctx.fillRect(12, 35, 62, 58);
+
+      // Calça
       ctx.fillStyle = '#2C3E50';
       ctx.fillRect(18, 82, 52, 22);
+
+      // Cabeça
       ctx.fillStyle = '#FFDBB4';
       ctx.fillRect(25, 18, 38, 32);
+
+      // Cabelo
       ctx.fillStyle = '#444';
       ctx.fillRect(20, 15, 48, 12);
+
+      // Óculos
       ctx.fillStyle = '#111';
       ctx.fillRect(28, 25, 13, 9);
       ctx.fillRect(43, 25, 13, 9);
+
+      // Barba
       ctx.fillStyle = '#555';
       ctx.fillRect(27, 40, 30, 12);
+
+      // Régua
       ctx.fillStyle = '#F1C40F';
       ctx.fillRect(70, 45, 8, 42);
 
