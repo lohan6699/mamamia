@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BATALHA NO MAR 8D</title>
+  <title>BATALHA NO MAR 8D - IA AVANÇADA</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -18,7 +18,7 @@
     }
     .container { text-align: center; }
     h1 {
-      font-size: 3.6rem;
+      font-size: 3.5rem;
       margin-bottom: 10px;
       background: linear-gradient(90deg, #00ffff, #00ffcc, #00ffff);
       -webkit-background-clip: text;
@@ -53,7 +53,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>⚓ BATALHA NO MAR 8D ⚓</h1>
+    <h1>⚓ BATALHA NO MAR 8D - IA AVANÇADA ⚓</h1>
     <div class="game-info">
       <span>Pontos: <strong id="score">0</strong></span>
       <span>Vidas: <strong id="lives">3</strong></span>
@@ -104,8 +104,10 @@
         y: -80,
         width: isBig ? 90 : 70,
         height: isBig ? 70 : 55,
-        speed: 1.7 + level * 0.5,
-        type: isBig ? 'big' : 'normal'
+        speed: 1.6 + level * 0.5,
+        type: isBig ? 'big' : 'normal',
+        direction: Math.random() < 0.5 ? 1 : -1,   // IA: direção horizontal
+        shootTimer: Math.random() * 60
       });
     }
 
@@ -126,17 +128,8 @@
       }
     }
 
-    // ==================== NAVIO 8D MELHORADO ====================
     function drawPlayer() {
       const px = player.x, py = player.y;
-
-      // Sombra
-      ctx.fillStyle = 'rgba(0,0,0,0.45)';
-      ctx.beginPath();
-      ctx.ellipse(px + 50, py + 70, 42, 10, 0, 0, Math.PI*2);
-      ctx.fill();
-
-      // Casco com gradiente forte
       const hull = ctx.createLinearGradient(px+10, py+35, px+10, py+72);
       hull.addColorStop(0, '#00f0d0');
       hull.addColorStop(1, '#006b55');
@@ -149,46 +142,25 @@
       ctx.closePath();
       ctx.fill();
 
-      // Linhas do casco
-      ctx.strokeStyle = '#003d33';
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.moveTo(px + 15, py + 52);
-      ctx.lineTo(px + 80, py + 52);
-      ctx.stroke();
-
-      // Convés
       ctx.fillStyle = '#007766';
       ctx.fillRect(px + 16, py + 31, 63, 22);
 
-      // Cabine principal
       ctx.fillStyle = '#002211';
       ctx.fillRect(px + 27, py + 17, 40, 20);
 
-      // Janelas
       ctx.fillStyle = '#bbffaa';
       ctx.fillRect(px + 32, py + 20, 7, 7);
       ctx.fillRect(px + 43, py + 20, 7, 7);
       ctx.fillRect(px + 54, py + 20, 7, 7);
 
-      // Canhões grandes
       ctx.fillStyle = '#111111';
       ctx.fillRect(px + 19, py + 11, 14, 24);
       ctx.fillRect(px + 62, py + 11, 14, 24);
 
-      // Detalhe vermelho
       ctx.fillStyle = '#ff1a1a';
       ctx.fillRect(px + 30, py + 54, 35, 9);
 
-      // Antena / Radar
-      ctx.strokeStyle = '#cccccc';
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(px + 47, py + 16);
-      ctx.lineTo(px + 47, py + 5);
-      ctx.stroke();
-
-      ctx.fillStyle = '#ffdd00';
+      ctx.fillStyle = '#ffff44';
       ctx.beginPath();
       ctx.arc(px + 47, py + 4, 6, 0, Math.PI*2);
       ctx.fill();
@@ -197,6 +169,7 @@
     function update() {
       if (gameOver) return;
 
+      // Movimento do jogador
       if (keys['ArrowLeft'])  player.x -= player.speed;
       if (keys['ArrowRight']) player.x += player.speed;
       if (keys['ArrowUp'])    player.y -= player.speed;
@@ -207,11 +180,35 @@
 
       bullets = bullets.filter(b => { b.y -= b.speed; return b.y > -40; });
 
+      // ==================== IA AVANÇADA DOS INIMIGOS ====================
       enemies.forEach((e, i) => {
         e.y += e.speed;
-        if (Math.random() < 0.03 + level * 0.007) {
-          enemyBullets.push({ x: e.x + e.width/2, y: e.y + e.height, width: 8, height: 25, speed: 8 });
+
+        // Movimento horizontal inteligente
+        e.x += e.direction * 1.8;
+        if (e.x <= 20 || e.x >= canvas.width - e.width - 20) {
+          e.direction *= -1;   // Inverte direção ao bater na borda
         }
+
+        // IA: Atira quando o jogador está alinhado ou em intervalos
+        e.shootTimer--;
+        if (e.shootTimer <= 0) {
+          const distX = Math.abs(e.x + e.width/2 - (player.x + player.width/2));
+          if (distX < 80) {  // Só atira se estiver relativamente alinhado
+            enemyBullets.push({ 
+              x: e.x + e.width/2, 
+              y: e.y + e.height, 
+              width: 8, 
+              height: 25, 
+              speed: 7.5 
+            });
+            e.shootTimer = 45 + Math.random() * 40; // Recarga inteligente
+          } else {
+            e.shootTimer = 20;
+          }
+        }
+
+        // Colisão com jogador
         if (e.y + e.height > player.y && e.x < player.x + player.width && e.x + e.width > player.x) {
           lives--;
           explosions.push(new Explosion(player.x + 47, player.y + 35));
@@ -222,6 +219,7 @@
 
       enemyBullets = enemyBullets.filter(b => { b.y += b.speed; return b.y < canvas.height; });
 
+      // Colisões
       bullets.forEach((b, bi) => {
         enemies.forEach((e, ei) => {
           if (b.x > e.x && b.x < e.x + e.width && b.y > e.y && b.y < e.y + e.height) {
@@ -236,7 +234,7 @@
       explosions = explosions.filter(exp => { exp.update(); return exp.life > 0; });
 
       if (score > level * 1000) level++;
-      if (Math.random() < 0.05 + level * 0.012) createEnemy();
+      if (Math.random() < 0.045 + level * 0.015) createEnemy();
     }
 
     function draw() {
