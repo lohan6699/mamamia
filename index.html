@@ -16,49 +16,49 @@
       min-height: 100vh;
       overflow: hidden;
     }
-    .container {
-      text-align: center;
-    }
+    .container { text-align: center; }
     h1 {
-      font-size: 3.2rem;
-      margin-bottom: 10px;
-      background: linear-gradient(90deg, #00ffff, #00ff88);
+      font-size: 3.4rem;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #00ffff, #00ff88, #00ffff);
       -webkit-background-clip: text;
       color: transparent;
-      text-shadow: 0 0 30px #00ffff;
+      text-shadow: 0 0 40px #00ffff;
     }
     .game-info {
-      font-size: 1.5rem;
-      margin-bottom: 12px;
+      font-size: 1.6rem;
+      margin-bottom: 15px;
       display: flex;
       justify-content: center;
       gap: 50px;
     }
     canvas {
-      border: 5px solid #00bfff;
-      border-radius: 15px;
-      box-shadow: 0 0 40px rgba(0, 191, 255, 0.6);
-      background: #001122;
+      border: 6px solid #00bfff;
+      border-radius: 18px;
+      box-shadow: 0 0 50px rgba(0, 191, 255, 0.7);
+      background: #000d1f;
     }
     .controls {
       margin-top: 15px;
-      font-size: 1.1rem;
-      opacity: 0.9;
+      font-size: 1.2rem;
+      opacity: 0.85;
     }
     button {
-      margin-top: 15px;
-      padding: 14px 40px;
-      font-size: 1.3rem;
+      margin-top: 18px;
+      padding: 16px 45px;
+      font-size: 1.4rem;
       background: linear-gradient(#ff3366, #cc1122);
       color: white;
       border: none;
       border-radius: 50px;
       cursor: pointer;
       font-weight: bold;
-      box-shadow: 0 8px 20px rgba(255, 50, 80, 0.5);
+      box-shadow: 0 10px 25px rgba(255, 50, 80, 0.6);
+      transition: 0.3s;
     }
     button:hover {
-      transform: scale(1.05);
+      transform: scale(1.08);
+      box-shadow: 0 15px 30px rgba(255, 80, 100, 0.7);
     }
   </style>
 </head>
@@ -83,9 +83,8 @@
     let lives = 3;
     let level = 1;
     let gameOver = false;
-    let gameStarted = true;
 
-    const player = { x: 370, y: 480, width: 70, height: 60, speed: 9 };
+    const player = { x: 365, y: 480, width: 70, height: 65, speed: 9 };
 
     let bullets = [];
     let enemies = [];
@@ -96,16 +95,17 @@
     // Controles
     window.addEventListener('keydown', e => keys[e.key] = true);
     window.addEventListener('keyup', e => keys[e.key] = false);
-    canvas.addEventListener('click', () => shoot());
+    canvas.addEventListener('click', shoot);
+    window.addEventListener('keypress', e => { if (e.key === ' ') shoot(); });
 
     function shoot() {
       if (gameOver) return;
       bullets.push({
-        x: player.x + 32,
-        y: player.y - 10,
+        x: player.x + 31,
+        y: player.y - 5,
         width: 8,
-        height: 25,
-        speed: 14
+        height: 28,
+        speed: 15
       });
     }
 
@@ -113,12 +113,13 @@
       constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.size = 20;
-        this.life = 25;
+        this.size = 15;
+        this.life = 28;
       }
-      update() { this.life--; this.size += 1.5; }
+      update() { this.life -= 1; this.size += 1.8; }
       draw() {
-        ctx.fillStyle = `rgba(255, ${this.life * 10}, 0, ${this.life/25})`;
+        const alpha = this.life / 28;
+        ctx.fillStyle = `rgba(255, ${this.life * 12}, 0, ${alpha})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
@@ -126,153 +127,126 @@
     }
 
     function createEnemy() {
-      const speed = 1.8 + level * 0.4;
+      const isBig = Math.random() < 0.35;
       enemies.push({
-        x: Math.random() * (canvas.width - 70),
-        y: -70,
-        width: 65,
-        height: 55,
-        speed: speed,
-        type: Math.random() < 0.3 ? 'big' : 'normal'
+        x: Math.random() * (canvas.width - 80),
+        y: -80,
+        width: isBig ? 85 : 65,
+        height: isBig ? 65 : 55,
+        speed: 1.6 + level * 0.45,
+        type: isBig ? 'big' : 'normal'
       });
     }
 
     function drawOcean() {
-      ctx.fillStyle = '#000d1f';
+      ctx.fillStyle = '#000d22';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Ondas animadas
-      ctx.strokeStyle = 'rgba(0, 180, 255, 0.25)';
-      ctx.lineWidth = 4;
-      for (let i = 0; i < 10; i++) {
+      ctx.strokeStyle = 'rgba(0, 200, 255, 0.3)';
+      ctx.lineWidth = 5;
+      for (let i = 0; i < 9; i++) {
         ctx.beginPath();
-        const offset = Math.sin(Date.now() / 300 + i) * 12;
-        ctx.moveTo(0, 70 + i * 55 + offset);
-        for (let x = 0; x < canvas.width; x += 25) {
-          ctx.lineTo(x, 70 + i * 55 + Math.sin(x/40 + Date.now()/400) * 18);
+        const baseY = 60 + i * 58;
+        ctx.moveTo(0, baseY);
+        for (let x = 0; x < canvas.width; x += 22) {
+          ctx.lineTo(x, baseY + Math.sin(x / 45 + Date.now() / 280) * 22);
         }
         ctx.stroke();
       }
     }
 
     function drawPlayer() {
-      // Navio do jogador
-      ctx.fillStyle = '#00ffaa';
-      ctx.fillRect(player.x + 10, player.y + 10, 50, 40);
-      ctx.fillStyle = '#00cc88';
-      ctx.fillRect(player.x + 25, player.y, 20, 25);
-      ctx.fillStyle = '#ff2222';
-      ctx.fillRect(player.x + 30, player.y - 8, 10, 15); // canhão
+      ctx.fillStyle = '#00ffbb';
+      ctx.fillRect(player.x + 8, player.y + 15, 54, 42);
+      ctx.fillStyle = '#00dd99';
+      ctx.fillRect(player.x + 22, player.y + 5, 26, 28);
+      ctx.fillStyle = '#ff2244';
+      ctx.fillRect(player.x + 30, player.y - 12, 12, 22);
     }
 
     function update() {
       if (gameOver) return;
 
-      // Movimento do jogador
       if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
       if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed;
 
-      // Balas do jogador
-      bullets = bullets.filter(b => {
-        b.y -= b.speed;
-        return b.y > 0;
-      });
+      bullets = bullets.filter(b => { b.y -= b.speed; return b.y > -30; });
 
-      // Inimigos
       enemies.forEach((e, i) => {
         e.y += e.speed;
 
-        // Inimigo atira
-        if (Math.random() < 0.025 + level * 0.005) {
+        if (Math.random() < 0.028 + level * 0.006) {
           enemyBullets.push({
-            x: e.x + 30,
-            y: e.y + 50,
-            width: 7,
-            height: 22,
-            speed: 7
+            x: e.x + e.width/2 - 3,
+            y: e.y + e.height - 5,
+            width: 8,
+            height: 24,
+            speed: 7.5
           });
         }
 
-        // Colisão com jogador
         if (e.y + e.height > player.y && 
             e.x < player.x + player.width && 
             e.x + e.width > player.x) {
           lives--;
-          explosions.push(new Explosion(player.x + 35, player.y + 30));
+          explosions.push(new Explosion(player.x + 35, player.y + 35));
           enemies.splice(i, 1);
           if (lives <= 0) gameOver = true;
         }
       });
 
-      // Balas inimigas
-      enemyBullets = enemyBullets.filter(b => {
-        b.y += b.speed;
-        return b.y < canvas.height;
-      });
+      enemyBullets = enemyBullets.filter(b => { b.y += b.speed; return b.y < canvas.height; });
 
-      // Colisão bala jogador x inimigo
       bullets.forEach((b, bi) => {
         enemies.forEach((e, ei) => {
-          if (b.x > e.x && b.x < e.x + e.width &&
-              b.y > e.y && b.y < e.y + e.height) {
+          if (b.x > e.x && b.x < e.x + e.width && b.y > e.y && b.y < e.y + e.height) {
             bullets.splice(bi, 1);
-            explosions.push(new Explosion(e.x + 30, e.y + 25));
+            explosions.push(new Explosion(e.x + e.width/2, e.y + e.height/2));
             enemies.splice(ei, 1);
-            score += e.type === 'big' ? 200 : 100;
+            score += e.type === 'big' ? 250 : 100;
           }
         });
       });
 
-      // Atualizar explosões
-      explosions = explosions.filter(exp => {
-        exp.update();
-        return exp.life > 0;
-      });
+      explosions = explosions.filter(exp => { exp.update(); return exp.life > 0; });
 
-      // Aumentar nível
-      if (score > level * 800) level++;
+      if (score > level * 900) level++;
 
-      // Gerar inimigos
-      if (Math.random() < 0.04 + level * 0.008) createEnemy();
+      if (Math.random() < 0.045 + level * 0.01) createEnemy();
     }
 
     function draw() {
       drawOcean();
       drawPlayer();
 
-      // Balas jogador
       ctx.fillStyle = '#ffff00';
       bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
-      // Inimigos
       enemies.forEach(e => {
         ctx.fillStyle = e.type === 'big' ? '#ff3366' : '#ff5555';
         ctx.fillRect(e.x, e.y, e.width, e.height);
-        ctx.fillStyle = '#ffff00';
-        ctx.fillRect(e.x + 25, e.y + 12, 15, 12);
+        ctx.fillStyle = '#ffee00';
+        ctx.fillRect(e.x + e.width/2 - 8, e.y + 15, 16, 14);
       });
 
-      // Balas inimigas
       ctx.fillStyle = '#ff8800';
       enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
-      // Explosões
       explosions.forEach(exp => exp.draw());
 
-      // HUD
       document.getElementById('score').textContent = score;
       document.getElementById('lives').textContent = lives;
       document.getElementById('level').textContent = level;
 
       if (gameOver) {
-        ctx.fillStyle = 'rgba(0,0,0,0.8)';
+        ctx.fillStyle = 'rgba(0,0,0,0.85)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#ff0000';
-        ctx.font = 'bold 55px Arial';
-        ctx.fillText('GAME OVER', 210, 280);
-        ctx.font = '30px Arial';
+        ctx.font = 'bold 58px Arial';
+        ctx.fillText('GAME OVER', 195, 270);
+        ctx.font = '32px Arial';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(`Pontuação Final: ${score}`, 240, 340);
+        ctx.fillText(`Pontuação Final: ${score}`, 220, 340);
       }
     }
 
@@ -291,10 +265,9 @@
       enemies = [];
       enemyBullets = [];
       explosions = [];
-      player.x = 370;
+      player.x = 365;
     }
 
-    // Iniciar o jogo
     gameLoop();
   </script>
 </body>
