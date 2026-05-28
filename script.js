@@ -1,158 +1,185 @@
-const SIZE = 10;
-let playerBoard = [];
-let enemyBoard = [];
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let score = 0;
+let lives = 3;
 let gameOver = false;
-let aiTargets = [];
 
-const playerBoardEl = document.getElementById('player-board');
-const enemyBoardEl = document.getElementById('enemy-board');
-const statusEl = document.getElementById('status');
+const player = {
+  x: 375,
+  y: 500,
+  width: 60,
+  height: 50,
+  speed: 8
+};
 
-const shipTypes = [
-  { size: 5, emoji: '🚢' }, // Porta-aviões
-  { size: 4, emoji: '⛴️' }, // Navio de guerra
-  { size: 3, emoji: '🛥️' }, // Submarino
-  { size: 3, emoji: '🛥️' }, // Submarino
-  { size: 2, emoji: '⛵' }  // Barco pequeno
-];
+let bullets = [];
+let enemies = [];
+let enemyBullets = [];
 
-const directions = [[-1,0],[1,0],[0,-1],[0,1]];
+// Controles
+let keys = {};
+window.addEventListener('keydown', e => keys[e.key] = true);
+window.addEventListener('keyup', e => keys[e.key] = false);
 
-function createBoards() {
-  playerBoardEl.innerHTML = '';
-  enemyBoardEl.innerHTML = '';
-  playerBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
-  enemyBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+canvas.addEventListener('click', shoot);
 
-  for (let i = 0; i < SIZE*SIZE; i++) {
-    const p = document.createElement('div');
-    p.classList.add('cell');
-    playerBoardEl.appendChild(p);
+function shoot() {
+  if (gameOver) return;
+  bullets.push({
+    x: player.x + 25,
+    y: player.y,
+    width: 6,
+    height: 20,
+    speed: 12
+  });
+}
 
-    const e = document.createElement('div');
-    e.classList.add('cell');
-    e.dataset.index = i;
-    e.addEventListener('click', handlePlayerShot);
-    enemyBoardEl.appendChild(e);
+function createEnemy() {
+  enemies.push({
+    x: Math.random() * (canvas.width - 60),
+    y: -60,
+    width: 55,
+    height: 50,
+    speed: 2 + Math.random() * 2
+  });
+}
+
+function drawOcean() {
+  ctx.fillStyle = '#001f3f';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Ondas
+  ctx.strokeStyle = 'rgba(0, 150, 255, 0.3)';
+  ctx.lineWidth = 3;
+  for (let i = 0; i < 8; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, 80 + i * 60 + Math.sin(Date.now()/500) * 10);
+    for (let x = 0; x < canvas.width; x += 30) {
+      ctx.lineTo(x, 80 + i * 60 + Math.sin(x/50 + Date.now()/400) * 15);
+    }
+    ctx.stroke();
   }
 }
 
-function placeShips(board, isPlayer) {
-  shipTypes.forEach((ship, index) => {
-    let placed = false;
-    while (!placed) {
-      const horizontal = Math.random() > 0.5;
-      const row = Math.floor(Math.random() * SIZE);
-      const col = Math.floor(Math.random() * SIZE);
+function drawPlayer() {
+  ctx.fillStyle = '#00ff88';
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+  ctx.fillStyle = '#ff0000';
+  ctx.fillRect(player.x + 20, player.y - 10, 20, 15); // canhão
+}
 
-      if (canPlace(board, row, col, ship.size, horizontal)) {
-        for (let i = 0; i < ship.size; i++) {
-          const r = horizontal ? row : row + i;
-          const c = horizontal ? col + i : col;
-          board[r][c] = index + 1; // marca qual navio
-        }
-        placed = true;
-      }
+function update() {
+  if (gameOver) return;
+
+  // Movimento do jogador
+  if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+  if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed;
+
+  // Atualizar balas
+  bullets = bullets.filter(b => {
+    b.y -= b.speed;
+    return b.y > 0;
+  });
+
+  // Atualizar inimigos
+  enemies.forEach((e, i) => {
+    e.y += e.speed;
+
+    // Inimigo atira
+    if (Math.random() < 0.02) {
+      enemyBullets.push({
+        x: e.x + 25,
+        y: e.y + 50,
+        width: 6,
+        height: 18,
+        speed: 6
+      });
+    }
+
+    // Colisão com jogador
+    if (e.y + e.height > player.y && 
+        e.x < player.x + player.width && 
+        e.x + e.width > player.x) {
+      lives--;
+      enemies.splice(i, 1);
+      if (lives <= 0) gameOver = true;
     }
   });
-}
 
-function canPlace(board, row, col, size, horizontal) {
-  for (let i = 0; i < size; i++) {
-    const r = horizontal ? row : row + i;
-    const c = horizontal ? col + i : col;
-    if (r < 0 || r >= SIZE || c < 0 || c >= SIZE || board[r][c] !== 0) return false;
-  }
-  return true;
-}
+  // Atualizar balas inimigas
+  enemyBullets = enemyBullets.filter(b => {
+    b.y += b.speed;
+    return b.y < canvas.height;
+  });
 
-function showPlayerShips() {
-  shipTypes.forEach((ship, index) => {
-    const shipNumber = index + 1;
-    playerBoard.forEach((row, r) => {
-      row.forEach((cell, c) => {
-        if (cell === shipNumber) {
-          const idx = r * SIZE + c;
-          const el = playerBoardEl.children[idx];
-          el.classList.add('ship');
-          el.textContent = ship.emoji;
-        }
-      });
+  // Colisão bala x inimigo
+  bullets.forEach((b, bi) => {
+    enemies.forEach((e, ei) => {
+      if (b.x > e.x && b.x < e.x + e.width &&
+          b.y > e.y && b.y < e.y + e.height) {
+        bullets.splice(bi, 1);
+        enemies.splice(ei, 1);
+        score += 100;
+      }
     });
   });
+
+  // Gerar inimigos
+  if (Math.random() < 0.03) createEnemy();
 }
 
-// ==================== IA AVANÇADA ====================
-function computerAttack() {
-  if (gameOver) return;
-  // (mesma lógica da versão anterior - mantida avançada)
-  let row, col;
-  do {
-    row = Math.floor(Math.random() * SIZE);
-    col = Math.floor(Math.random() * SIZE);
-  } while (playerBoard[row][col] < 0);
+function draw() {
+  drawOcean();
+  drawPlayer();
 
-  const index = row * SIZE + col;
-  const cell = playerBoardEl.children[index];
-  const isHit = playerBoard[row][col] > 0;
+  // Desenhar balas do jogador
+  ctx.fillStyle = '#ffff00';
+  bullets.forEach(b => {
+    ctx.fillRect(b.x, b.y, b.width, b.height);
+  });
 
-  if (isHit) {
-    cell.classList.add('hit');
-    cell.textContent = '💥';
-    playerBoard[row][col] = -2;
-    statusEl.textContent = "💥 A IA acertou seu navio!";
-  } else {
-    cell.classList.add('miss');
-    cell.textContent = '🌊';
-    playerBoard[row][col] = -1;
-    statusEl.textContent = "🌊 A IA errou!";
-  }
+  // Desenhar inimigos (navios vermelhos)
+  ctx.fillStyle = '#ff3366';
+  enemies.forEach(e => {
+    ctx.fillRect(e.x, e.y, e.width, e.height);
+    ctx.fillStyle = '#ffff00';
+    ctx.fillRect(e.x + 20, e.y + 10, 15, 10); // canhão inimigo
+    ctx.fillStyle = '#ff3366';
+  });
 
-  if (playerBoard.flat().every(v => v <= 0)) {
-    statusEl.textContent = "😢 A IA VENCEU!";
-    gameOver = true;
+  // Balas inimigas
+  ctx.fillStyle = '#ff8800';
+  enemyBullets.forEach(b => {
+    ctx.fillRect(b.x, b.y, b.width, b.height);
+  });
+
+  document.getElementById('score').textContent = score;
+  document.getElementById('lives').textContent = lives;
+
+  if (gameOver) {
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ff0000';
+    ctx.font = '50px Arial';
+    ctx.fillText('GAME OVER', 220, 280);
   }
 }
 
-function handlePlayerShot(e) {
-  if (gameOver) return;
-  const index = parseInt(e.target.dataset.index);
-  const row = Math.floor(index / SIZE);
-  const col = index % SIZE;
-
-  if (enemyBoard[row][col] < 0) return;
-
-  const isHit = enemyBoard[row][col] > 0;
-
-  if (isHit) {
-    e.target.classList.add('hit');
-    e.target.textContent = '💥';
-    enemyBoard[row][col] = -2;
-    statusEl.textContent = "💥 Acertou em cheio!";
-  } else {
-    e.target.classList.add('miss');
-    e.target.textContent = '🌊';
-    enemyBoard[row][col] = -1;
-    statusEl.textContent = "🌊 Errou!";
-  }
-
-  if (enemyBoard.flat().every(v => v <= 0)) {
-    statusEl.textContent = "🎉 VOCÊ VENCEU A BATALHA 4D!";
-    gameOver = true;
-    return;
-  }
-
-  setTimeout(computerAttack, 800);
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
 }
 
-function newGame() {
+function restartGame() {
+  score = 0;
+  lives = 3;
   gameOver = false;
-  aiTargets = [];
-  createBoards();
-  placeShips(playerBoard, true);
-  placeShips(enemyBoard, false);
-  showPlayerShips();
-  statusEl.textContent = "🔥 Clique no tabuleiro inimigo para atacar!";
+  bullets = [];
+  enemies = [];
+  enemyBullets = [];
+  player.x = 375;
 }
 
-newGame();
+gameLoop();

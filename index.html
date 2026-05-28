@@ -3,28 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Batalha Naval 4D</title>
+  <title>Batalha no Mar</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>⚔️ BATALHA NAVAL 4D ⚔️</h1>
-    
-    <div class="game-area">
-      <div class="board-container">
-        <h2>🌊 Seus Navios</h2>
-        <div class="board" id="player-board"></div>
-      </div>
-
-      <div class="board-container">
-        <h2>🎯 Inimigo</h2>
-        <div class="board" id="enemy-board"></div>
-      </div>
+    <h1>⚓ BATALHA NO MAR ⚓</h1>
+    <div class="game-info">
+      <span>Pontos: <strong id="score">0</strong></span>
+      <span>Vidas: <strong id="lives">3</strong></span>
     </div>
-
-    <div class="status" id="status">Clique no tabuleiro inimigo para atirar!</div>
-    
-    <button class="reset-btn" onclick="newGame()">Novo Jogo</button>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <p class="controls">← → Mover   |   ESPAÇO ou Clique = Atirar</p>
+    <button class="reset-btn" onclick="restartGame()">Novo Jogo</button>
   </div>
 
   <script src="script.js"></script>
