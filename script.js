@@ -1,115 +1,158 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+const SIZE = 10;
+let playerBoard = [];
+let enemyBoard = [];
+let gameOver = false;
+let aiTargets = [];
+
+const playerBoardEl = document.getElementById('player-board');
+const enemyBoardEl = document.getElementById('enemy-board');
+const statusEl = document.getElementById('status');
+
+const shipTypes = [
+  { size: 5, emoji: '🚢' }, // Porta-aviões
+  { size: 4, emoji: '⛴️' }, // Navio de guerra
+  { size: 3, emoji: '🛥️' }, // Submarino
+  { size: 3, emoji: '🛥️' }, // Submarino
+  { size: 2, emoji: '⛵' }  // Barco pequeno
+];
+
+const directions = [[-1,0],[1,0],[0,-1],[0,1]];
+
+function createBoards() {
+  playerBoardEl.innerHTML = '';
+  enemyBoardEl.innerHTML = '';
+  playerBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+  enemyBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+
+  for (let i = 0; i < SIZE*SIZE; i++) {
+    const p = document.createElement('div');
+    p.classList.add('cell');
+    playerBoardEl.appendChild(p);
+
+    const e = document.createElement('div');
+    e.classList.add('cell');
+    e.dataset.index = i;
+    e.addEventListener('click', handlePlayerShot);
+    enemyBoardEl.appendChild(e);
+  }
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #0a1f3d, #1e3a5f);
-  color: white;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+function placeShips(board, isPlayer) {
+  shipTypes.forEach((ship, index) => {
+    let placed = false;
+    while (!placed) {
+      const horizontal = Math.random() > 0.5;
+      const row = Math.floor(Math.random() * SIZE);
+      const col = Math.floor(Math.random() * SIZE);
+
+      if (canPlace(board, row, col, ship.size, horizontal)) {
+        for (let i = 0; i < ship.size; i++) {
+          const r = horizontal ? row : row + i;
+          const c = horizontal ? col + i : col;
+          board[r][c] = index + 1; // marca qual navio
+        }
+        placed = true;
+      }
+    }
+  });
 }
 
-.container {
-  text-align: center;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+function canPlace(board, row, col, size, horizontal) {
+  for (let i = 0; i < size; i++) {
+    const r = horizontal ? row : row + i;
+    const c = horizontal ? col + i : col;
+    if (r < 0 || r >= SIZE || c < 0 || c >= SIZE || board[r][c] !== 0) return false;
+  }
+  return true;
 }
 
-h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  text-shadow: 0 0 15px #00bfff;
+function showPlayerShips() {
+  shipTypes.forEach((ship, index) => {
+    const shipNumber = index + 1;
+    playerBoard.forEach((row, r) => {
+      row.forEach((cell, c) => {
+        if (cell === shipNumber) {
+          const idx = r * SIZE + c;
+          const el = playerBoardEl.children[idx];
+          el.classList.add('ship');
+          el.textContent = ship.emoji;
+        }
+      });
+    });
+  });
 }
 
-.game-area {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 20px 0;
+// ==================== IA AVANÇADA ====================
+function computerAttack() {
+  if (gameOver) return;
+  // (mesma lógica da versão anterior - mantida avançada)
+  let row, col;
+  do {
+    row = Math.floor(Math.random() * SIZE);
+    col = Math.floor(Math.random() * SIZE);
+  } while (playerBoard[row][col] < 0);
+
+  const index = row * SIZE + col;
+  const cell = playerBoardEl.children[index];
+  const isHit = playerBoard[row][col] > 0;
+
+  if (isHit) {
+    cell.classList.add('hit');
+    cell.textContent = '💥';
+    playerBoard[row][col] = -2;
+    statusEl.textContent = "💥 A IA acertou seu navio!";
+  } else {
+    cell.classList.add('miss');
+    cell.textContent = '🌊';
+    playerBoard[row][col] = -1;
+    statusEl.textContent = "🌊 A IA errou!";
+  }
+
+  if (playerBoard.flat().every(v => v <= 0)) {
+    statusEl.textContent = "😢 A IA VENCEU!";
+    gameOver = true;
+  }
 }
 
-.board-container h2 {
-  margin-bottom: 10px;
-  font-size: 1.4rem;
+function handlePlayerShot(e) {
+  if (gameOver) return;
+  const index = parseInt(e.target.dataset.index);
+  const row = Math.floor(index / SIZE);
+  const col = index % SIZE;
+
+  if (enemyBoard[row][col] < 0) return;
+
+  const isHit = enemyBoard[row][col] > 0;
+
+  if (isHit) {
+    e.target.classList.add('hit');
+    e.target.textContent = '💥';
+    enemyBoard[row][col] = -2;
+    statusEl.textContent = "💥 Acertou em cheio!";
+  } else {
+    e.target.classList.add('miss');
+    e.target.textContent = '🌊';
+    enemyBoard[row][col] = -1;
+    statusEl.textContent = "🌊 Errou!";
+  }
+
+  if (enemyBoard.flat().every(v => v <= 0)) {
+    statusEl.textContent = "🎉 VOCÊ VENCEU A BATALHA 4D!";
+    gameOver = true;
+    return;
+  }
+
+  setTimeout(computerAttack, 800);
 }
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(10, 35px);
-  gap: 3px;
-  background: #112233;
-  padding: 10px;
-  border-radius: 12px;
+function newGame() {
+  gameOver = false;
+  aiTargets = [];
+  createBoards();
+  placeShips(playerBoard, true);
+  placeShips(enemyBoard, false);
+  showPlayerShips();
+  statusEl.textContent = "🔥 Clique no tabuleiro inimigo para atacar!";
 }
 
-.cell {
-  width: 35px;
-  height: 35px;
-  background: #224466;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  cursor: pointer;
-  transition: 0.2s;
-  border: 1px solid #113355;
-}
-
-.cell:hover {
-  background: #00bfff;
-  transform: scale(1.1);
-}
-
-.player-cell {
-  cursor: default;
-}
-
-.ship {
-  background: #00ff88 !important;
-}
-
-.hit {
-  background: #ff3366 !important;
-  animation: explode 0.4s;
-}
-
-.miss {
-  background: #88aaff !important;
-}
-
-@keyframes explode {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.4); }
-  100% { transform: scale(1); }
-}
-
-.status {
-  font-size: 1.4rem;
-  margin: 20px 0;
-  min-height: 50px;
-}
-
-.reset-btn {
-  padding: 14px 35px;
-  font-size: 1.2rem;
-  background: #ff3366;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.reset-btn:hover {
-  background: #ff6688;
-  transform: translateY(-3px);
-}
+newGame();

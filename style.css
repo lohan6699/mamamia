@@ -1,179 +1,117 @@
-const SIZE = 10;
-let playerBoard = [];
-let enemyBoard = [];
-let gameOver = false;
-
-let aiTargets = [];        // Células prioritárias para atacar
-let lastHit = null;        // Último acerto da IA
-
-const playerBoardEl = document.getElementById('player-board');
-const enemyBoardEl = document.getElementById('enemy-board');
-const statusEl = document.getElementById('status');
-
-const shipSizes = [5, 4, 3, 3, 2];
-
-// Direções possíveis (cima, baixo, esquerda, direita)
-const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-function createBoards() {
-  playerBoardEl.innerHTML = '';
-  enemyBoardEl.innerHTML = '';
-  playerBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
-  enemyBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
-
-  for (let i = 0; i < SIZE * SIZE; i++) {
-    const pCell = document.createElement('div');
-    pCell.classList.add('cell', 'player-cell');
-    playerBoardEl.appendChild(pCell);
-
-    const eCell = document.createElement('div');
-    eCell.classList.add('cell');
-    eCell.dataset.index = i;
-    eCell.addEventListener('click', handlePlayerShot);
-    enemyBoardEl.appendChild(eCell);
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-function canPlaceShip(board, row, col, size, horizontal) {
-  for (let i = 0; i < size; i++) {
-    const r = horizontal ? row : row + i;
-    const c = horizontal ? col + i : col;
-    if (r < 0 || r >= SIZE || c < 0 || c >= SIZE || board[r][c] !== 0) return false;
-  }
-  return true;
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0a1428, #1e3a5f, #0a1428);
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-function placeShips(board, isPlayer) {
-  shipSizes.forEach(size => {
-    let placed = false;
-    while (!placed) {
-      const horizontal = Math.random() > 0.5;
-      const row = Math.floor(Math.random() * SIZE);
-      const col = Math.floor(Math.random() * SIZE);
-
-      if (canPlaceShip(board, row, col, size, horizontal)) {
-        for (let i = 0; i < size; i++) {
-          const r = horizontal ? row : row + i;
-          const c = horizontal ? col + i : col;
-          board[r][c] = size;
-        }
-        placed = true;
-      }
-    }
-  });
+.container {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  border-radius: 25px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
 }
 
-// ==================== IA AVANÇADA ====================
-
-function getRandomTarget() {
-  let row, col;
-  do {
-    row = Math.floor(Math.random() * SIZE);
-    col = Math.floor(Math.random() * SIZE);
-  } while (playerBoard[row][col] < 0);
-  return { row, col };
+h1 {
+  font-size: 3.2rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px #00ffff;
 }
 
-function addAdjacentTargets(row, col) {
-  directions.forEach(([dr, dc]) => {
-    const r = row + dr;
-    const c = col + dc;
-    if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && playerBoard[r][c] >= 0) {
-      aiTargets.push({ row: r, col: c });
-    }
-  });
+.game-area {
+  display: flex;
+  gap: 50px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-function computerAttack() {
-  if (gameOver) return;
-
-  let target;
-
-  if (aiTargets.length > 0) {
-    target = aiTargets.shift(); // Pega o próximo alvo prioritário
-  } else {
-    target = getRandomTarget();
-  }
-
-  const { row, col } = target;
-  const index = row * SIZE + col;
-  const cell = playerBoardEl.children[index];
-
-  const isHit = playerBoard[row][col] > 0;
-
-  if (isHit) {
-    cell.classList.add('hit');
-    cell.textContent = '💥';
-    playerBoard[row][col] = -2;
-    lastHit = { row, col };
-    addAdjacentTargets(row, col); // Adiciona vizinhos como prioridade
-    statusEl.textContent = "💥 A IA acertou um dos seus navios!";
-  } else {
-    cell.classList.add('miss');
-    cell.textContent = '🌊';
-    playerBoard[row][col] = -1;
-    statusEl.textContent = "🌊 A IA errou!";
-  }
-
-  if (checkWin(playerBoard)) {
-    statusEl.textContent = "😢 A IA VENCEU!";
-    gameOver = true;
-  }
+.board-container h2 {
+  margin-bottom: 12px;
+  font-size: 1.5rem;
 }
 
-// Jogador atira
-function handlePlayerShot(e) {
-  if (gameOver) return;
-
-  const index = parseInt(e.target.dataset.index);
-  const row = Math.floor(index / SIZE);
-  const col = index % SIZE;
-
-  if (enemyBoard[row][col] < 0) return;
-
-  const isHit = enemyBoard[row][col] > 0;
-
-  if (isHit) {
-    e.target.classList.add('hit');
-    e.target.textContent = '💥';
-    enemyBoard[row][col] = -2;
-    statusEl.textContent = "💥 Você acertou!";
-  } else {
-    e.target.classList.add('miss');
-    e.target.textContent = '🌊';
-    enemyBoard[row][col] = -1;
-    statusEl.textContent = "🌊 Errou!";
-  }
-
-  if (checkWin(enemyBoard)) {
-    statusEl.textContent = "🎉 VOCÊ VENCEU!";
-    gameOver = true;
-    return;
-  }
-
-  setTimeout(computerAttack, 700);
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, 38px);
+  gap: 4px;
+  background: #0a1f3d;
+  padding: 12px;
+  border-radius: 16px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
 }
 
-function checkWin(board) {
-  return board.flat().every(cell => cell <= 0);
+.cell {
+  width: 38px;
+  height: 38px;
+  background: #1e4d7a;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
-function newGame() {
-  gameOver = false;
-  aiTargets = [];
-  lastHit = null;
-
-  createBoards();
-  placeShips(playerBoard, true);
-  placeShips(enemyBoard, false);
-
-  // Mostrar navios do jogador
-  playerBoard.flat().forEach((value, i) => {
-    if (value > 0) playerBoardEl.children[i].classList.add('ship');
-  });
-
-  statusEl.textContent = "Clique no tabuleiro inimigo para atirar!";
+.cell:hover {
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 8px 20px rgba(0, 255, 255, 0.4);
 }
 
-// Iniciar
-newGame();
+.ship {
+  background: #00ff9d !important;
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #00ff9d;
+}
+
+.hit {
+  background: #ff0044 !important;
+  animation: explode 0.6s;
+  font-size: 1.8rem;
+}
+
+.miss {
+  background: #88bbff !important;
+}
+
+@keyframes explode {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.6); }
+  100% { transform: scale(1); }
+}
+
+.status {
+  font-size: 1.5rem;
+  margin: 25px 0;
+  min-height: 55px;
+  text-shadow: 0 0 10px #00ffff;
+}
+
+.reset-btn {
+  padding: 15px 45px;
+  font-size: 1.3rem;
+  background: linear-gradient(#ff3366, #cc1122);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 8px 20px rgba(255, 50, 100, 0.4);
+}
+
+.reset-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(255, 80, 120, 0.6);
+}
