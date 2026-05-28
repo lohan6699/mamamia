@@ -60,7 +60,7 @@
       <span>Nível: <strong id="level">1</strong></span>
     </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <p style="margin-top:15px; opacity:0.8;">← → ↑ ↓ Mover (diagonal permitido) | ESPAÇO ou Clique = Atirar</p>
+    <p style="margin-top:15px; opacity:0.8;">← → ↑ ↓ Mover | ESPAÇO ou Clique = Atirar</p>
     <button onclick="restartGame()">Novo Jogo</button>
   </div>
 
@@ -126,72 +126,85 @@
       }
     }
 
+    // ==================== NAVIO MELHORADO 8D ====================
     function drawPlayer() {
       const px = player.x, py = player.y;
 
-      // Casco
-      ctx.fillStyle = '#00ccaa';
+      // Sombra do navio
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
       ctx.beginPath();
-      ctx.moveTo(px + 10, py + 60);
-      ctx.lineTo(px + 80, py + 60);
-      ctx.lineTo(px + 70, py + 30);
-      ctx.lineTo(px + 20, py + 30);
+      ctx.ellipse(px + 48, py + 68, 38, 8, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // Casco principal com gradiente
+      const hullGradient = ctx.createLinearGradient(px, py+30, px, py+70);
+      hullGradient.addColorStop(0, '#00e6c8');
+      hullGradient.addColorStop(1, '#008866');
+      ctx.fillStyle = hullGradient;
+      ctx.beginPath();
+      ctx.moveTo(px + 8, py + 62);
+      ctx.lineTo(px + 82, py + 62);
+      ctx.lineTo(px + 72, py + 32);
+      ctx.lineTo(px + 18, py + 32);
       ctx.closePath();
       ctx.fill();
 
+      // Linha do casco
+      ctx.strokeStyle = '#004d44';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(px + 12, py + 55);
+      ctx.lineTo(px + 78, py + 55);
+      ctx.stroke();
+
       // Convés
-      ctx.fillStyle = '#008877';
-      ctx.fillRect(px + 18, py + 28, 55, 18);
+      ctx.fillStyle = '#006655';
+      ctx.fillRect(px + 15, py + 30, 60, 20);
 
-      // Cabine
-      ctx.fillStyle = '#004d44';
-      ctx.fillRect(px + 30, py + 15, 32, 18);
+      // Superestrutura (cabine)
+      ctx.fillStyle = '#003322';
+      ctx.fillRect(px + 28, py + 18, 35, 18);
 
-      // Janelas
-      ctx.fillStyle = '#ffff88';
-      ctx.fillRect(px + 34, py + 18, 8, 8);
-      ctx.fillRect(px + 48, py + 18, 8, 8);
+      // Janelas brilhantes
+      ctx.fillStyle = '#aaffff';
+      ctx.fillRect(px + 32, py + 21, 6, 6);
+      ctx.fillRect(px + 42, py + 21, 6, 6);
+      ctx.fillRect(px + 52, py + 21, 6, 6);
 
       // Canhões
-      ctx.fillStyle = '#222222';
-      ctx.fillRect(px + 22, py + 8, 14, 20);
-      ctx.fillRect(px + 55, py + 8, 14, 20);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(px + 20, py + 12, 12, 22);
+      ctx.fillRect(px + 58, py + 12, 12, 22);
 
-      // Detalhe vermelho
+      // Detalhe vermelho no casco
       ctx.fillStyle = '#ff2222';
-      ctx.fillRect(px + 35, py + 48, 22, 8);
+      ctx.fillRect(px + 32, py + 52, 26, 8);
 
-      // Luz
-      ctx.fillStyle = '#ffff00';
-      ctx.fillRect(px + 38, py + 12, 7, 7);
+      // Luz no topo
+      ctx.fillStyle = '#ffff44';
+      ctx.beginPath();
+      ctx.arc(px + 46, py + 16, 5, 0, Math.PI*2);
+      ctx.fill();
     }
 
     function update() {
       if (gameOver) return;
 
-      // Movimento melhorado (diagonal permitido)
       if (keys['ArrowLeft'])  player.x -= player.speed;
       if (keys['ArrowRight']) player.x += player.speed;
       if (keys['ArrowUp'])    player.y -= player.speed;
       if (keys['ArrowDown'])  player.y += player.speed;
 
-      // Limites da tela
-      if (player.x < 0) player.x = 0;
-      if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
-      if (player.y < 150) player.y = 150;
-      if (player.y > 480) player.y = 480;
+      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+      player.y = Math.max(150, Math.min(480, player.y));
 
-      // Balas do jogador
       bullets = bullets.filter(b => { b.y -= b.speed; return b.y > -40; });
 
-      // Inimigos
       enemies.forEach((e, i) => {
         e.y += e.speed;
-
         if (Math.random() < 0.03 + level * 0.007) {
           enemyBullets.push({ x: e.x + e.width/2, y: e.y + e.height, width: 8, height: 25, speed: 8 });
         }
-
         if (e.y + e.height > player.y && e.x < player.x + player.width && e.x + e.width > player.x) {
           lives--;
           explosions.push(new Explosion(player.x + 45, player.y + 35));
@@ -202,7 +215,6 @@
 
       enemyBullets = enemyBullets.filter(b => { b.y += b.speed; return b.y < canvas.height; });
 
-      // Colisões
       bullets.forEach((b, bi) => {
         enemies.forEach((e, ei) => {
           if (b.x > e.x && b.x < e.x + e.width && b.y > e.y && b.y < e.y + e.height) {
