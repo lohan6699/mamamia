@@ -70,7 +70,7 @@
     
     let score = 0, lives = 3, level = 1, gameOver = false;
 
-    const player = { x: 350, y: 400, width: 90, height: 70, speed: 9 };
+    const player = { x: 350, y: 400, width: 95, height: 75, speed: 9 };
 
     let bullets = [], enemies = [], explosions = [], enemyBullets = [], keys = {};
 
@@ -81,16 +81,16 @@
 
     function shoot() {
       if (gameOver) return;
-      bullets.push({ x: player.x + 45, y: player.y - 10, width: 10, height: 30, speed: 16 });
+      bullets.push({ x: player.x + 47, y: player.y - 12, width: 10, height: 32, speed: 16 });
     }
 
     class Explosion {
       constructor(x, y) {
-        this.x = x; this.y = y; this.size = 20; this.life = 30;
+        this.x = x; this.y = y; this.size = 22; this.life = 32;
       }
-      update() { this.life--; this.size += 2; }
+      update() { this.life--; this.size += 2.2; }
       draw() {
-        ctx.fillStyle = `rgba(255, ${this.life*10}, 50, ${this.life/30})`;
+        ctx.fillStyle = `rgba(255, ${this.life*12}, 40, ${this.life/32})`;
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
         ctx.fill();
@@ -126,64 +126,71 @@
       }
     }
 
-    // ==================== NAVIO MELHORADO 8D ====================
+    // ==================== NAVIO 8D MELHORADO ====================
     function drawPlayer() {
       const px = player.x, py = player.y;
 
-      // Sombra do navio
-      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      // Sombra
+      ctx.fillStyle = 'rgba(0,0,0,0.45)';
       ctx.beginPath();
-      ctx.ellipse(px + 48, py + 68, 38, 8, 0, 0, Math.PI*2);
+      ctx.ellipse(px + 50, py + 70, 42, 10, 0, 0, Math.PI*2);
       ctx.fill();
 
-      // Casco principal com gradiente
-      const hullGradient = ctx.createLinearGradient(px, py+30, px, py+70);
-      hullGradient.addColorStop(0, '#00e6c8');
-      hullGradient.addColorStop(1, '#008866');
-      ctx.fillStyle = hullGradient;
+      // Casco com gradiente forte
+      const hull = ctx.createLinearGradient(px+10, py+35, px+10, py+72);
+      hull.addColorStop(0, '#00f0d0');
+      hull.addColorStop(1, '#006b55');
+      ctx.fillStyle = hull;
       ctx.beginPath();
-      ctx.moveTo(px + 8, py + 62);
-      ctx.lineTo(px + 82, py + 62);
-      ctx.lineTo(px + 72, py + 32);
-      ctx.lineTo(px + 18, py + 32);
+      ctx.moveTo(px + 8, py + 65);
+      ctx.lineTo(px + 87, py + 65);
+      ctx.lineTo(px + 75, py + 33);
+      ctx.lineTo(px + 20, py + 33);
       ctx.closePath();
       ctx.fill();
 
-      // Linha do casco
-      ctx.strokeStyle = '#004d44';
-      ctx.lineWidth = 4;
+      // Linhas do casco
+      ctx.strokeStyle = '#003d33';
+      ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.moveTo(px + 12, py + 55);
-      ctx.lineTo(px + 78, py + 55);
+      ctx.moveTo(px + 15, py + 52);
+      ctx.lineTo(px + 80, py + 52);
       ctx.stroke();
 
       // Convés
-      ctx.fillStyle = '#006655';
-      ctx.fillRect(px + 15, py + 30, 60, 20);
+      ctx.fillStyle = '#007766';
+      ctx.fillRect(px + 16, py + 31, 63, 22);
 
-      // Superestrutura (cabine)
-      ctx.fillStyle = '#003322';
-      ctx.fillRect(px + 28, py + 18, 35, 18);
+      // Cabine principal
+      ctx.fillStyle = '#002211';
+      ctx.fillRect(px + 27, py + 17, 40, 20);
 
-      // Janelas brilhantes
-      ctx.fillStyle = '#aaffff';
-      ctx.fillRect(px + 32, py + 21, 6, 6);
-      ctx.fillRect(px + 42, py + 21, 6, 6);
-      ctx.fillRect(px + 52, py + 21, 6, 6);
+      // Janelas
+      ctx.fillStyle = '#bbffaa';
+      ctx.fillRect(px + 32, py + 20, 7, 7);
+      ctx.fillRect(px + 43, py + 20, 7, 7);
+      ctx.fillRect(px + 54, py + 20, 7, 7);
 
-      // Canhões
-      ctx.fillStyle = '#1a1a1a';
-      ctx.fillRect(px + 20, py + 12, 12, 22);
-      ctx.fillRect(px + 58, py + 12, 12, 22);
+      // Canhões grandes
+      ctx.fillStyle = '#111111';
+      ctx.fillRect(px + 19, py + 11, 14, 24);
+      ctx.fillRect(px + 62, py + 11, 14, 24);
 
-      // Detalhe vermelho no casco
-      ctx.fillStyle = '#ff2222';
-      ctx.fillRect(px + 32, py + 52, 26, 8);
+      // Detalhe vermelho
+      ctx.fillStyle = '#ff1a1a';
+      ctx.fillRect(px + 30, py + 54, 35, 9);
 
-      // Luz no topo
-      ctx.fillStyle = '#ffff44';
+      // Antena / Radar
+      ctx.strokeStyle = '#cccccc';
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(px + 46, py + 16, 5, 0, Math.PI*2);
+      ctx.moveTo(px + 47, py + 16);
+      ctx.lineTo(px + 47, py + 5);
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffdd00';
+      ctx.beginPath();
+      ctx.arc(px + 47, py + 4, 6, 0, Math.PI*2);
       ctx.fill();
     }
 
@@ -207,7 +214,7 @@
         }
         if (e.y + e.height > player.y && e.x < player.x + player.width && e.x + e.width > player.x) {
           lives--;
-          explosions.push(new Explosion(player.x + 45, player.y + 35));
+          explosions.push(new Explosion(player.x + 47, player.y + 35));
           enemies.splice(i, 1);
           if (lives <= 0) gameOver = true;
         }
