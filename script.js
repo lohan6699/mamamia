@@ -1,156 +1,115 @@
-const SIZE = 10;
-let playerBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
-let enemyBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
-let enemyShips = [];
-let gameOver = false;
-
-const playerBoardEl = document.getElementById('player-board');
-const enemyBoardEl = document.getElementById('enemy-board');
-const statusEl = document.getElementById('status');
-
-// Tamanhos dos navios
-const shipSizes = [5, 4, 3, 3, 2];
-
-// Criar tabuleiros
-function createBoards() {
-  playerBoardEl.innerHTML = '';
-  enemyBoardEl.innerHTML = '';
-
-  for (let i = 0; i < SIZE * SIZE; i++) {
-    // Tabuleiro do Jogador
-    const pCell = document.createElement('div');
-    pCell.classList.add('cell', 'player-cell');
-    pCell.dataset.index = i;
-    playerBoardEl.appendChild(pCell);
-
-    // Tabuleiro do Inimigo
-    const eCell = document.createElement('div');
-    eCell.classList.add('cell');
-    eCell.dataset.index = i;
-    eCell.addEventListener('click', handlePlayerShot);
-    enemyBoardEl.appendChild(eCell);
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-// Colocar navios aleatoriamente
-function placeShips(board, isPlayer) {
-  shipSizes.forEach(size => {
-    let placed = false;
-    while (!placed) {
-      const horizontal = Math.random() > 0.5;
-      const row = Math.floor(Math.random() * SIZE);
-      const col = Math.floor(Math.random() * SIZE);
-
-      if (canPlaceShip(board, row, col, size, horizontal)) {
-        placeShipOnBoard(board, row, col, size, horizontal, isPlayer);
-        placed = true;
-      }
-    }
-  });
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0a1f3d, #1e3a5f);
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-function canPlaceShip(board, row, col, size, horizontal) {
-  for (let i = 0; i < size; i++) {
-    const r = horizontal ? row : row + i;
-    const c = horizontal ? col + i : col;
-    if (r >= SIZE || c >= SIZE || board[r][c] !== 0) return false;
-  }
-  return true;
+.container {
+  text-align: center;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 
-function placeShipOnBoard(board, row, col, size, horizontal, isPlayer) {
-  for (let i = 0; i < size; i++) {
-    const r = horizontal ? row : row + i;
-    const c = horizontal ? col + i : col;
-    board[r][c] = size; // marca o navio
-  }
+h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 15px #00bfff;
 }
 
-// Ataque do jogador
-function handlePlayerShot(e) {
-  if (gameOver) return;
-  
-  const index = parseInt(e.target.dataset.index);
-  const row = Math.floor(index / SIZE);
-  const col = index % SIZE;
-
-  if (enemyBoard[row][col] === -1 || enemyBoard[row][col] === -2) return; // já atirou
-
-  const isHit = enemyBoard[row][col] > 0;
-
-  if (isHit) {
-    e.target.classList.add('hit');
-    e.target.textContent = '💥';
-    enemyBoard[row][col] = -2; // navio atingido
-    statusEl.textContent = "💥 Acertou um navio!";
-  } else {
-    e.target.classList.add('miss');
-    e.target.textContent = '🌊';
-    enemyBoard[row][col] = -1; // água
-    statusEl.textContent = "🌊 Errou!";
-  }
-
-  if (checkWin(enemyBoard)) {
-    statusEl.textContent = "🎉 VOCÊ VENCEU A BATALHA!";
-    gameOver = true;
-    return;
-  }
-
-  // Ataque do computador
-  setTimeout(computerAttack, 600);
+.game-area {
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 20px 0;
 }
 
-// Ataque do computador (simples)
-function computerAttack() {
-  let row, col;
-  do {
-    row = Math.floor(Math.random() * SIZE);
-    col = Math.floor(Math.random() * SIZE);
-  } while (playerBoard[row][col] < 0);
-
-  const index = row * SIZE + col;
-  const cell = playerBoardEl.children[index];
-
-  if (playerBoard[row][col] > 0) {
-    cell.classList.add('hit');
-    cell.textContent = '💥';
-    playerBoard[row][col] = -2;
-    statusEl.textContent = "O inimigo acertou um dos seus navios!";
-  } else {
-    cell.classList.add('miss');
-    cell.textContent = '🌊';
-    playerBoard[row][col] = -1;
-    statusEl.textContent = "O inimigo errou!";
-  }
-
-  if (checkWin(playerBoard)) {
-    statusEl.textContent = "😢 Você perdeu...";
-    gameOver = true;
-  }
+.board-container h2 {
+  margin-bottom: 10px;
+  font-size: 1.4rem;
 }
 
-function checkWin(board) {
-  return board.flat().every(cell => cell <= 0);
+.board {
+  display: grid;
+  grid-template-columns: repeat(10, 35px);
+  gap: 3px;
+  background: #112233;
+  padding: 10px;
+  border-radius: 12px;
 }
 
-function newGame() {
-  playerBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
-  enemyBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
-  gameOver = false;
-
-  createBoards();
-  placeShips(playerBoard, true);
-  placeShips(enemyBoard, false);
-
-  // Mostrar navios do jogador
-  playerBoard.flat().forEach((value, i) => {
-    if (value > 0) {
-      playerBoardEl.children[i].classList.add('ship');
-    }
-  });
-
-  statusEl.textContent = "Clique no tabuleiro inimigo para atirar!";
+.cell {
+  width: 35px;
+  height: 35px;
+  background: #224466;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: 0.2s;
+  border: 1px solid #113355;
 }
 
-// Iniciar o jogo
-newGame();
+.cell:hover {
+  background: #00bfff;
+  transform: scale(1.1);
+}
+
+.player-cell {
+  cursor: default;
+}
+
+.ship {
+  background: #00ff88 !important;
+}
+
+.hit {
+  background: #ff3366 !important;
+  animation: explode 0.4s;
+}
+
+.miss {
+  background: #88aaff !important;
+}
+
+@keyframes explode {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+.status {
+  font-size: 1.4rem;
+  margin: 20px 0;
+  min-height: 50px;
+}
+
+.reset-btn {
+  padding: 14px 35px;
+  font-size: 1.2rem;
+  background: #ff3366;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.reset-btn:hover {
+  background: #ff6688;
+  transform: translateY(-3px);
+}

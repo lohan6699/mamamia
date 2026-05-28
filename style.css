@@ -1,115 +1,179 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+const SIZE = 10;
+let playerBoard = [];
+let enemyBoard = [];
+let gameOver = false;
+
+let aiTargets = [];        // Células prioritárias para atacar
+let lastHit = null;        // Último acerto da IA
+
+const playerBoardEl = document.getElementById('player-board');
+const enemyBoardEl = document.getElementById('enemy-board');
+const statusEl = document.getElementById('status');
+
+const shipSizes = [5, 4, 3, 3, 2];
+
+// Direções possíveis (cima, baixo, esquerda, direita)
+const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+function createBoards() {
+  playerBoardEl.innerHTML = '';
+  enemyBoardEl.innerHTML = '';
+  playerBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+  enemyBoard = Array(SIZE).fill().map(() => Array(SIZE).fill(0));
+
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const pCell = document.createElement('div');
+    pCell.classList.add('cell', 'player-cell');
+    playerBoardEl.appendChild(pCell);
+
+    const eCell = document.createElement('div');
+    eCell.classList.add('cell');
+    eCell.dataset.index = i;
+    eCell.addEventListener('click', handlePlayerShot);
+    enemyBoardEl.appendChild(eCell);
+  }
 }
 
-body {
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #0a1f3d, #1e3a5f);
-  color: white;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+function canPlaceShip(board, row, col, size, horizontal) {
+  for (let i = 0; i < size; i++) {
+    const r = horizontal ? row : row + i;
+    const c = horizontal ? col + i : col;
+    if (r < 0 || r >= SIZE || c < 0 || c >= SIZE || board[r][c] !== 0) return false;
+  }
+  return true;
 }
 
-.container {
-  text-align: center;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+function placeShips(board, isPlayer) {
+  shipSizes.forEach(size => {
+    let placed = false;
+    while (!placed) {
+      const horizontal = Math.random() > 0.5;
+      const row = Math.floor(Math.random() * SIZE);
+      const col = Math.floor(Math.random() * SIZE);
+
+      if (canPlaceShip(board, row, col, size, horizontal)) {
+        for (let i = 0; i < size; i++) {
+          const r = horizontal ? row : row + i;
+          const c = horizontal ? col + i : col;
+          board[r][c] = size;
+        }
+        placed = true;
+      }
+    }
+  });
 }
 
-h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  text-shadow: 0 0 15px #00bfff;
+// ==================== IA AVANÇADA ====================
+
+function getRandomTarget() {
+  let row, col;
+  do {
+    row = Math.floor(Math.random() * SIZE);
+    col = Math.floor(Math.random() * SIZE);
+  } while (playerBoard[row][col] < 0);
+  return { row, col };
 }
 
-.game-area {
-  display: flex;
-  gap: 40px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin: 20px 0;
+function addAdjacentTargets(row, col) {
+  directions.forEach(([dr, dc]) => {
+    const r = row + dr;
+    const c = col + dc;
+    if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && playerBoard[r][c] >= 0) {
+      aiTargets.push({ row: r, col: c });
+    }
+  });
 }
 
-.board-container h2 {
-  margin-bottom: 10px;
-  font-size: 1.4rem;
+function computerAttack() {
+  if (gameOver) return;
+
+  let target;
+
+  if (aiTargets.length > 0) {
+    target = aiTargets.shift(); // Pega o próximo alvo prioritário
+  } else {
+    target = getRandomTarget();
+  }
+
+  const { row, col } = target;
+  const index = row * SIZE + col;
+  const cell = playerBoardEl.children[index];
+
+  const isHit = playerBoard[row][col] > 0;
+
+  if (isHit) {
+    cell.classList.add('hit');
+    cell.textContent = '💥';
+    playerBoard[row][col] = -2;
+    lastHit = { row, col };
+    addAdjacentTargets(row, col); // Adiciona vizinhos como prioridade
+    statusEl.textContent = "💥 A IA acertou um dos seus navios!";
+  } else {
+    cell.classList.add('miss');
+    cell.textContent = '🌊';
+    playerBoard[row][col] = -1;
+    statusEl.textContent = "🌊 A IA errou!";
+  }
+
+  if (checkWin(playerBoard)) {
+    statusEl.textContent = "😢 A IA VENCEU!";
+    gameOver = true;
+  }
 }
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(10, 35px);
-  gap: 3px;
-  background: #112233;
-  padding: 10px;
-  border-radius: 12px;
+// Jogador atira
+function handlePlayerShot(e) {
+  if (gameOver) return;
+
+  const index = parseInt(e.target.dataset.index);
+  const row = Math.floor(index / SIZE);
+  const col = index % SIZE;
+
+  if (enemyBoard[row][col] < 0) return;
+
+  const isHit = enemyBoard[row][col] > 0;
+
+  if (isHit) {
+    e.target.classList.add('hit');
+    e.target.textContent = '💥';
+    enemyBoard[row][col] = -2;
+    statusEl.textContent = "💥 Você acertou!";
+  } else {
+    e.target.classList.add('miss');
+    e.target.textContent = '🌊';
+    enemyBoard[row][col] = -1;
+    statusEl.textContent = "🌊 Errou!";
+  }
+
+  if (checkWin(enemyBoard)) {
+    statusEl.textContent = "🎉 VOCÊ VENCEU!";
+    gameOver = true;
+    return;
+  }
+
+  setTimeout(computerAttack, 700);
 }
 
-.cell {
-  width: 35px;
-  height: 35px;
-  background: #224466;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  cursor: pointer;
-  transition: 0.2s;
-  border: 1px solid #113355;
+function checkWin(board) {
+  return board.flat().every(cell => cell <= 0);
 }
 
-.cell:hover {
-  background: #00bfff;
-  transform: scale(1.1);
+function newGame() {
+  gameOver = false;
+  aiTargets = [];
+  lastHit = null;
+
+  createBoards();
+  placeShips(playerBoard, true);
+  placeShips(enemyBoard, false);
+
+  // Mostrar navios do jogador
+  playerBoard.flat().forEach((value, i) => {
+    if (value > 0) playerBoardEl.children[i].classList.add('ship');
+  });
+
+  statusEl.textContent = "Clique no tabuleiro inimigo para atirar!";
 }
 
-.player-cell {
-  cursor: default;
-}
-
-.ship {
-  background: #00ff88 !important;
-}
-
-.hit {
-  background: #ff3366 !important;
-  animation: explode 0.4s;
-}
-
-.miss {
-  background: #88aaff !important;
-}
-
-@keyframes explode {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.4); }
-  100% { transform: scale(1); }
-}
-
-.status {
-  font-size: 1.4rem;
-  margin: 20px 0;
-  min-height: 50px;
-}
-
-.reset-btn {
-  padding: 14px 35px;
-  font-size: 1.2rem;
-  background: #ff3366;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.reset-btn:hover {
-  background: #ff6688;
-  transform: translateY(-3px);
-}
+// Iniciar
+newGame();
