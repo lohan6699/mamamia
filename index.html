@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BATALHA NO MAR 4D</title>
+  <title>BATALHA NO MAR 8D</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #000814;
+      background: #00060f;
       color: white;
       display: flex;
       justify-content: center;
@@ -18,60 +18,49 @@
     }
     .container { text-align: center; }
     h1 {
-      font-size: 3.5rem;
+      font-size: 3.6rem;
       margin-bottom: 10px;
-      background: linear-gradient(90deg, #00ffff, #00ff88, #00ffff);
+      background: linear-gradient(90deg, #00ffff, #00ffcc, #00ffff);
       -webkit-background-clip: text;
       color: transparent;
-      text-shadow: 0 0 40px #00ffff;
+      text-shadow: 0 0 50px #00ffff;
     }
     .game-info {
-      font-size: 1.6rem;
+      font-size: 1.7rem;
       margin-bottom: 15px;
       display: flex;
       justify-content: center;
       gap: 50px;
     }
     canvas {
-      border: 6px solid #00bfff;
-      border-radius: 18px;
-      box-shadow: 0 0 50px rgba(0, 191, 255, 0.7);
-      background: #000d1f;
-    }
-    .controls {
-      margin-top: 15px;
-      font-size: 1.2rem;
-      opacity: 0.85;
+      border: 7px solid #00ddff;
+      border-radius: 20px;
+      box-shadow: 0 0 60px rgba(0, 221, 255, 0.8);
     }
     button {
-      margin-top: 18px;
-      padding: 16px 45px;
+      margin-top: 20px;
+      padding: 16px 50px;
       font-size: 1.4rem;
-      background: linear-gradient(#ff3366, #cc1122);
+      background: linear-gradient(#ff3366, #cc0022);
       color: white;
       border: none;
       border-radius: 50px;
       cursor: pointer;
       font-weight: bold;
-      box-shadow: 0 10px 25px rgba(255, 50, 80, 0.6);
-      transition: 0.3s;
     }
-    button:hover {
-      transform: scale(1.08);
-      box-shadow: 0 15px 30px rgba(255, 80, 100, 0.7);
-    }
+    button:hover { transform: scale(1.1); }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>⚓ BATALHA NO MAR 4D ⚓</h1>
+    <h1>⚓ BATALHA NO MAR 8D ⚓</h1>
     <div class="game-info">
       <span>Pontos: <strong id="score">0</strong></span>
       <span>Vidas: <strong id="lives">3</strong></span>
       <span>Nível: <strong id="level">1</strong></span>
     </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <p class="controls">← → Mover  |  ESPAÇO ou Clique = Atirar</p>
+    <p style="margin-top:15px; opacity:0.8;">← → ↑ ↓ Mover  |  ESPAÇO ou Clique = Atirar</p>
     <button onclick="restartGame()">Novo Jogo</button>
   </div>
 
@@ -79,20 +68,12 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     
-    let score = 0;
-    let lives = 3;
-    let level = 1;
-    let gameOver = false;
+    let score = 0, lives = 3, level = 1, gameOver = false;
 
-    const player = { x: 365, y: 480, width: 70, height: 65, speed: 9 };
+    const player = { x: 350, y: 420, width: 90, height: 70, speed: 8 };
 
-    let bullets = [];
-    let enemies = [];
-    let explosions = [];
-    let enemyBullets = [];
-    let keys = {};
+    let bullets = [], enemies = [], explosions = [], enemyBullets = [], keys = {};
 
-    // Controles
     window.addEventListener('keydown', e => keys[e.key] = true);
     window.addEventListener('keyup', e => keys[e.key] = false);
     canvas.addEventListener('click', shoot);
@@ -100,68 +81,89 @@
 
     function shoot() {
       if (gameOver) return;
-      bullets.push({
-        x: player.x + 31,
-        y: player.y - 5,
-        width: 8,
-        height: 28,
-        speed: 15
-      });
+      bullets.push({ x: player.x + 45, y: player.y - 10, width: 10, height: 30, speed: 16 });
     }
 
     class Explosion {
       constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.size = 15;
-        this.life = 28;
+        this.x = x; this.y = y; this.size = 20; this.life = 30;
       }
-      update() { this.life -= 1; this.size += 1.8; }
+      update() { this.life--; this.size += 2; }
       draw() {
-        const alpha = this.life / 28;
-        ctx.fillStyle = `rgba(255, ${this.life * 12}, 0, ${alpha})`;
+        ctx.fillStyle = `rgba(255, ${this.life*10}, 50, ${this.life/30})`;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
         ctx.fill();
       }
     }
 
     function createEnemy() {
-      const isBig = Math.random() < 0.35;
+      const isBig = Math.random() < 0.4;
       enemies.push({
-        x: Math.random() * (canvas.width - 80),
+        x: Math.random() * (canvas.width - 90),
         y: -80,
-        width: isBig ? 85 : 65,
-        height: isBig ? 65 : 55,
-        speed: 1.6 + level * 0.45,
+        width: isBig ? 90 : 70,
+        height: isBig ? 70 : 55,
+        speed: 1.7 + level * 0.5,
         type: isBig ? 'big' : 'normal'
       });
     }
 
     function drawOcean() {
-      ctx.fillStyle = '#000d22';
+      ctx.fillStyle = '#000a1f';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.strokeStyle = 'rgba(0, 200, 255, 0.3)';
-      ctx.lineWidth = 5;
-      for (let i = 0; i < 9; i++) {
+      ctx.strokeStyle = 'rgba(0, 180, 255, 0.35)';
+      ctx.lineWidth = 6;
+      for (let i = 0; i < 10; i++) {
         ctx.beginPath();
-        const baseY = 60 + i * 58;
-        ctx.moveTo(0, baseY);
-        for (let x = 0; x < canvas.width; x += 22) {
-          ctx.lineTo(x, baseY + Math.sin(x / 45 + Date.now() / 280) * 22);
+        const base = 50 + i * 55;
+        ctx.moveTo(0, base);
+        for (let x = 0; x < canvas.width; x += 20) {
+          ctx.lineTo(x, base + Math.sin(x/40 + Date.now()/300) * 25);
         }
         ctx.stroke();
       }
     }
 
     function drawPlayer() {
-      ctx.fillStyle = '#00ffbb';
-      ctx.fillRect(player.x + 8, player.y + 15, 54, 42);
-      ctx.fillStyle = '#00dd99';
-      ctx.fillRect(player.x + 22, player.y + 5, 26, 28);
-      ctx.fillStyle = '#ff2244';
-      ctx.fillRect(player.x + 30, player.y - 12, 12, 22);
+      const px = player.x, py = player.y;
+
+      // Casco principal
+      ctx.fillStyle = '#00ccaa';
+      ctx.beginPath();
+      ctx.moveTo(px + 10, py + 60);
+      ctx.lineTo(px + 80, py + 60);
+      ctx.lineTo(px + 70, py + 30);
+      ctx.lineTo(px + 20, py + 30);
+      ctx.closePath();
+      ctx.fill();
+
+      // Convés superior
+      ctx.fillStyle = '#008877';
+      ctx.fillRect(px + 18, py + 28, 55, 18);
+
+      // Cabine
+      ctx.fillStyle = '#004d44';
+      ctx.fillRect(px + 30, py + 15, 32, 18);
+
+      // Janelas da cabine
+      ctx.fillStyle = '#ffff88';
+      ctx.fillRect(px + 34, py + 18, 8, 8);
+      ctx.fillRect(px + 48, py + 18, 8, 8);
+
+      // Canhões
+      ctx.fillStyle = '#222222';
+      ctx.fillRect(px + 22, py + 8, 14, 20);
+      ctx.fillRect(px + 55, py + 8, 14, 20);
+
+      // Detalhe vermelho
+      ctx.fillStyle = '#ff2222';
+      ctx.fillRect(px + 35, py + 48, 22, 8);
+
+      // Luzes
+      ctx.fillStyle = '#ffff00';
+      ctx.fillRect(px + 38, py + 12, 7, 7);
     }
 
     function update() {
@@ -169,27 +171,21 @@
 
       if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
       if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed;
+      if (keys['ArrowUp'] && player.y > 180) player.y -= player.speed;
+      if (keys['ArrowDown'] && player.y < 480) player.y += player.speed;
 
-      bullets = bullets.filter(b => { b.y -= b.speed; return b.y > -30; });
+      bullets = bullets.filter(b => { b.y -= b.speed; return b.y > -40; });
 
       enemies.forEach((e, i) => {
         e.y += e.speed;
 
-        if (Math.random() < 0.028 + level * 0.006) {
-          enemyBullets.push({
-            x: e.x + e.width/2 - 3,
-            y: e.y + e.height - 5,
-            width: 8,
-            height: 24,
-            speed: 7.5
-          });
+        if (Math.random() < 0.03 + level*0.007) {
+          enemyBullets.push({ x: e.x + e.width/2, y: e.y + e.height, width: 8, height: 25, speed: 8 });
         }
 
-        if (e.y + e.height > player.y && 
-            e.x < player.x + player.width && 
-            e.x + e.width > player.x) {
+        if (e.y + e.height > player.y && e.x < player.x + player.width && e.x + e.width > player.x) {
           lives--;
-          explosions.push(new Explosion(player.x + 35, player.y + 35));
+          explosions.push(new Explosion(player.x + 45, player.y + 35));
           enemies.splice(i, 1);
           if (lives <= 0) gameOver = true;
         }
@@ -203,16 +199,15 @@
             bullets.splice(bi, 1);
             explosions.push(new Explosion(e.x + e.width/2, e.y + e.height/2));
             enemies.splice(ei, 1);
-            score += e.type === 'big' ? 250 : 100;
+            score += e.type === 'big' ? 300 : 120;
           }
         });
       });
 
       explosions = explosions.filter(exp => { exp.update(); return exp.life > 0; });
 
-      if (score > level * 900) level++;
-
-      if (Math.random() < 0.045 + level * 0.01) createEnemy();
+      if (score > level * 1000) level++;
+      if (Math.random() < 0.05 + level * 0.012) createEnemy();
     }
 
     function draw() {
@@ -223,13 +218,13 @@
       bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
       enemies.forEach(e => {
-        ctx.fillStyle = e.type === 'big' ? '#ff3366' : '#ff5555';
+        ctx.fillStyle = e.type === 'big' ? '#ff4444' : '#ff6666';
         ctx.fillRect(e.x, e.y, e.width, e.height);
-        ctx.fillStyle = '#ffee00';
-        ctx.fillRect(e.x + e.width/2 - 8, e.y + 15, 16, 14);
+        ctx.fillStyle = '#ffff00';
+        ctx.fillRect(e.x + 20, e.y + 15, 15, 12);
       });
 
-      ctx.fillStyle = '#ff8800';
+      ctx.fillStyle = '#ff9900';
       enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
       explosions.forEach(exp => exp.draw());
@@ -239,14 +234,14 @@
       document.getElementById('level').textContent = level;
 
       if (gameOver) {
-        ctx.fillStyle = 'rgba(0,0,0,0.85)';
+        ctx.fillStyle = 'rgba(0,0,0,0.9)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = '#ff0000';
-        ctx.font = 'bold 58px Arial';
-        ctx.fillText('GAME OVER', 195, 270);
-        ctx.font = '32px Arial';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(`Pontuação Final: ${score}`, 220, 340);
+        ctx.font = 'bold 60px Arial';
+        ctx.fillText('GAME OVER', 180, 280);
+        ctx.font = '30px Arial';
+        ctx.fillStyle = 'white';
+        ctx.fillText(`Pontuação: ${score}`, 260, 350);
       }
     }
 
@@ -257,18 +252,11 @@
     }
 
     function restartGame() {
-      score = 0;
-      lives = 3;
-      level = 1;
-      gameOver = false;
-      bullets = [];
-      enemies = [];
-      enemyBullets = [];
-      explosions = [];
-      player.x = 365;
+      score = 0; lives = 3; level = 1; gameOver = false;
+      bullets = []; enemies = []; explosions = []; enemyBullets = [];
+      player.x = 350; player.y = 420;
     }
 
-    // Iniciar o jogo
     gameLoop();
   </script>
 </body>
