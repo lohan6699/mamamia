@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BATALHA NO MAR 8D - IA AVANÇADA</title>
+  <title>BATALHA NO MAR 8D</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -16,9 +16,9 @@
       min-height: 100vh;
       overflow: hidden;
     }
-    .container { text-align: center; }
+    .container { text-align: center; position: relative; }
     h1 {
-      font-size: 3.5rem;
+      font-size: 3.6rem;
       margin-bottom: 10px;
       background: linear-gradient(90deg, #00ffff, #00ffcc, #00ffff);
       -webkit-background-clip: text;
@@ -37,10 +37,36 @@
       border-radius: 20px;
       box-shadow: 0 0 60px rgba(0, 221, 255, 0.8);
     }
-    button {
+
+    /* Tela de Game Over */
+    #gameOverScreen {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.92);
+      padding: 40px 60px;
+      border-radius: 20px;
+      border: 4px solid #ff2222;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 0 40px #ff0000;
+    }
+    #gameOverScreen img {
+      width: 180px;
+      margin-bottom: 20px;
+    }
+    #gameOverScreen h2 {
+      color: #ff4444;
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    .restart-btn {
       margin-top: 20px;
-      padding: 16px 50px;
-      font-size: 1.4rem;
+      padding: 18px 60px;
+      font-size: 1.5rem;
       background: linear-gradient(#ff3366, #cc0022);
       color: white;
       border: none;
@@ -48,25 +74,36 @@
       cursor: pointer;
       font-weight: bold;
     }
-    button:hover { transform: scale(1.1); }
+    .restart-btn:hover {
+      transform: scale(1.1);
+      background: linear-gradient(#ff5577, #ee1122);
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>⚓ BATALHA NO MAR 8D - IA AVANÇADA ⚓</h1>
+    <h1>⚓ BATALHA NO MAR 8D ⚓</h1>
     <div class="game-info">
       <span>Pontos: <strong id="score">0</strong></span>
       <span>Vidas: <strong id="lives">3</strong></span>
       <span>Nível: <strong id="level">1</strong></span>
     </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <p style="margin-top:15px; opacity:0.8;">← → ↑ ↓ Mover | ESPAÇO ou Clique = Atirar</p>
-    <button onclick="restartGame()">Novo Jogo</button>
+
+    <!-- TELA DE GAME OVER -->
+    <div id="gameOverScreen">
+      <img src="https://i.imgur.com/5z5z5z5.png" alt="Game Over"> <!-- Você pode trocar por outra imagem -->
+      <h2>GAME OVER</h2>
+      <p style="font-size:1.4rem; margin:10px 0;">Pontuação Final: <strong id="finalScore">0</strong></p>
+      <button class="restart-btn" onclick="restartGame()">🔄 JOGAR NOVAMENTE</button>
+    </div>
   </div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const finalScoreEl = document.getElementById('finalScore');
     
     let score = 0, lives = 3, level = 1, gameOver = false;
 
@@ -104,10 +141,8 @@
         y: -80,
         width: isBig ? 90 : 70,
         height: isBig ? 70 : 55,
-        speed: 1.6 + level * 0.5,
-        type: isBig ? 'big' : 'normal',
-        direction: Math.random() < 0.5 ? 1 : -1,   // IA: direção horizontal
-        shootTimer: Math.random() * 60
+        speed: 1.7 + level * 0.5,
+        type: isBig ? 'big' : 'normal'
       });
     }
 
@@ -144,7 +179,6 @@
 
       ctx.fillStyle = '#007766';
       ctx.fillRect(px + 16, py + 31, 63, 22);
-
       ctx.fillStyle = '#002211';
       ctx.fillRect(px + 27, py + 17, 40, 20);
 
@@ -169,7 +203,6 @@
     function update() {
       if (gameOver) return;
 
-      // Movimento do jogador
       if (keys['ArrowLeft'])  player.x -= player.speed;
       if (keys['ArrowRight']) player.x += player.speed;
       if (keys['ArrowUp'])    player.y -= player.speed;
@@ -180,46 +213,24 @@
 
       bullets = bullets.filter(b => { b.y -= b.speed; return b.y > -40; });
 
-      // ==================== IA AVANÇADA DOS INIMIGOS ====================
       enemies.forEach((e, i) => {
         e.y += e.speed;
-
-        // Movimento horizontal inteligente
-        e.x += e.direction * 1.8;
-        if (e.x <= 20 || e.x >= canvas.width - e.width - 20) {
-          e.direction *= -1;   // Inverte direção ao bater na borda
+        if (Math.random() < 0.03 + level * 0.007) {
+          enemyBullets.push({ x: e.x + e.width/2, y: e.y + e.height, width: 8, height: 25, speed: 8 });
         }
-
-        // IA: Atira quando o jogador está alinhado ou em intervalos
-        e.shootTimer--;
-        if (e.shootTimer <= 0) {
-          const distX = Math.abs(e.x + e.width/2 - (player.x + player.width/2));
-          if (distX < 80) {  // Só atira se estiver relativamente alinhado
-            enemyBullets.push({ 
-              x: e.x + e.width/2, 
-              y: e.y + e.height, 
-              width: 8, 
-              height: 25, 
-              speed: 7.5 
-            });
-            e.shootTimer = 45 + Math.random() * 40; // Recarga inteligente
-          } else {
-            e.shootTimer = 20;
-          }
-        }
-
-        // Colisão com jogador
         if (e.y + e.height > player.y && e.x < player.x + player.width && e.x + e.width > player.x) {
           lives--;
           explosions.push(new Explosion(player.x + 47, player.y + 35));
           enemies.splice(i, 1);
-          if (lives <= 0) gameOver = true;
+          if (lives <= 0) {
+            gameOver = true;
+            showGameOverScreen();
+          }
         }
       });
 
       enemyBullets = enemyBullets.filter(b => { b.y += b.speed; return b.y < canvas.height; });
 
-      // Colisões
       bullets.forEach((b, bi) => {
         enemies.forEach((e, ei) => {
           if (b.x > e.x && b.x < e.x + e.width && b.y > e.y && b.y < e.y + e.height) {
@@ -259,17 +270,11 @@
       document.getElementById('score').textContent = score;
       document.getElementById('lives').textContent = lives;
       document.getElementById('level').textContent = level;
+    }
 
-      if (gameOver) {
-        ctx.fillStyle = 'rgba(0,0,0,0.9)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#ff0000';
-        ctx.font = 'bold 60px Arial';
-        ctx.fillText('GAME OVER', 180, 280);
-        ctx.font = '30px Arial';
-        ctx.fillStyle = 'white';
-        ctx.fillText(`Pontuação: ${score}`, 260, 350);
-      }
+    function showGameOverScreen() {
+      finalScoreEl.textContent = score;
+      gameOverScreen.style.display = 'flex';
     }
 
     function gameLoop() {
@@ -282,6 +287,7 @@
       score = 0; lives = 3; level = 1; gameOver = false;
       bullets = []; enemies = []; explosions = []; enemyBullets = [];
       player.x = 350; player.y = 400;
+      gameOverScreen.style.display = 'none';
     }
 
     gameLoop();
