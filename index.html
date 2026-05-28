@@ -425,43 +425,174 @@ function drawEnemyShip(e) {
   ctx.save();
   const isBig = e.type==='big';
   const ex=e.x, ey=e.y, ew=e.w, eh=e.h;
+  const cx = ex + ew/2;
 
-  // Damage glow
-  if(e.hp < e.maxHp) {
+  // Damage smoke
+  const dmgRatio = 1 - e.hp/e.maxHp;
+  if(dmgRatio > 0) {
     ctx.shadowColor='#ff4400';
-    ctx.shadowBlur = 12*(1-e.hp/e.maxHp);
+    ctx.shadowBlur = 16*dmgRatio;
   }
 
-  // Hull
-  const hullG = ctx.createLinearGradient(ex,ey,ex,ey+eh);
-  hullG.addColorStop(0, isBig?'#cc2200':'#992200');
-  hullG.addColorStop(1, isBig?'#660000':'#440000');
+  // ── WAKE (ship is coming down, so wake is above) ──
+  for(let i=0;i<3;i++){
+    const wy = ey - 4 - i*7;
+    ctx.beginPath();
+    ctx.arc(cx, wy, 11-i*3, Math.PI, 0);
+    ctx.strokeStyle=`rgba(180,40,40,${0.25-i*0.07})`;
+    ctx.lineWidth=2;
+    ctx.stroke();
+  }
+
+  // ── HULL ──
+  const hullG = ctx.createLinearGradient(ex, ey+eh*0.3, ex, ey+eh);
+  if(isBig){
+    hullG.addColorStop(0,'#b81a00');
+    hullG.addColorStop(0.5,'#7a0e00');
+    hullG.addColorStop(1,'#3d0500');
+  } else {
+    hullG.addColorStop(0,'#8c1500');
+    hullG.addColorStop(1,'#3a0400');
+  }
   ctx.fillStyle=hullG;
   ctx.beginPath();
-  ctx.moveTo(ex+8, ey+eh);
-  ctx.lineTo(ex+ew-8, ey+eh);
-  ctx.lineTo(ex+ew-4, ey+10);
-  ctx.lineTo(ex+4, ey+10);
+  // Pointed bow at bottom (ship points downward)
+  ctx.moveTo(ex+8,       ey+2);      // top-left
+  ctx.lineTo(ex+ew-8,    ey+2);      // top-right
+  ctx.lineTo(ex+ew-2,    ey+eh*0.65);// right flare
+  ctx.lineTo(cx+4,       ey+eh);     // bow tip right
+  ctx.lineTo(cx-4,       ey+eh);     // bow tip left
+  ctx.lineTo(ex+2,       ey+eh*0.65);// left flare
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle='#ff3300'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.strokeStyle=isBig?'#ff5500':'#cc3300';
+  ctx.lineWidth=1.5; ctx.stroke();
 
-  // Deck
-  ctx.fillStyle='#661100';
-  ctx.fillRect(ex+6, ey+8, ew-12, 18);
+  // Hull rivets / strakes
+  ctx.strokeStyle='rgba(200,60,0,0.4)';
+  ctx.lineWidth=1;
+  for(let r=0;r<3;r++){
+    const ry = ey+8+r*(eh*0.18);
+    const inset = 6+r*4;
+    ctx.beginPath();
+    ctx.moveTo(ex+inset, ry);
+    ctx.lineTo(ex+ew-inset, ry);
+    ctx.stroke();
+  }
 
-  // Skull emblem
+  // ── DECK ──
+  const deckG = ctx.createLinearGradient(ex, ey+4, ex, ey+eh*0.35);
+  deckG.addColorStop(0,'#8a1800');
+  deckG.addColorStop(1,'#5c0f00');
+  ctx.fillStyle=deckG;
+  ctx.fillRect(ex+8, ey+2, ew-16, eh*0.33);
+  ctx.strokeStyle='#aa2200'; ctx.lineWidth=1; ctx.strokeRect(ex+8,ey+2,ew-16,eh*0.33);
+
+  // ── SUPERSTRUCTURE ──
+  const ssW = isBig ? ew*0.55 : ew*0.5;
+  const ssX = cx - ssW/2;
+  const ssY = ey+4;
+  const ssH = isBig ? eh*0.28 : eh*0.25;
+  ctx.fillStyle='#3d0800';
+  ctx.beginPath();
+  ctx.roundRect(ssX, ssY, ssW, ssH, 3);
+  ctx.fill();
+  ctx.strokeStyle='#882200'; ctx.lineWidth=1; ctx.stroke();
+
+  // Bridge windows (glowing orange/red)
+  const winCount = isBig ? 4 : 3;
+  const winW = 6, winH = 5;
+  const winSpacing = ssW / (winCount+1);
+  for(let w=0;w<winCount;w++){
+    const wx = ssX + winSpacing*(w+1) - winW/2;
+    const wy = ssY + ssH*0.25;
+    ctx.fillStyle='#ff6600';
+    ctx.shadowColor='#ff6600'; ctx.shadowBlur=6;
+    ctx.fillRect(wx, wy, winW, winH);
+    ctx.shadowBlur=0;
+  }
+
+  // ── CANNONS ──
+  if(isBig){
+    // Two big side cannons
+    [[ex+4, ey+eh*0.18],[ex+ew-18, ey+eh*0.18]].forEach(([ccx,ccy])=>{
+      ctx.fillStyle='#1a0500';
+      ctx.fillRect(ccx, ccy, 14, 22);
+      ctx.fillStyle='#550e00';
+      ctx.fillRect(ccx+2, ccy+3, 10, 3);
+      ctx.fillRect(ccx+2, ccy+8, 10, 3);
+      // Barrel glow
+      ctx.fillStyle='rgba(255,80,0,0.3)';
+      ctx.fillRect(ccx+4, ccy+20, 6, 4);
+    });
+    // Center heavy cannon
+    ctx.fillStyle='#1a0500';
+    ctx.fillRect(cx-5, ey, 10, 20);
+    ctx.fillStyle='rgba(255,60,0,0.5)';
+    ctx.shadowColor='#ff3300'; ctx.shadowBlur=8;
+    ctx.fillRect(cx-3, ey+16, 6, 5);
+    ctx.shadowBlur=0;
+  } else {
+    // Single center cannon
+    ctx.fillStyle='#1a0500';
+    ctx.fillRect(cx-4, ey, 8, 18);
+    ctx.fillStyle='rgba(255,60,0,0.5)';
+    ctx.shadowColor='#ff2200'; ctx.shadowBlur=6;
+    ctx.fillRect(cx-3, ey+14, 6, 5);
+    ctx.shadowBlur=0;
+  }
+
+  // ── MAST ──
+  ctx.strokeStyle='#661100'; ctx.lineWidth= isBig?2.5:2;
+  const mastTop = ey - (isBig?18:14);
+  ctx.beginPath();
+  ctx.moveTo(cx, ssY);
+  ctx.lineTo(cx, mastTop);
+  ctx.stroke();
+  // Crossbar
+  const cbW = isBig?22:16;
+  ctx.beginPath();
+  ctx.moveTo(cx-cbW, mastTop+4);
+  ctx.lineTo(cx+cbW, mastTop+4);
+  ctx.stroke();
+
+  // ── SKULL FLAG ──
+  ctx.fillStyle='#111';
+  ctx.fillRect(cx, mastTop, isBig?16:12, isBig?10:8);
   ctx.fillStyle='#ffcc00';
-  ctx.font=`bold ${isBig?18:13}px serif`;
+  ctx.shadowColor='#ffcc00'; ctx.shadowBlur=4;
+  ctx.font=`bold ${isBig?9:7}px serif`;
   ctx.textAlign='center';
-  ctx.fillText('☠', ex+ew/2, ey+eh/2+4);
+  ctx.fillText('☠', cx+(isBig?8:6), mastTop+(isBig?9:7));
+  ctx.shadowBlur=0;
 
-  // HP bar
+  // ── SMOKE from funnel (damage) ──
+  if(dmgRatio > 0.3 && isBig){
+    const smokeX = cx + 10;
+    const smokeY = ssY;
+    for(let s=0;s<3;s++){
+      ctx.beginPath();
+      ctx.arc(smokeX + s*3, smokeY - s*6, 4+s*2, 0, Math.PI*2);
+      ctx.fillStyle=`rgba(80,20,0,${0.3-s*0.08})`;
+      ctx.fill();
+    }
+  }
+
+  // ── WATERLINE SHIMMER ──
+  ctx.fillStyle='rgba(200,60,0,0.12)';
+  ctx.fillRect(ex+2, ey+eh*0.62, ew-4, 4);
+
+  // ── HP BAR ──
   if(e.maxHp > 1){
-    ctx.fillStyle='#330000';
-    ctx.fillRect(ex+4, ey-8, ew-8, 5);
-    ctx.fillStyle=e.hp/e.maxHp>0.5?'#44ff44':'#ff4400';
-    ctx.fillRect(ex+4, ey-8, (ew-8)*(e.hp/e.maxHp), 5);
+    ctx.fillStyle='rgba(0,0,0,0.6)';
+    ctx.fillRect(ex+4, ey-12, ew-8, 6);
+    const hpColor = e.hp/e.maxHp > 0.5 ? '#44ff44' : e.hp/e.maxHp > 0.25 ? '#ffaa00' : '#ff2200';
+    ctx.fillStyle=hpColor;
+    ctx.shadowColor=hpColor; ctx.shadowBlur=4;
+    ctx.fillRect(ex+4, ey-12, (ew-8)*(e.hp/e.maxHp), 6);
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='#440000'; ctx.lineWidth=1;
+    ctx.strokeRect(ex+4, ey-12, ew-8, 6);
   }
 
   ctx.shadowBlur=0;
