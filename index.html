@@ -3,21 +3,299 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Batalha no Mar</title>
-  <link rel="stylesheet" href="style.css">
+  <title>BATALHA NO MAR 4D</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #000814;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .container {
+      text-align: center;
+    }
+    h1 {
+      font-size: 3.2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #00ffff, #00ff88);
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 30px #00ffff;
+    }
+    .game-info {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+    }
+    canvas {
+      border: 5px solid #00bfff;
+      border-radius: 15px;
+      box-shadow: 0 0 40px rgba(0, 191, 255, 0.6);
+      background: #001122;
+    }
+    .controls {
+      margin-top: 15px;
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+    button {
+      margin-top: 15px;
+      padding: 14px 40px;
+      font-size: 1.3rem;
+      background: linear-gradient(#ff3366, #cc1122);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(255, 50, 80, 0.5);
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>⚓ BATALHA NO MAR ⚓</h1>
+    <h1>⚓ BATALHA NO MAR 4D ⚓</h1>
     <div class="game-info">
       <span>Pontos: <strong id="score">0</strong></span>
       <span>Vidas: <strong id="lives">3</strong></span>
+      <span>Nível: <strong id="level">1</strong></span>
     </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <p class="controls">← → Mover   |   ESPAÇO ou Clique = Atirar</p>
-    <button class="reset-btn" onclick="restartGame()">Novo Jogo</button>
+    <p class="controls">← → Mover  |  ESPAÇO ou Clique = Atirar</p>
+    <button onclick="restartGame()">Novo Jogo</button>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let score = 0;
+    let lives = 3;
+    let level = 1;
+    let gameOver = false;
+    let gameStarted = true;
+
+    const player = { x: 370, y: 480, width: 70, height: 60, speed: 9 };
+
+    let bullets = [];
+    let enemies = [];
+    let explosions = [];
+    let enemyBullets = [];
+    let keys = {};
+
+    // Controles
+    window.addEventListener('keydown', e => keys[e.key] = true);
+    window.addEventListener('keyup', e => keys[e.key] = false);
+    canvas.addEventListener('click', () => shoot());
+
+    function shoot() {
+      if (gameOver) return;
+      bullets.push({
+        x: player.x + 32,
+        y: player.y - 10,
+        width: 8,
+        height: 25,
+        speed: 14
+      });
+    }
+
+    class Explosion {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.size = 20;
+        this.life = 25;
+      }
+      update() { this.life--; this.size += 1.5; }
+      draw() {
+        ctx.fillStyle = `rgba(255, ${this.life * 10}, 0, ${this.life/25})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function createEnemy() {
+      const speed = 1.8 + level * 0.4;
+      enemies.push({
+        x: Math.random() * (canvas.width - 70),
+        y: -70,
+        width: 65,
+        height: 55,
+        speed: speed,
+        type: Math.random() < 0.3 ? 'big' : 'normal'
+      });
+    }
+
+    function drawOcean() {
+      ctx.fillStyle = '#000d1f';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Ondas animadas
+      ctx.strokeStyle = 'rgba(0, 180, 255, 0.25)';
+      ctx.lineWidth = 4;
+      for (let i = 0; i < 10; i++) {
+        ctx.beginPath();
+        const offset = Math.sin(Date.now() / 300 + i) * 12;
+        ctx.moveTo(0, 70 + i * 55 + offset);
+        for (let x = 0; x < canvas.width; x += 25) {
+          ctx.lineTo(x, 70 + i * 55 + Math.sin(x/40 + Date.now()/400) * 18);
+        }
+        ctx.stroke();
+      }
+    }
+
+    function drawPlayer() {
+      // Navio do jogador
+      ctx.fillStyle = '#00ffaa';
+      ctx.fillRect(player.x + 10, player.y + 10, 50, 40);
+      ctx.fillStyle = '#00cc88';
+      ctx.fillRect(player.x + 25, player.y, 20, 25);
+      ctx.fillStyle = '#ff2222';
+      ctx.fillRect(player.x + 30, player.y - 8, 10, 15); // canhão
+    }
+
+    function update() {
+      if (gameOver) return;
+
+      // Movimento do jogador
+      if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+      if (keys['ArrowRight'] && player.x < canvas.width - player.width) player.x += player.speed;
+
+      // Balas do jogador
+      bullets = bullets.filter(b => {
+        b.y -= b.speed;
+        return b.y > 0;
+      });
+
+      // Inimigos
+      enemies.forEach((e, i) => {
+        e.y += e.speed;
+
+        // Inimigo atira
+        if (Math.random() < 0.025 + level * 0.005) {
+          enemyBullets.push({
+            x: e.x + 30,
+            y: e.y + 50,
+            width: 7,
+            height: 22,
+            speed: 7
+          });
+        }
+
+        // Colisão com jogador
+        if (e.y + e.height > player.y && 
+            e.x < player.x + player.width && 
+            e.x + e.width > player.x) {
+          lives--;
+          explosions.push(new Explosion(player.x + 35, player.y + 30));
+          enemies.splice(i, 1);
+          if (lives <= 0) gameOver = true;
+        }
+      });
+
+      // Balas inimigas
+      enemyBullets = enemyBullets.filter(b => {
+        b.y += b.speed;
+        return b.y < canvas.height;
+      });
+
+      // Colisão bala jogador x inimigo
+      bullets.forEach((b, bi) => {
+        enemies.forEach((e, ei) => {
+          if (b.x > e.x && b.x < e.x + e.width &&
+              b.y > e.y && b.y < e.y + e.height) {
+            bullets.splice(bi, 1);
+            explosions.push(new Explosion(e.x + 30, e.y + 25));
+            enemies.splice(ei, 1);
+            score += e.type === 'big' ? 200 : 100;
+          }
+        });
+      });
+
+      // Atualizar explosões
+      explosions = explosions.filter(exp => {
+        exp.update();
+        return exp.life > 0;
+      });
+
+      // Aumentar nível
+      if (score > level * 800) level++;
+
+      // Gerar inimigos
+      if (Math.random() < 0.04 + level * 0.008) createEnemy();
+    }
+
+    function draw() {
+      drawOcean();
+      drawPlayer();
+
+      // Balas jogador
+      ctx.fillStyle = '#ffff00';
+      bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+
+      // Inimigos
+      enemies.forEach(e => {
+        ctx.fillStyle = e.type === 'big' ? '#ff3366' : '#ff5555';
+        ctx.fillRect(e.x, e.y, e.width, e.height);
+        ctx.fillStyle = '#ffff00';
+        ctx.fillRect(e.x + 25, e.y + 12, 15, 12);
+      });
+
+      // Balas inimigas
+      ctx.fillStyle = '#ff8800';
+      enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+
+      // Explosões
+      explosions.forEach(exp => exp.draw());
+
+      // HUD
+      document.getElementById('score').textContent = score;
+      document.getElementById('lives').textContent = lives;
+      document.getElementById('level').textContent = level;
+
+      if (gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#ff0000';
+        ctx.font = 'bold 55px Arial';
+        ctx.fillText('GAME OVER', 210, 280);
+        ctx.font = '30px Arial';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(`Pontuação Final: ${score}`, 240, 340);
+      }
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    function restartGame() {
+      score = 0;
+      lives = 3;
+      level = 1;
+      gameOver = false;
+      bullets = [];
+      enemies = [];
+      enemyBullets = [];
+      explosions = [];
+      player.x = 370;
+    }
+
+    // Iniciar o jogo
+    gameLoop();
+  </script>
 </body>
 </html>
