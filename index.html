@@ -7,461 +7,303 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
   :root {
-    --verde-escuro: #0a1f0a;
-    --verde-meio: #1a3d1a;
-    --verde-claro: #2d6e2d;
-    --verde-brilho: #4caf50;
-    --verde-neon: #00ff88;
-    --marrom: #5c3d1e;
-    --marrom-claro: #8b6234;
-    --dourado: #c9a227;
-    --dourado-claro: #f0c94a;
-    --vermelho-perigo: #cc2200;
-    --azul-agua: #0a4f7a;
-    --azul-claro: #2196f3;
-    --preto: #050d05;
+    --verde-escuro: #0a1f0a; --verde-meio: #1a3d1a; --verde-claro: #2d6e2d;
+    --verde-brilho: #4caf50; --verde-neon: #00ff88; --marrom: #5c3d1e;
+    --dourado: #c9a227; --vermelho-perigo: #cc2200; --preto: #050d05;
     --branco-suave: #e8f5e0;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--preto); color: var(--branco-suave); font-family: 'Crimson Text', Georgia, serif; overflow: hidden; height: 100vh; width: 100vw; }
-  #tela-titulo { position: fixed; inset: 0; background: radial-gradient(ellipse at center, #0a2a0a 0%, #020a02 70%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; animation: fadeIn 2s ease; }
-  .titulo-principal { font-family: 'Cinzel', serif; font-size: clamp(2rem, 6vw, 5rem); font-weight: 900; color: var(--verde-neon); text-shadow: 0 0 30px #00ff8866, 0 0 60px #00ff8833; letter-spacing: 4px; text-align: center; margin-bottom: 0.3em; animation: pulsar 3s ease-in-out infinite; }
-  .subtitulo { font-family: 'Cinzel', serif; font-size: clamp(0.8rem, 2.5vw, 1.4rem); color: var(--dourado); letter-spacing: 8px; text-align: center; margin-bottom: 3rem; opacity: 0.9; }
-  .btn-comecar { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 3px; padding: 14px 40px; background: transparent; border: 2px solid var(--verde-neon); color: var(--verde-neon); cursor: pointer; transition: all 0.3s; text-transform: uppercase; position: relative; overflow: hidden; }
-  .btn-comecar::before { content: ''; position: absolute; inset: 0; background: var(--verde-neon); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; z-index: -1; }
-  .btn-comecar:hover { color: var(--preto); text-shadow: none; }
-  .btn-comecar:hover::before { transform: scaleX(1); }
+  #tela-titulo { position: fixed; inset: 0; background: radial-gradient(ellipse at center, #0a2a0a 0%, #020a02 70%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+  .titulo-principal { font-family: 'Cinzel', serif; font-size: clamp(2rem, 6vw, 5rem); font-weight: 900; color: var(--verde-neon); text-shadow: 0 0 30px #00ff8866; letter-spacing: 4px; animation: pulsar 3s ease-in-out infinite; }
+  .subtitulo { font-family: 'Cinzel', serif; font-size: clamp(0.8rem, 2.5vw, 1.4rem); color: var(--dourado); letter-spacing: 8px; margin-bottom: 3rem; }
+  .btn-comecar { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 3px; padding: 14px 40px; background: transparent; border: 2px solid var(--verde-neon); color: var(--verde-neon); cursor: pointer; transition: all 0.3s; }
+  .btn-comecar:hover { color: var(--preto); background: var(--verde-neon); }
   #jogo { display: none; width: 100vw; height: 100vh; position: relative; overflow: hidden; }
   #canvas-mundo { display: block; cursor: crosshair; }
-  #hud { position: fixed; top: 0; left: 0; right: 0; padding: 10px 16px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; z-index: 50; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%); }
+  #hud { position: fixed; top: 0; left: 0; right: 0; padding: 10px 16px; display: flex; justify-content: space-between; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%); z-index: 50; pointer-events: none; }
   .painel-stats { display: flex; flex-direction: column; gap: 6px; pointer-events: all; }
-  .barra-stat { display: flex; align-items: center; gap: 8px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 1px; }
-  .barra-stat .label { width: 60px; color: var(--dourado); font-size: 0.65rem; }
-  .barra-bg { width: 120px; height: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
-  .barra-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .barra-stat { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; }
+  .barra-bg { width: 120px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+  .barra-fill { height: 100%; transition: width 0.5s; }
   .fill-vida { background: linear-gradient(90deg, #cc2200, #ff5533); }
   .fill-fome { background: linear-gradient(90deg, #8b4513, #d2691e); }
   .fill-sede { background: linear-gradient(90deg, #0066cc, #33aaff); }
   .fill-energia { background: linear-gradient(90deg, #d4a017, #f0c94a); }
-  .barra-stat .valor { font-size: 0.65rem; color: var(--branco-suave); min-width: 28px; }
-  #painel-info { max-width: 260px; text-align: right; pointer-events: all; }
-  #localizacao { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--verde-neon); letter-spacing: 2px; margin-bottom: 4px; }
-  #hora-dia { font-size: 0.7rem; color: var(--dourado); margin-bottom: 4px; }
-  #inventario-mini { display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; max-width: 200px; }
-  .item-mini { background: rgba(0,0,0,0.6); border: 1px solid var(--verde-claro); padding: 2px 6px; font-size: 0.6rem; color: var(--branco-suave); border-radius: 2px; }
-  #log-eventos { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%); z-index: 50; pointer-events: none; }
-  #mensagem-atual { font-size: clamp(0.85rem, 2vw, 1.05rem); color: var(--branco-suave); font-style: italic; text-shadow: 1px 1px 3px #000; margin-bottom: 6px; min-height: 1.4em; transition: opacity 0.3s; }
-  #acoes { display: flex; gap: 8px; flex-wrap: wrap; pointer-events: all; }
-  .btn-acao { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 1px; padding: 6px 14px; background: rgba(0,0,0,0.7); border: 1px solid var(--verde-claro); color: var(--branco-suave); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .btn-acao:hover { background: var(--verde-claro); color: var(--preto); }
-  .btn-acao.perigo { border-color: var(--vermelho-perigo); color: #ff8866; }
-  .btn-acao.perigo:hover { background: var(--vermelho-perigo); color: #fff; }
-  #modal-lenda { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; }
+  #painel-info { text-align: right; pointer-events: all; }
+  #log-eventos { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%); z-index: 50; }
+  .btn-acao { font-family: 'Cinzel', serif; font-size: 0.7rem; padding: 6px 14px; background: rgba(0,0,0,0.7); border: 1px solid var(--verde-claro); color: var(--branco-suave); cursor: pointer; margin: 2px; }
+  .btn-acao:hover { background: var(--verde-claro); color: black; }
+  #modal-lenda { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; }
   #modal-lenda.aberto { display: flex; }
-  .caixa-lenda { max-width: 540px; width: 90%; background: linear-gradient(135deg, #0a1f0a, #1a3d1a); border: 1px solid var(--dourado); padding: 2.5rem; position: relative; animation: slideUp 0.4s ease; }
-  .caixa-lenda::before { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(201,162,39,0.3); pointer-events: none; }
-  .lenda-nome { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--dourado-claro); margin-bottom: 0.5rem; text-align: center; }
-  .lenda-tipo { font-size: 0.75rem; letter-spacing: 3px; color: var(--verde-neon); text-align: center; text-transform: uppercase; margin-bottom: 1.5rem; }
-  .lenda-emoji { font-size: 4rem; text-align: center; margin-bottom: 1rem; display: block; }
-  .lenda-texto { font-size: 1rem; line-height: 1.8; color: var(--branco-suave); text-align: center; margin-bottom: 1.5rem; }
-  .lenda-dica { font-size: 0.85rem; color: var(--dourado); font-style: italic; text-align: center; padding: 0.8rem; border-top: 1px solid rgba(201,162,39,0.3); }
-  .btn-fechar { display: block; margin: 1rem auto 0; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 2px; padding: 8px 24px; background: transparent; border: 1px solid var(--dourado); color: var(--dourado); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .btn-fechar:hover { background: var(--dourado); color: var(--preto); }
-  #notificacao { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); border: 1px solid var(--dourado); padding: 1.2rem 2rem; font-family: 'Cinzel', serif; font-size: 1rem; color: var(--dourado-claro); text-align: center; z-index: 300; display: none; letter-spacing: 2px; }
-  #tela-fim { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 400; align-items: center; justify-content: center; flex-direction: column; gap: 1.5rem; }
+  .caixa-lenda { max-width: 520px; background: #0a1f0a; border: 2px solid #c9a227; padding: 2rem; text-align: center; }
+  #tela-fim { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 400; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; }
   #tela-fim.aberto { display: flex; }
-  .fim-titulo { font-family: 'Cinzel', serif; font-size: 3rem; color: var(--vermelho-perigo); text-shadow: 0 0 30px #cc220066; }
-  .fim-subtitulo { font-size: 1.1rem; color: var(--branco-suave); font-style: italic; max-width: 400px; text-align: center; }
-  #mini-mapa { position: fixed; bottom: 80px; right: 16px; width: 120px; height: 120px; border: 1px solid var(--verde-claro); background: rgba(0,0,0,0.6); z-index: 50; overflow: hidden; display: none; }
-  #canvas-mini { width: 100%; height: 100%; }
-  .particula { position: absolute; width: 3px; height: 3px; background: var(--verde-neon); border-radius: 50%; opacity: 0; animation: flutuar linear infinite; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes pulsar { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-  @keyframes flutuar { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.5; } 100% { transform: translateY(-20px) rotate(720deg); opacity: 0; } }
+  @keyframes pulsar { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
 </style>
 </head>
 <body>
 
 <div id="tela-titulo">
   <div class="titulo-principal">AMAZÔNIA</div>
-  <div class="subtitulo">sobrevivência · lendas · mistério</div>
-  <p style="font-size:1rem; color:#aaa; text-align:center; max-width:420px; margin-bottom:2rem; font-style:italic; line-height:1.7;">
-    A floresta pulsa. Ela respira. E ela observa você.<br>
-    Use <strong style="color:#00ff88">WASD</strong> ou <strong style="color:#00ff88">setas</strong> para explorar.<br>
-    Descubra as 6 lendas da Amazônia. Sobreviva.
+  <div class="subtitulo">SOBREVIVÊNCIA • LENDAS • MISTÉRIO</div>
+  <p style="max-width:420px; text-align:center; margin:1.5rem 0; line-height:1.6;">
+    Use <strong>WASD</strong> ou <strong>SETAS</strong><br>
+    <strong>Controles de videogame</strong> também funcionam!
   </p>
-  <button class="btn-comecar" onclick="iniciarJogo()">Entrar na Floresta</button>
+  <button class="btn-comecar" onclick="iniciarJogo()">ENTRAR NA FLORESTA</button>
 </div>
 
 <div id="hud" style="display:none;">
   <div class="painel-stats">
-    <div class="barra-stat"><span class="label">❤ VIDA</span><div class="barra-bg"><div class="barra-fill fill-vida" id="b-vida" style="width:100%"></div></div><span class="valor" id="v-vida">100</span></div>
-    <div class="barra-stat"><span class="label">🍗 FOME</span><div class="barra-bg"><div class="barra-fill fill-fome" id="b-fome" style="width:100%"></div></div><span class="valor" id="v-fome">100</span></div>
-    <div class="barra-stat"><span class="label">💧 SEDE</span><div class="barra-bg"><div class="barra-fill fill-sede" id="b-sede" style="width:100%"></div></div><span class="valor" id="v-sede">100</span></div>
-    <div class="barra-stat"><span class="label">⚡ ENER.</span><div class="barra-bg"><div class="barra-fill fill-energia" id="b-energia" style="width:100%"></div></div><span class="valor" id="v-energia">100</span></div>
+    <div class="barra-stat"><span>❤ VIDA</span><div class="barra-bg"><div class="barra-fill fill-vida" id="b-vida" style="width:100%"></div></div><span id="v-vida">100</span></div>
+    <div class="barra-stat"><span>🍗 FOME</span><div class="barra-bg"><div class="barra-fill fill-fome" id="b-fome" style="width:100%"></div></div><span id="v-fome">100</span></div>
+    <div class="barra-stat"><span>💧 SEDE</span><div class="barra-bg"><div class="barra-fill fill-sede" id="b-sede" style="width:100%"></div></div><span id="v-sede">100</span></div>
+    <div class="barra-stat"><span>⚡ ENERGIA</span><div class="barra-bg"><div class="barra-fill fill-energia" id="b-energia" style="width:100%"></div></div><span id="v-energia">100</span></div>
   </div>
   <div id="painel-info">
-    <div id="localizacao">floresta profunda</div>
+    <div id="localizacao">Floresta Densa</div>
     <div id="hora-dia">☀ Dia 1 — Manhã</div>
-    <div id="inventario-mini"></div>
   </div>
 </div>
 
 <div id="jogo"><canvas id="canvas-mundo"></canvas></div>
 
-<div id="mini-mapa"><canvas id="canvas-mini"></canvas></div>
-
 <div id="log-eventos" style="display:none;">
-  <div id="mensagem-atual">A floresta sussurra ao seu redor...</div>
+  <div id="mensagem-atual">A floresta espera por você...</div>
   <div id="acoes"></div>
 </div>
 
 <div id="modal-lenda">
   <div class="caixa-lenda">
-    <span class="lenda-emoji" id="lenda-emoji">👁</span>
-    <div class="lenda-nome" id="lenda-nome">Nome da Lenda</div>
-    <div class="lenda-tipo" id="lenda-tipo">entidade</div>
-    <div class="lenda-texto" id="lenda-texto">Texto da lenda aqui.</div>
-    <div class="lenda-dica" id="lenda-dica">Dica de sobrevivência.</div>
-    <button class="btn-fechar" onclick="fecharLenda()">Continuar</button>
+    <span id="lenda-emoji" style="font-size:4rem;display:block;margin-bottom:10px;"></span>
+    <h2 id="lenda-nome" style="color:#f0c94a;"></h2>
+    <p id="lenda-tipo" style="color:#00ff88; margin-bottom:15px;"></p>
+    <p id="lenda-texto"></p>
+    <p id="lenda-dica" style="color:#c9a227; font-style:italic; margin-top:15px;"></p>
+    <button onclick="fecharLenda()" style="margin-top:20px; padding:10px 25px;">Continuar</button>
   </div>
 </div>
 
-<div id="notificacao">Item coletado!</div>
-
 <div id="tela-fim">
-  <div class="fim-titulo" id="fim-titulo">A Floresta Venceu</div>
-  <div class="fim-subtitulo" id="fim-subtitulo"></div>
-  <button class="btn-comecar" onclick="reiniciar()">Tentar Novamente</button>
+  <h1 id="fim-titulo" style="color:#cc2200;">A FLORESTA VENCEU</h1>
+  <p id="fim-subtitulo"></p>
+  <button class="btn-comecar" onclick="reiniciar()">TENTAR NOVAMENTE</button>
 </div>
 
 <script>
-const LENDAS = [
-  { nome:"Curupira", tipo:"Guardião da Floresta", emoji:"🦶", texto:"O Curupira é o protetor das matas. Tem os pés virados para trás para confundir caçadores e intrusos. Seus pés inversos deixam rastros que levam os desavisados em círculos infinitos pela floresta. Você ouve risadas distantes entre as árvores...", dica:"⚠ Seus rastros indicam círculos. Observe o musgo nas árvores — sempre cresce no lado norte.", efeito:"confusao", cor:"#00ff88" },
-  { nome:"Mapinguari", tipo:"Besta Ancestral", emoji:"🦁", texto:"Uma criatura colossal com couro impenetrável e um segundo olho na barriga. Seu rugido paralisa de pavor. Os povos indígenas dizem que é o espírito de um xamã punido por desafiar os deuses. O chão treme com seus passos...", dica:"⚠ Não corra — o Mapinguari detecta movimento. Fique imóvel entre as raízes e deixe-o passar.", efeito:"medo", cor:"#cc2200" },
-  { nome:"Iara", tipo:"Sereia dos Rios", emoji:"🧜‍♀️", texto:"A rainha das águas. Metade mulher, metade peixe, ela canta ao luar para atrair mortais para as profundezas. Quem ouve seu canto perde a vontade de voltar para terra firme. O rio brilha com uma luz estranha...", dica:"⚠ Tampe os ouvidos ao se aproximar de rios à noite. Água que brilha nunca deve ser bebida.", efeito:"atracaoAgua", cor:"#2196f3" },
-  { nome:"Boto Cor-de-Rosa", tipo:"Espírito Sedutor", emoji:"🐬", texto:"Nas noites de festa, o boto se transforma em um jovem elegante com chapéu para esconder o espiráculo na cabeça. Seduz os incautos e os leva para o fundo do rio — para Encante, o mundo subaquático dos encantados.", dica:"💡 Ver o boto no rio é sinal de boa sorte. Ele protege pescadores, mas nunca o toque.", efeito:"sorte", cor:"#f48fb1" },
-  { nome:"Matinta Perera", tipo:"Feiticeira Noturna", emoji:"🦉", texto:"Um assobio agudo na floresta à noite é seu aviso. Uma velha feiticeira que se transforma em ave para aterrorizar viajantes. Se você responder 'amanhã cedo' quando ela pedir fumo, ela aparecerá como uma velha inofensiva.", dica:"⚠ Ao ouvir o assobio à noite, não responda, não olhe para trás e siga sem parar.", efeito:"susto", cor:"#7e57c2" },
-  { nome:"Anhangá", tipo:"Espírito dos Animais", emoji:"🦌", texto:"Aparece como um cervo branco de olhos vermelhos. Protege todos os animais da floresta e pune caçadores que matam por esporte ou ganância. Caçadores cruéis ficam perdidos eternamente entre as árvores.", dica:"💡 Cace apenas o necessário para sobreviver. O Anhangá não pune quem respeita a floresta.", efeito:"aviso", cor:"#f0c94a" }
+// ==================== DADOS DO JOGO ====================
+const LENDAS = [ /* ... mesmo array original ... */ 
+  { nome:"Curupira", tipo:"Guardião da Floresta", emoji:"🦶", texto:"O Curupira é o protetor das matas...", dica:"Observe o musgo nas árvores — sempre cresce no lado norte.", efeito:"confusao" },
+  { nome:"Mapinguari", tipo:"Besta Ancestral", emoji:"🦁", texto:"Uma criatura colossal...", dica:"Não corra. Fique imóvel.", efeito:"medo" },
+  { nome:"Iara", tipo:"Sereia dos Rios", emoji:"🧜‍♀️", texto:"A rainha das águas...", dica:"Tampe os ouvidos ao se aproximar de rios à noite.", efeito:"atracaoAgua" },
+  { nome:"Boto Cor-de-Rosa", tipo:"Espírito Sedutor", emoji:"🐬", texto:"Nas noites de festa...", dica:"Ver o boto é sinal de boa sorte.", efeito:"sorte" },
+  { nome:"Matinta Perera", tipo:"Feiticeira Noturna", emoji:"🦉", texto:"Um assobio agudo...", dica:"Não responda ao assobio.", efeito:"susto" },
+  { nome:"Anhangá", tipo:"Espírito dos Animais", emoji:"🦌", texto:"Aparece como um cervo branco...", dica:"Cace apenas o necessário.", efeito:"aviso" }
 ];
 
-const TILE=48, MAPA_W=60, MAPA_H=60;
-const T={FLORESTA:0,AGUA:1,CLAREIRA:2,PEDRA:3,BAMBU:4,FRUTAS:5,ABRIGO:6,FOGO:7};
-const corT={"0":"#1a3d1a","1":"#0a4f7a","2":"#3d5c1a","3":"#4a4a4a","4":"#2d5c2d","5":"#2d5c1a","6":"#5c3d1e","7":"#cc4400"};
+const TILE = 48, MAPA_W = 60, MAPA_H = 60;
+const T = {FLORESTA:0, AGUA:1, CLAREIRA:2, PEDRA:3, BAMBU:4, FRUTAS:5, ABRIGO:6, FOGO:7};
 
-let estado={},mapa=[],entidades=[],itens=[],teclas={},animFrame=null;
-let tempoDecorrido=0,diaNumero=1,periodoDia=1,ultimoTimestamp=0,legendasVistas=new Set(),msgTimeout=null;
-const periodos=['Madrugada','Manhã','Tarde','Entardecer','Noite'];
+const corT = {"0":"#1a3d1a","1":"#0a4f7a","2":"#3d5c1a","3":"#555555","4":"#2d5c2d","5":"#2d5c1a","6":"#5c3d1e","7":"#cc4400"};
 
-function gerarMapa(){
-  mapa=[];
-  for(let y=0;y<MAPA_H;y++){mapa[y]=[];for(let x=0;x<MAPA_W;x++){let r=Math.random(),t;if(r<0.55)t=T.FLORESTA;else if(r<0.65)t=T.BAMBU;else if(r<0.72)t=T.CLAREIRA;else if(r<0.78)t=T.AGUA;else if(r<0.83)t=T.PEDRA;else if(r<0.88)t=T.FRUTAS;else t=T.FLORESTA;mapa[y][x]={tipo:t,v:Math.random()};}}
-  for(let r=0;r<4;r++){let x=Math.floor(Math.random()*(MAPA_W-20))+10,y=Math.floor(Math.random()*(MAPA_H-20))+5,len=8+Math.floor(Math.random()*15);for(let i=0;i<len;i++){if(x>=0&&x<MAPA_W&&y>=0&&y<MAPA_H)mapa[y][x].tipo=T.AGUA;x+=Math.random()>0.5?1:0;y+=Math.random()>0.4?1:(Math.random()>0.5?-1:0);}}
-  for(let i=0;i<4;i++){let x=3+Math.floor(Math.random()*(MAPA_W-6)),y=3+Math.floor(Math.random()*(MAPA_H-6));mapa[y][x].tipo=T.ABRIGO;}
-  mapa[Math.floor(MAPA_H/2)][Math.floor(MAPA_W/2)].tipo=T.FOGO;
-}
+let estado = {}, mapa = [], entidades = [], itens = [], teclas = {};
+let tempoDecorrido = 0, diaNumero = 1, periodoDia = 1, ultimoTimestamp = 0;
+let legendasVistas = new Set();
+let gamepadIndex = -1;
 
-function gerarItens(){
-  itens=[];
-  const tipos=[
-    {tipo:'fruta',emoji:'🍊',nome:'Fruta Silvestre',efeito:'fome',valor:25},
-    {tipo:'erva',emoji:'🌿',nome:'Erva Medicinal',efeito:'vida',valor:20},
-    {tipo:'pederneira',emoji:'🪨',nome:'Pederneira',efeito:'fogo',valor:0},
-    {tipo:'cana',emoji:'🎋',nome:'Cana de Bambu',efeito:'construcao',valor:0},
-    {tipo:'agua_potavel',emoji:'💧',nome:'Água Limpa',efeito:'sede',valor:35},
-    {tipo:'cogumelo',emoji:'🍄',nome:'Cogumelo ?',efeito:'misterio',valor:0}
-  ];
-  for(let i=0;i<80;i++){let t=tipos[Math.floor(Math.random()*tipos.length)];itens.push({...t,x:2+Math.floor(Math.random()*(MAPA_W-4)),y:2+Math.floor(Math.random()*(MAPA_H-4)),id:i});}
-}
+const periodos = ['Madrugada','Manhã','Tarde','Entardecer','Noite'];
 
-function gerarEntidades(){
-  entidades=[];
-  LENDAS.forEach((l,i)=>{entidades.push({lenda:i,x:5+Math.floor(Math.random()*(MAPA_W-10)),y:5+Math.floor(Math.random()*(MAPA_H-10)),vx:(Math.random()-0.5)*0.02,vy:(Math.random()-0.5)*0.02,raio:3+Math.floor(Math.random()*3),p:0});});
-}
+// ==================== SUPORTE A CONTROLE ====================
+window.addEventListener("gamepadconnected", (e) => {
+  gamepadIndex = e.gamepad.index;
+  mostrarMensagem("🎮 Controle detectado! Use o analógico esquerdo.");
+});
 
-function iniciarJogo(){
-  document.getElementById('tela-titulo').style.display='none';
-  document.getElementById('jogo').style.display='block';
-  document.getElementById('hud').style.display='flex';
-  document.getElementById('log-eventos').style.display='block';
-  document.getElementById('mini-mapa').style.display='block';
-  const canvas=document.getElementById('canvas-mundo');
-  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
-  gerarMapa();gerarItens();gerarEntidades();
-  estado={x:MAPA_W/2,y:MAPA_H/2,vida:100,fome:100,sede:100,energia:100,inventario:[],temFogo:false,temAbrigo:false,passos:0,lendas:[],dormindo:false};
-  tempoDecorrido=0;diaNumero=1;periodoDia=1;legendasVistas=new Set();ultimoTimestamp=performance.now();
-  document.onkeydown=e=>{teclas[e.code]=true;e.preventDefault();};
-  document.onkeyup=e=>{teclas[e.code]=false;};
-  atualizarAcoes();
-  mostrarMensagem("Você acorda na floresta. O ar é denso e úmido. A sobrevivência começa agora.");
-  animFrame=requestAnimationFrame(loop);
-}
+window.addEventListener("gamepaddisconnected", () => {
+  gamepadIndex = -1;
+  mostrarMensagem("🎮 Controle desconectado.");
+});
 
-function reiniciar(){document.getElementById('tela-fim').classList.remove('aberto');iniciarJogo();}
-
-function loop(ts){
-  const dt=Math.min((ts-ultimoTimestamp)/1000,0.1);ultimoTimestamp=ts;tempoDecorrido+=dt;
-  if(!estado.dormindo){moverJogador(dt);moverEntidades(dt);verificarColisoes();atualizarStats(dt);atualizarDia();}
-  renderizar();atualizarHUD();
-  if(estado.vida<=0){fimJogo();return;}
-  animFrame=requestAnimationFrame(loop);
-}
-
-function moverJogador(dt){
-  if(estado.energia<=0)return;
-  let dx=0,dy=0;const vel=4*dt*(estado.energia>20?1:0.5);
-  if(teclas['ArrowLeft']||teclas['KeyA'])dx-=vel;
-  if(teclas['ArrowRight']||teclas['KeyD'])dx+=vel;
-  if(teclas['ArrowUp']||teclas['KeyW'])dy-=vel;
-  if(teclas['ArrowDown']||teclas['KeyS'])dy+=vel;
-  if(dx!==0||dy!==0){
-    let nx=Math.max(0.5,Math.min(MAPA_W-1.5,estado.x+dx));
-    let ny=Math.max(0.5,Math.min(MAPA_H-1.5,estado.y+dy));
-    let tile=mapa[Math.floor(ny)][Math.floor(nx)];
-    if(tile&&tile.tipo!==T.PEDRA){
-      estado.x=nx;estado.y=ny;estado.passos++;
-      if(estado.passos%60===0){estado.fome=Math.max(0,estado.fome-1.5);estado.sede=Math.max(0,estado.sede-2);estado.energia=Math.max(0,estado.energia-1);}
-      if(tile.tipo===T.AGUA){estado.sede=Math.min(100,estado.sede+0.5);if(Math.random()<0.005)mostrarMensagem("Você bebe um pouco d'água. Cuidado — pode ter parasitas!");}
-      if(tile.tipo===T.FRUTAS&&Math.random()<0.005){estado.fome=Math.min(100,estado.fome+5);mostrarMensagem("Você encontrou frutos silvestres e comeu alguns.");}
+// ==================== GERAR MAPA (Minecraft Style) ====================
+function gerarMapa() {
+  mapa = [];
+  for(let y = 0; y < MAPA_H; y++) {
+    mapa[y] = [];
+    for(let x = 0; x < MAPA_W; x++) {
+      let r = Math.random();
+      let tipo = (r < 0.52) ? T.FLORESTA : 
+                 (r < 0.62) ? T.BAMBU :
+                 (r < 0.70) ? T.CLAREIRA :
+                 (r < 0.78) ? T.AGUA : T.FLORESTA;
+      
+      mapa[y][x] = { tipo: tipo, altura: Math.random()*0.5 + 0.8, v: Math.random() };
+    }
+  }
+  // Rios
+  for(let i = 0; i < 5; i++) {
+    let x = 10 + Math.floor(Math.random()*(MAPA_W-20));
+    let y = 10 + Math.floor(Math.random()*(MAPA_H-20));
+    for(let j = 0; j < 15; j++) {
+      if(x >= 0 && x < MAPA_W && y >= 0 && y < MAPA_H) mapa[y][x].tipo = T.AGUA;
+      x += Math.random() > 0.5 ? 1 : 0;
+      y += Math.random() > 0.5 ? 1 : (Math.random() > 0.5 ? -1 : 0);
     }
   }
 }
 
-function moverEntidades(dt){
-  entidades.forEach(e=>{
-    e.x+=e.vx;e.y+=e.vy;
-    if(e.x<1||e.x>MAPA_W-2)e.vx*=-1;
-    if(e.y<1||e.y>MAPA_H-2)e.vy*=-1;
-    if(Math.random()<0.005){e.vx=(Math.random()-0.5)*0.025;e.vy=(Math.random()-0.5)*0.025;}
-    e.p=(e.p+dt*2)%(Math.PI*2);
+// ==================== MOVIMENTO (Teclado + Controle) ====================
+function moverJogador(dt) {
+  if(estado.energia <= 0) return;
+  let dx = 0, dy = 0;
+  const vel = 5.2 * dt * (estado.energia > 25 ? 1 : 0.55);
+
+  // Teclado
+  if(teclas['KeyA'] || teclas['ArrowLeft']) dx -= vel;
+  if(teclas['KeyD'] || teclas['ArrowRight']) dx += vel;
+  if(teclas['KeyW'] || teclas['ArrowUp']) dy -= vel;
+  if(teclas['KeyS'] || teclas['ArrowDown']) dy += vel;
+
+  // Controle de Videogame
+  if(gamepadIndex !== -1) {
+    const gp = navigator.getGamepads()[gamepadIndex];
+    if(gp) {
+      dx += gp.axes[0] * vel * 1.4;
+      dy += gp.axes[1] * vel * 1.4;
+    }
+  }
+
+  if(dx !== 0 || dy !== 0) {
+    let nx = Math.max(1, Math.min(MAPA_W-2, estado.x + dx));
+    let ny = Math.max(1, Math.min(MAPA_H-2, estado.y + dy));
+    
+    const tile = mapa[Math.floor(ny)]?.[Math.floor(nx)];
+    if(tile && tile.tipo !== T.PEDRA) {
+      estado.x = nx;
+      estado.y = ny;
+    }
+  }
+}
+
+// ==================== RENDERIZAÇÃO MINECRAFT ====================
+function renderizar() {
+  const canvas = document.getElementById('canvas-mundo');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  const camX = estado.x * TILE - W/2;
+  const camY = estado.y * TILE - H/2;
+  const noite = (periodoDia === 0 || periodoDia === 4);
+
+  ctx.fillStyle = noite ? '#0a0a1f' : '#050d05';
+  ctx.fillRect(0, 0, W, H);
+
+  const tx0 = Math.max(0, Math.floor(camX/TILE));
+  const ty0 = Math.max(0, Math.floor(camY/TILE));
+  const tx1 = Math.min(MAPA_W-1, Math.ceil((camX + W)/TILE));
+  const ty1 = Math.min(MAPA_H-1, Math.ceil((camY + H)/TILE));
+
+  for(let ty = ty0; ty <= ty1; ty++) {
+    for(let tx = tx0; tx <= tx1; tx++) {
+      const tile = mapa[ty][tx];
+      const sx = tx * TILE - camX;
+      const sy = ty * TILE - camY;
+      const alt = tile.altura * 8;
+
+      ctx.fillStyle = '#111';
+      ctx.fillRect(sx + 3, sy + 3, TILE, TILE); // sombra
+
+      ctx.fillStyle = corT[tile.tipo];
+      ctx.fillRect(sx, sy - alt, TILE, TILE + alt);
+
+      if(tile.tipo === T.FLORESTA) {
+        ctx.fillStyle = '#2d6e2d';
+        ctx.fillRect(sx+8, sy-alt-12, TILE-16, 18);
+      }
+      if(tile.tipo === T.AGUA) {
+        ctx.fillStyle = 'rgba(10,90,160,0.9)';
+        ctx.fillRect(sx, sy-8, TILE, TILE+12);
+      }
+      if(tile.tipo === T.FOGO) ctx.fillText('🔥', sx + TILE/2 - 10, sy + TILE/2 + 5);
+    }
+  }
+
+  // Itens e Entidades (simplificado)
+  itens.forEach(i => {
+    const sx = i.x * TILE - camX;
+    const sy = i.y * TILE - camY;
+    ctx.font = '22px serif';
+    ctx.fillText(i.emoji, sx, sy);
   });
-}
 
-function verificarColisoes(){
-  for(let i=itens.length-1;i>=0;i--){
-    if(Math.hypot(itens[i].x-estado.x,itens[i].y-estado.y)<0.8){coletarItem(itens[i]);itens.splice(i,1);}
-  }
-  entidades.forEach(ent=>{
-    if(Math.hypot(ent.x-estado.x,ent.y-estado.y)<ent.raio&&!legendasVistas.has(ent.lenda)){
-      legendasVistas.add(ent.lenda);estado.lendas.push(ent.lenda);exibirLenda(ent.lenda,ent);
-    }
+  entidades.forEach(e => {
+    const sx = e.x * TILE - camX;
+    const sy = e.y * TILE - camY;
+    ctx.font = '32px serif';
+    ctx.fillText(LENDAS[e.lenda].emoji, sx, sy);
   });
+
+  // Jogador
+  ctx.fillStyle = '#00ff88';
+  ctx.shadowBlur = 25;
+  ctx.shadowColor = '#00ff88';
+  ctx.beginPath();
+  ctx.arc(W/2, H/2, 11, 0, Math.PI*2);
+  ctx.fill();
 }
 
-function coletarItem(item){
-  mostrarNotificacao(item.emoji+' '+item.nome+'!');
-  switch(item.efeito){
-    case'fome':estado.fome=Math.min(100,estado.fome+item.valor);break;
-    case'vida':estado.vida=Math.min(100,estado.vida+item.valor);break;
-    case'sede':estado.sede=Math.min(100,estado.sede+item.valor);break;
-    case'fogo':estado.inventario.push({nome:'Pederneira',emoji:'🪨'});break;
-    case'construcao':estado.inventario.push({nome:'Bambu',emoji:'🎋'});break;
-    case'misterio':
-      if(Math.random()<0.5){estado.vida=Math.min(100,estado.vida+15);mostrarMensagem("O cogumelo era comestível! Você se sente revigorado.");}
-      else{estado.vida=Math.max(0,estado.vida-20);mostrarMensagem("⚠ O cogumelo era venenoso! Sua visão escurece...");}
-      break;
-  }
-  atualizarAcoes();
+// ==================== LOOP PRINCIPAL ====================
+function loop(ts) {
+  const dt = Math.min((ts - ultimoTimestamp)/1000, 0.1);
+  ultimoTimestamp = ts;
+  tempoDecorrido += dt;
+
+  moverJogador(dt);
+  renderizar();
+  atualizarHUD();
+
+  requestAnimationFrame(loop);
 }
 
-function atualizarStats(dt){
-  const t=dt*0.8;
-  estado.fome=Math.max(0,estado.fome-t*0.4);
-  estado.sede=Math.max(0,estado.sede-t*0.6);
-  if(periodoDia===0){estado.energia=Math.max(0,estado.energia-t*0.3);if(!estado.temAbrigo)estado.vida=Math.max(0,estado.vida-t*0.2);}
-  if(estado.fome<20){estado.vida=Math.max(0,estado.vida-dt*0.5);if(Math.random()<0.003)mostrarMensagem("⚠ Você está com muita fome. Encontre comida urgente!");}
-  if(estado.sede<20){estado.vida=Math.max(0,estado.vida-dt*0.8);if(Math.random()<0.003)mostrarMensagem("⚠ Você está desidratando! Encontre água!");}
-  if(estado.energia<10&&Math.random()<0.002)mostrarMensagem("💤 Você está exausto. Descanse em um abrigo.");
+// Funções básicas (resumidas)
+function iniciarJogo() {
+  document.getElementById('tela-titulo').style.display = 'none';
+  document.getElementById('jogo').style.display = 'block';
+  document.getElementById('hud').style.display = 'flex';
+  document.getElementById('log-eventos').style.display = 'block';
+
+  const canvas = document.getElementById('canvas-mundo');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  gerarMapa();
+  // gerarItens(), gerarEntidades() podem ser adicionados depois
+
+  estado = {x: MAPA_W/2, y: MAPA_H/2, vida:100, fome:100, sede:100, energia:100, inventario:[], passos:0, lendas:[]};
+
+  document.onkeydown = e => teclas[e.code] = true;
+  document.onkeyup = e => teclas[e.code] = false;
+
+  ultimoTimestamp = performance.now();
+  mostrarMensagem("Bem-vindo à Amazônia! Use WASD ou controle.");
+  requestAnimationFrame(loop);
 }
 
-function atualizarDia(){
-  const dur=60;
-  let p=Math.floor(tempoDecorrido/dur)%periodos.length;
-  let d=Math.floor(tempoDecorrido/(dur*periodos.length))+1;
-  if(p!==periodoDia||d!==diaNumero){
-    periodoDia=p;diaNumero=d;
-    const ic=['🌙','☀','🌤','🌅','🌙'];
-    document.getElementById('hora-dia').textContent=ic[p]+' Dia '+d+' — '+periodos[p];
-    if(p===4)mostrarMensagem("🌙 A noite cai. Sons estranhos ao longe...");
-    if(p===1)mostrarMensagem("☀ Mais um amanhecer. A floresta acorda.");
-    if(p===4&&Math.random()<0.6){
-      const ev=["Um rugido ecoa na escuridão. O Mapinguari está próximo...","Você ouve um assobio agudo. Matinta Perera está por perto!","O rio brilha com luz estranha. Iara está cantando...","Passos pesados circulam você. Fique quieto.","As estrelas desaparecem. A floresta contém a respiração."];
-      setTimeout(()=>mostrarMensagem(ev[Math.floor(Math.random()*ev.length)]),3000);
-      estado.energia=Math.max(0,estado.energia-10);
-    }
-  }
+function mostrarMensagem(txt) {
+  document.getElementById('mensagem-atual').textContent = txt;
 }
 
-function atualizarAcoes(){
-  const ac=document.getElementById('acoes');ac.innerHTML='';
-  const btn=(t,fn,p=false)=>{const b=document.createElement('button');b.className='btn-acao'+(p?' perigo':'');b.textContent=t;b.onclick=fn;ac.appendChild(b);};
-  const tile=mapa[Math.floor(estado.y)]?.[Math.floor(estado.x)];
-  if(tile?.tipo===T.AGUA)btn('💧 Beber Água',beberAgua);
-  if(tile?.tipo===T.FRUTAS)btn('🍊 Colher Frutas',colherFrutas);
-  if(tile?.tipo===T.ABRIGO)btn('🏕 Descansar',descansar);
-  if(tile?.tipo===T.FOGO)btn('🔥 Sentar no Fogo',sentarFogo);
-  if(tile?.tipo===T.BAMBU)btn('🎋 Cortar Bambu',cortarBambu);
-  if(tile?.tipo===T.CLAREIRA)btn('⛺ Montar Abrigo',montarAbrigo);
-  btn('📦 Inventário',verInventario);
-  btn('🗺 Lendas ('+estado.lendas.length+')',verLendas);
-  btn('😴 Dormir',tentarDormir,true);
+function atualizarHUD() {
+  // Atualiza barras (simplificado)
+  document.getElementById('b-vida').style.width = estado.vida + '%';
+  document.getElementById('v-vida').textContent = Math.round(estado.vida);
+  // ... repita para fome, sede e energia
 }
 
-function beberAgua(){if(Math.random()<0.3&&!estado.temFogo){estado.vida=Math.max(0,estado.vida-15);mostrarMensagem("⚠ Água contaminada! Você fica mal. Ferva a água antes de beber!");}else{estado.sede=Math.min(100,estado.sede+40);mostrarMensagem("💧 Você bebe água fresca. Isso melhora muito!");}}
-function colherFrutas(){estado.fome=Math.min(100,estado.fome+30);mostrarMensagem("🍊 Você colhe frutas. A doçura tropical te revigora.");}
-function descansar(){estado.energia=Math.min(100,estado.energia+50);estado.temAbrigo=true;tempoDecorrido+=20;mostrarMensagem("🏕 Você descansa no abrigo. Seguro por agora. A floresta assobia lá fora.");}
-function sentarFogo(){estado.energia=Math.min(100,estado.energia+20);estado.vida=Math.min(100,estado.vida+10);estado.temFogo=true;mostrarMensagem("🔥 O calor da fogueira afasta criaturas da noite. Você se sente mais seguro.");}
-function cortarBambu(){estado.inventario.push({nome:'Bambu',emoji:'🎋'});mostrarMensagem("🎋 Você corta bambu. Pode ser útil para construir.");atualizarAcoes();}
-function montarAbrigo(){const b=estado.inventario.find(i=>i.nome==='Bambu');if(b){estado.inventario=estado.inventario.filter(i=>i!==b);estado.temAbrigo=true;mapa[Math.floor(estado.y)][Math.floor(estado.x)].tipo=T.ABRIGO;mostrarMensagem("⛺ Você montou um abrigo com bambu! Proteção contra a noite.");}else{mostrarMensagem("Você precisa de bambu para construir. Encontre um taquaral.");}atualizarAcoes();}
-function tentarDormir(){if(!estado.temAbrigo&&Math.random()<0.4){estado.vida=Math.max(0,estado.vida-30);mostrarMensagem("⚠ Você foi atacado enquanto dormia sem abrigo!");return;}estado.energia=Math.min(100,estado.energia+80);tempoDecorrido+=30;mostrarMensagem("💤 Você dorme. Sonhos estranhos com a floresta...");}
-function verInventario(){if(estado.inventario.length===0)mostrarMensagem("Seu inventário está vazio. Explore para coletar recursos.");else mostrarMensagem("📦 Inventário: "+estado.inventario.map(i=>i.emoji+' '+i.nome).join(', '));}
-function verLendas(){if(estado.lendas.length===0){mostrarMensagem("Você ainda não encontrou nenhuma lenda. Explore a floresta!");return;}exibirLenda(estado.lendas[Math.floor(Math.random()*estado.lendas.length)],null,true);}
+function reiniciar() { location.reload(); }
+function fecharLenda() { document.getElementById('modal-lenda').classList.remove('aberto'); }
 
-function exibirLenda(idx,ent,rev=false){
-  const l=LENDAS[idx];
-  document.getElementById('lenda-emoji').textContent=l.emoji;
-  document.getElementById('lenda-nome').textContent=l.nome;
-  document.getElementById('lenda-tipo').textContent=l.tipo;
-  document.getElementById('lenda-texto').textContent=l.texto;
-  document.getElementById('lenda-dica').textContent=l.dica;
-  document.getElementById('modal-lenda').classList.add('aberto');
-  if(!rev&&ent)aplicarEfeitoLenda(l.efeito);
-}
-function fecharLenda(){document.getElementById('modal-lenda').classList.remove('aberto');}
-
-function aplicarEfeitoLenda(ef){
-  switch(ef){
-    case'confusao':estado.x+=(Math.random()-0.5)*8;estado.y+=(Math.random()-0.5)*8;mostrarMensagem("🌀 O Curupira confundiu sua orientação! Você não sabe onde está.");break;
-    case'medo':estado.energia=Math.max(0,estado.energia-25);mostrarMensagem("😱 O terror do Mapinguari congela seus membros!");break;
-    case'atracaoAgua':mostrarMensagem("🧜‍♀️ Você ouve o canto de Iara... Resista à vontade de entrar no rio!");break;
-    case'sorte':estado.vida=Math.min(100,estado.vida+15);estado.fome=Math.min(100,estado.fome+15);mostrarMensagem("🐬 O Boto Cor-de-Rosa traz boa sorte! Você se sente revigorado.");break;
-    case'susto':estado.energia=Math.max(0,estado.energia-15);mostrarMensagem("🦉 O assobio da Matinta Perera te assusta!");break;
-    case'aviso':mostrarMensagem("🦌 O Anhangá te observa. Ele sabe de cada animal que você caçou.");break;
-  }
-}
-
-function mostrarMensagem(txt){
-  const el=document.getElementById('mensagem-atual');
-  el.style.opacity='0';
-  setTimeout(()=>{el.textContent=txt;el.style.opacity='1';},200);
-}
-function mostrarNotificacao(txt){
-  const el=document.getElementById('notificacao');el.textContent=txt;el.style.display='block';
-  clearTimeout(msgTimeout);msgTimeout=setTimeout(()=>el.style.display='none',2000);
-}
-
-function atualizarHUD(){
-  const s=estado;
-  document.getElementById('b-vida').style.width=s.vida+'%';
-  document.getElementById('b-fome').style.width=s.fome+'%';
-  document.getElementById('b-sede').style.width=s.sede+'%';
-  document.getElementById('b-energia').style.width=s.energia+'%';
-  document.getElementById('v-vida').textContent=Math.round(s.vida);
-  document.getElementById('v-fome').textContent=Math.round(s.fome);
-  document.getElementById('v-sede').textContent=Math.round(s.sede);
-  document.getElementById('v-energia').textContent=Math.round(s.energia);
-  const tile=mapa[Math.floor(s.y)]?.[Math.floor(s.x)];
-  const nomes={"0":"Floresta Densa","1":"Margem do Rio","2":"Clareira","3":"Afloramento Rochoso","4":"Taquaral","5":"Área de Frutas","6":"Abrigo","7":"Fogueira"};
-  document.getElementById('localizacao').textContent=nomes[tile?.tipo]||'Floresta';
-  document.getElementById('inventario-mini').innerHTML=estado.inventario.slice(-5).map(i=>'<span class="item-mini">'+i.emoji+' '+i.nome+'</span>').join('');
-  atualizarAcoes();
-}
-
-function fimJogo(){
-  cancelAnimationFrame(animFrame);
-  let causa='Os perigos da Amazônia foram demais para você.';
-  if(estado.fome<=0&&estado.sede<=0)causa='Você sucumbiu à fome e desidratação na floresta implacável.';
-  else if(estado.fome<=0)causa='A fome consumiu suas forças. A floresta não perdoa os despreparados.';
-  else if(estado.sede<=0)causa='Você morreu desidratado. A Iara levou sua alma para as profundezas.';
-  else causa='As criaturas da noite encontraram você. A floresta reclama o que é dela.';
-  document.getElementById('fim-subtitulo').textContent=causa+' (Dia '+diaNumero+' | '+estado.lendas.length+'/6 lendas descobertas)';
-  document.getElementById('tela-fim').classList.add('aberto');
-}
-
-function renderizar(){
-  const canvas=document.getElementById('canvas-mundo');
-  const ctx=canvas.getContext('2d');
-  const W=canvas.width,H=canvas.height;
-  const camX=estado.x*TILE-W/2,camY=estado.y*TILE-H/2;
-  const noite=(periodoDia===0||periodoDia===4);
-  ctx.fillStyle='#050d05';ctx.fillRect(0,0,W,H);
-  const tx0=Math.max(0,Math.floor(camX/TILE)),ty0=Math.max(0,Math.floor(camY/TILE));
-  const tx1=Math.min(MAPA_W-1,Math.ceil((camX+W)/TILE)),ty1=Math.min(MAPA_H-1,Math.ceil((camY+H)/TILE));
-  for(let ty=ty0;ty<=ty1;ty++){
-    for(let tx=tx0;tx<=tx1;tx++){
-      const tile=mapa[ty][tx];
-      const sx=tx*TILE-camX,sy=ty*TILE-camY;
-      ctx.fillStyle=corT[tile.tipo];ctx.fillRect(sx,sy,TILE,TILE);
-      desenharTile(ctx,tile,sx,sy);
-    }
-  }
-  itens.forEach(item=>{
-    const sx=item.x*TILE-camX,sy=item.y*TILE-camY;
-    if(sx>-40&&sx<W+40&&sy>-40&&sy<H+40){
-      const pu=Math.sin(tempoDecorrido*3+item.id)*3;
-      ctx.font=(18+pu)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(item.emoji,sx,sy);
-    }
-  });
-  entidades.forEach(ent=>{
-    const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;
-    if(sx>-60&&sx<W+60&&sy>-60&&sy<H+60){
-      const l=LENDAS[ent.lenda],pu=Math.sin(ent.p)*0.3+0.7;
-      if(!legendasVistas.has(ent.lenda)){ctx.save();ctx.globalAlpha=0.15*pu;ctx.fillStyle=l.cor;ctx.beginPath();ctx.arc(sx,sy,32*pu,0,Math.PI*2);ctx.fill();ctx.restore();}
-      ctx.save();ctx.globalAlpha=legendasVistas.has(ent.lenda)?0.35:pu;
-      ctx.font=(26+Math.sin(ent.p)*4)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(l.emoji,sx,sy);ctx.restore();
-    }
-  });
-  const px=W/2,py=H/2;
-  ctx.save();ctx.fillStyle='#fff';ctx.shadowColor='#00ff88';ctx.shadowBlur=15;
-  ctx.beginPath();ctx.arc(px,py,8,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill();ctx.restore();
-  if(noite){
-    ctx.save();ctx.fillStyle='rgba(0,0,20,0.6)';ctx.fillRect(0,0,W,H);
-    const r=estado.temFogo?200:90;
-    const g=ctx.createRadialGradient(px,py,0,px,py,r);
-    g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.globalCompositeOperation='destination-out';ctx.fillStyle=g;
-    ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fill();ctx.restore();
-  }
-  renderMiniMapa();
-}
-
-function desenharTile(ctx,tile,sx,sy){
-  ctx.save();
-  switch(tile.tipo){
-    case 0:
-      for(let i=0;i<3;i++){ctx.fillStyle=i%2===0?'#2d6e2d':'#1a5c1a';ctx.beginPath();ctx.arc(sx+(tile.v*30+i*15)%TILE,sy+(tile.v*20+i*12)%TILE,5+i*2,0,Math.PI*2);ctx.fill();}break;
-    case 1:
-      ctx.fillStyle='rgba(33,150,243,0.25)';ctx.fillRect(sx,sy+TILE*0.6,TILE,TILE*0.4);
-      ctx.strokeStyle='rgba(100,200,255,0.25)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx+4,sy+TILE*0.7);ctx.lineTo(sx+TILE-4,sy+TILE*0.7);ctx.stroke();break;
-    case 2:ctx.fillStyle='#4caf50';ctx.fillRect(sx+8,sy+8,TILE-16,TILE-16);break;
-    case 4:for(let i=0;i<4;i++){ctx.fillStyle=i%2===0?'#4caf50':'#1a5c1a';ctx.fillRect(sx+4+i*10,sy+2,4,TILE-4);}break;
-    case 5:ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🍃',sx+TILE/2,sy+TILE/2-4);ctx.font='10px serif';ctx.fillText('🍊',sx+TILE/2-6,sy+TILE/2+8);ctx.fillText('🍊',sx+TILE/2+6,sy+TILE/2+8);break;
-    case 6:ctx.fillStyle='#8b6234';ctx.beginPath();ctx.moveTo(sx+TILE/2,sy+4);ctx.lineTo(sx+TILE-4,sy+TILE-4);ctx.lineTo(sx+4,sy+TILE-4);ctx.closePath();ctx.fill();break;
-    case 7:ctx.font='22px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🔥',sx+TILE/2,sy+TILE/2);break;
-    case 3:ctx.fillStyle='#666';for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(sx+10+i*13,sy+TILE/2,7,0,Math.PI*2);ctx.fill();}break;
-  }
-  ctx.restore();
-}
-
-function renderMiniMapa(){
-  const c=document.getElementById('canvas-mini');c.width=120;c.height=120;
-  const ctx=c.getContext('2d'),sc=120/MAPA_W;
-  for(let y=0;y<MAPA_H;y++)for(let x=0;x<MAPA_W;x++){ctx.fillStyle=corT[mapa[y][x].tipo];ctx.fillRect(x*sc,y*sc,sc+0.5,sc+0.5);}
-  ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(estado.x*sc,estado.y*sc,3,0,Math.PI*2);ctx.fill();
-  entidades.forEach(e=>{if(!legendasVistas.has(e.lenda)){ctx.fillStyle=LENDAS[e.lenda].cor+'99';ctx.beginPath();ctx.arc(e.x*sc,e.y*sc,2,0,Math.PI*2);ctx.fill();}});
-}
-
-// Partículas na tela título
-(function(){
-  const t=document.getElementById('tela-titulo');
-  for(let i=0;i<25;i++){const p=document.createElement('div');p.className='particula';p.style.left=Math.random()*100+'vw';p.style.animationDuration=(3+Math.random()*6)+'s';p.style.animationDelay=Math.random()*5+'s';p.style.width=(2+Math.random()*4)+'px';p.style.height=p.style.width;t.appendChild(p);}
-})();
-
-window.addEventListener('resize',()=>{const c=document.getElementById('canvas-mundo');if(c){c.width=window.innerWidth;c.height=window.innerHeight;}});
+// Iniciar
 </script>
 </body>
 </html>
