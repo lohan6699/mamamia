@@ -1,913 +1,2105 @@
-bash
-
-cat > /mnt/user-data/outputs/amazonia_minecraft.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sobrevivência na Amazônia</title>
+<title>AMAZÔNIA — Sobrevivência</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
-  :root {
-    --verde-escuro: #0a1f0a; --verde-meio: #1a3d1a; --verde-claro: #2d6e2d;
-    --verde-brilho: #4caf50; --verde-neon: #00ff88; --marrom: #5c3d1e;
-    --marrom-claro: #8b6234; --dourado: #c9a227; --dourado-claro: #f0c94a;
-    --vermelho-perigo: #cc2200; --azul-agua: #0a4f7a; --azul-claro: #2196f3;
-    --preto: #050d05; --branco-suave: #e8f5e0;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: var(--preto); color: var(--branco-suave); font-family: 'Crimson Text', Georgia, serif; overflow: hidden; height: 100vh; width: 100vw; }
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&family=Share+Tech+Mono&display=swap');
 
-  #tela-titulo { position: fixed; inset: 0; background: radial-gradient(ellipse at center, #0a2a0a 0%, #020a02 70%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; animation: fadeIn 2s ease; }
-  .titulo-principal { font-family: 'Cinzel', serif; font-size: clamp(2rem, 6vw, 5rem); font-weight: 900; color: var(--verde-neon); text-shadow: 0 0 30px #00ff8866, 0 0 60px #00ff8833; letter-spacing: 4px; text-align: center; margin-bottom: 0.3em; animation: pulsar 3s ease-in-out infinite; }
-  .subtitulo { font-family: 'Cinzel', serif; font-size: clamp(0.8rem, 2.5vw, 1.4rem); color: var(--dourado); letter-spacing: 8px; text-align: center; margin-bottom: 3rem; opacity: 0.9; }
-  .btn-comecar { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 3px; padding: 14px 40px; background: transparent; border: 2px solid var(--verde-neon); color: var(--verde-neon); cursor: pointer; transition: all 0.3s; text-transform: uppercase; position: relative; overflow: hidden; }
-  .btn-comecar::before { content: ''; position: absolute; inset: 0; background: var(--verde-neon); transform: scaleX(0); transform-origin: left; transition: transform 0.3s; z-index: -1; }
-  .btn-comecar:hover { color: var(--preto); text-shadow: none; }
-  .btn-comecar:hover::before { transform: scaleX(1); }
+:root {
+  --verde-escuro: #071a07;
+  --verde-meio: #0f2e0f;
+  --verde-floresta: #1a4a1a;
+  --verde-claro: #2d7a2d;
+  --verde-vivo: #3fa83f;
+  --verde-neon: #00ff7f;
+  --marrom-terra: #3d2008;
+  --marrom: #6b3a1a;
+  --marrom-claro: #9c6030;
+  --dourado: #c8960c;
+  --dourado-claro: #f0c840;
+  --dourado-brilho: #ffe066;
+  --vermelho: #c41800;
+  --vermelho-vivo: #ff3300;
+  --azul-rio: #063d5c;
+  --azul-agua: #0a6694;
+  --azul-claro: #2aa0d0;
+  --roxo-noite: #0a0a18;
+  --preto: #030a03;
+  --branco: #e8f0e0;
+  --cinza-suave: #8a9a80;
+  --bg-hud: rgba(3,10,3,0.82);
+  --borda-hud: rgba(0,255,127,0.18);
+  --sombra: 0 4px 24px rgba(0,0,0,0.8);
+}
 
-  #jogo { display: none; width: 100vw; height: 100vh; position: relative; overflow: hidden; }
-  #canvas-mundo { display: block; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-  #hud { position: fixed; top: 0; left: 0; right: 0; padding: 10px 16px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; z-index: 50; background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%); }
-  .painel-stats { display: flex; flex-direction: column; gap: 6px; pointer-events: all; }
-  .barra-stat { display: flex; align-items: center; gap: 8px; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 1px; }
-  .barra-stat .label { width: 60px; color: var(--dourado); font-size: 0.65rem; }
-  .barra-bg { width: 120px; height: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
-  .barra-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-  .fill-vida { background: linear-gradient(90deg, #cc2200, #ff5533); }
-  .fill-fome { background: linear-gradient(90deg, #8b4513, #d2691e); }
-  .fill-sede { background: linear-gradient(90deg, #0066cc, #33aaff); }
-  .fill-energia { background: linear-gradient(90deg, #d4a017, #f0c94a); }
-  .barra-stat .valor { font-size: 0.65rem; color: var(--branco-suave); min-width: 28px; }
-  #painel-info { max-width: 260px; text-align: right; pointer-events: all; }
-  #localizacao { font-family: 'Cinzel', serif; font-size: 0.75rem; color: var(--verde-neon); letter-spacing: 2px; margin-bottom: 4px; }
-  #hora-dia { font-size: 0.7rem; color: var(--dourado); margin-bottom: 4px; }
-  #inventario-mini { display: flex; gap: 4px; justify-content: flex-end; flex-wrap: wrap; max-width: 200px; }
-  .item-mini { background: rgba(0,0,0,0.6); border: 1px solid var(--verde-claro); padding: 2px 6px; font-size: 0.6rem; color: var(--branco-suave); border-radius: 2px; }
+body {
+  background: var(--preto);
+  color: var(--branco);
+  font-family: 'Crimson Text', Georgia, serif;
+  overflow: hidden;
+  height: 100vh; width: 100vw;
+  cursor: crosshair;
+}
 
-  /* Gamepad indicator */
-  #gamepad-indicator { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 2px; padding: 4px 12px; background: rgba(0,0,0,0.7); border: 1px solid var(--verde-claro); color: var(--verde-neon); z-index: 60; display: none; }
-  #gamepad-indicator.ativo { display: block; }
+/* ═══════════ TELA TÍTULO ═══════════ */
+#tela-titulo {
+  position: fixed; inset: 0; z-index: 1000;
+  background: radial-gradient(ellipse 120% 80% at 50% 60%, #0d2e0d 0%, #020a02 55%, #000 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+}
 
-  #log-eventos { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 16px; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%); z-index: 50; pointer-events: none; }
-  #mensagem-atual { font-size: clamp(0.85rem, 2vw, 1.05rem); color: var(--branco-suave); font-style: italic; text-shadow: 1px 1px 3px #000; margin-bottom: 6px; min-height: 1.4em; transition: opacity 0.3s; }
-  #acoes { display: flex; gap: 8px; flex-wrap: wrap; pointer-events: all; }
-  .btn-acao { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 1px; padding: 6px 14px; background: rgba(0,0,0,0.7); border: 1px solid var(--verde-claro); color: var(--branco-suave); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .btn-acao:hover, .btn-acao.selecionado { background: var(--verde-claro); color: var(--preto); }
-  .btn-acao.perigo { border-color: var(--vermelho-perigo); color: #ff8866; }
-  .btn-acao.perigo:hover, .btn-acao.perigo.selecionado { background: var(--vermelho-perigo); color: #fff; }
+#titulo-canvas {
+  position: absolute; inset: 0;
+  pointer-events: none;
+}
 
-  /* Gamepad nav hint */
-  #gamepad-hint { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); font-family: 'Cinzel', serif; font-size: 0.55rem; color: rgba(255,255,255,0.4); letter-spacing: 2px; z-index: 51; display: none; text-align: center; }
-  #gamepad-hint.visivel { display: block; }
+.titulo-logo {
+  position: relative; text-align: center; z-index: 2; margin-bottom: 2rem;
+}
 
-  #modal-lenda { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; }
-  #modal-lenda.aberto { display: flex; }
-  .caixa-lenda { max-width: 540px; width: 90%; background: linear-gradient(135deg, #0a1f0a, #1a3d1a); border: 1px solid var(--dourado); padding: 2.5rem; position: relative; animation: slideUp 0.4s ease; }
-  .caixa-lenda::before { content: ''; position: absolute; inset: 4px; border: 1px solid rgba(201,162,39,0.3); pointer-events: none; }
-  .lenda-nome { font-family: 'Cinzel', serif; font-size: 1.5rem; color: var(--dourado-claro); margin-bottom: 0.5rem; text-align: center; }
-  .lenda-tipo { font-size: 0.75rem; letter-spacing: 3px; color: var(--verde-neon); text-align: center; text-transform: uppercase; margin-bottom: 1.5rem; }
-  .lenda-emoji { font-size: 4rem; text-align: center; margin-bottom: 1rem; display: block; }
-  .lenda-texto { font-size: 1rem; line-height: 1.8; color: var(--branco-suave); text-align: center; margin-bottom: 1.5rem; }
-  .lenda-dica { font-size: 0.85rem; color: var(--dourado); font-style: italic; text-align: center; padding: 0.8rem; border-top: 1px solid rgba(201,162,39,0.3); }
-  .btn-fechar { display: block; margin: 1rem auto 0; font-family: 'Cinzel', serif; font-size: 0.75rem; letter-spacing: 2px; padding: 8px 24px; background: transparent; border: 1px solid var(--dourado); color: var(--dourado); cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .btn-fechar:hover { background: var(--dourado); color: var(--preto); }
+.titulo-principal {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  background: linear-gradient(180deg, var(--dourado-brilho) 0%, var(--dourado) 40%, var(--verde-neon) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(0,255,127,0.4)) drop-shadow(0 0 80px rgba(0,255,127,0.2));
+  line-height: 1;
+  animation: titulo-pulsar 4s ease-in-out infinite;
+}
 
-  #notificacao { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); border: 1px solid var(--dourado); padding: 1.2rem 2rem; font-family: 'Cinzel', serif; font-size: 1rem; color: var(--dourado-claro); text-align: center; z-index: 300; display: none; letter-spacing: 2px; }
-  #tela-fim { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 400; align-items: center; justify-content: center; flex-direction: column; gap: 1.5rem; }
-  #tela-fim.aberto { display: flex; }
-  .fim-titulo { font-family: 'Cinzel', serif; font-size: 3rem; color: var(--vermelho-perigo); text-shadow: 0 0 30px #cc220066; }
-  .fim-subtitulo { font-size: 1.1rem; color: var(--branco-suave); font-style: italic; max-width: 400px; text-align: center; }
+.titulo-sub {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.6rem, 1.8vw, 1rem);
+  letter-spacing: 0.6em;
+  color: var(--dourado);
+  opacity: 0.75;
+  text-transform: uppercase;
+  margin-top: 0.6rem;
+}
 
-  #mini-mapa { position: fixed; bottom: 80px; right: 16px; width: 120px; height: 120px; border: 1px solid var(--verde-claro); background: rgba(0,0,0,0.6); z-index: 50; overflow: hidden; display: none; }
-  #canvas-mini { width: 100%; height: 100%; }
+.titulo-linha-deco {
+  width: 60%; max-width: 400px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--verde-neon), var(--dourado), var(--verde-neon), transparent);
+  margin: 1.8rem auto;
+  opacity: 0.5;
+}
 
-  .particula { position: absolute; width: 3px; height: 3px; background: var(--verde-neon); border-radius: 50%; opacity: 0; animation: flutuar linear infinite; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes pulsar { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-  @keyframes flutuar { 0% { transform: translateY(100vh) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 0.5; } 100% { transform: translateY(-20px) rotate(720deg); opacity: 0; } }
+.titulo-descricao {
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
+  color: var(--cinza-suave);
+  text-align: center;
+  max-width: 500px;
+  line-height: 1.9;
+  font-style: italic;
+  z-index: 2; position: relative;
+  margin-bottom: 2.5rem;
+}
+
+.titulo-controles {
+  display: flex; gap: 2rem; margin-bottom: 2rem;
+  z-index: 2; position: relative;
+}
+
+.ctrl-grupo {
+  text-align: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+}
+
+.ctrl-titulo {
+  color: var(--dourado); letter-spacing: 2px; margin-bottom: 0.4rem; text-transform: uppercase;
+}
+
+.ctrl-linha { color: var(--verde-neon); margin: 0.2rem 0; }
+
+.tecla {
+  display: inline-block;
+  background: rgba(0,255,127,0.08);
+  border: 1px solid rgba(0,255,127,0.3);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--verde-neon);
+}
+
+.btn-iniciar {
+  position: relative; z-index: 2;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  letter-spacing: 0.4em;
+  padding: 14px 50px;
+  background: transparent;
+  border: 1px solid var(--verde-neon);
+  color: var(--verde-neon);
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+}
+
+.btn-iniciar::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--verde-floresta), var(--verde-claro));
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: -1;
+}
+
+.btn-iniciar:hover { color: var(--preto); border-color: var(--verde-claro); box-shadow: 0 0 30px rgba(0,255,127,0.4); }
+.btn-iniciar:hover::before { transform: translateX(0); }
+
+.titulo-versao {
+  position: absolute; bottom: 1rem; right: 1.5rem;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.55rem;
+  color: rgba(255,255,255,0.2); letter-spacing: 2px; z-index: 2;
+}
+
+/* ═══════════ JOGO ═══════════ */
+#jogo { display: none; width: 100vw; height: 100vh; position: relative; }
+#canvas-mundo { display: block; }
+
+/* ═══════════ HUD ═══════════ */
+#hud {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: 10px 14px 0;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.hud-canto-esq {
+  position: fixed; top: 10px; left: 14px;
+  pointer-events: all;
+}
+
+.hud-canto-dir {
+  position: fixed; top: 10px; right: 14px;
+  pointer-events: all; text-align: right;
+}
+
+.painel-stats {
+  background: var(--bg-hud);
+  border: 1px solid var(--borda-hud);
+  padding: 10px 14px;
+  backdrop-filter: blur(8px);
+  min-width: 200px;
+}
+
+.barra-linha {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 5px;
+}
+
+.barra-linha:last-child { margin-bottom: 0; }
+
+.barra-icone { font-size: 0.85rem; width: 18px; text-align: center; flex-shrink: 0; }
+
+.barra-bg {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.07);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.barra-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.23,1,0.32,1);
+  position: relative;
+}
+
+.barra-fill::after {
+  content: '';
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 0 3px 3px 0;
+}
+
+.fill-vida    { background: linear-gradient(90deg, #8b1010, #e84040); }
+.fill-fome    { background: linear-gradient(90deg, #7a3a10, #d4823a); }
+.fill-sede    { background: linear-gradient(90deg, #104070, #3090cc); }
+.fill-energia { background: linear-gradient(90deg, #807010, #d4c040); }
+
+.barra-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.5);
+  min-width: 26px; text-align: right;
+}
+
+.stat-critico .barra-fill { animation: piscar-barra 0.8s ease-in-out infinite; }
+@keyframes piscar-barra { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.painel-info {
+  background: var(--bg-hud);
+  border: 1px solid var(--borda-hud);
+  padding: 10px 14px;
+  backdrop-filter: blur(8px);
+  min-width: 170px;
+}
+
+#localizacao {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem; letter-spacing: 0.15em;
+  color: var(--verde-neon); margin-bottom: 3px;
+}
+
+#hora-dia {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.62rem; color: var(--dourado); margin-bottom: 6px;
+}
+
+#lendas-encontradas {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.58rem; color: var(--cinza-suave); letter-spacing: 1px;
+}
+
+.lenda-icone { opacity: 0.25; transition: opacity 0.4s, filter 0.4s; }
+.lenda-icone.ativa { opacity: 1; filter: drop-shadow(0 0 4px gold); }
+
+.inv-item {
+  display: inline-block;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1px 5px; margin: 1px;
+  font-size: 0.6rem; border-radius: 2px;
+  color: var(--branco);
+}
+
+/* ═══════════ MENSAGEM / LOG ═══════════ */
+#log-area {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 10px 14px 12px;
+  background: linear-gradient(to top, rgba(3,10,3,0.92) 0%, transparent 100%);
+  z-index: 200;
+  pointer-events: none;
+  display: none;
+}
+
+#mensagem-atual {
+  font-size: clamp(0.82rem, 1.8vw, 1rem);
+  font-style: italic;
+  color: var(--branco);
+  margin-bottom: 8px;
+  min-height: 1.4em;
+  transition: opacity 0.25s;
+  text-shadow: 1px 1px 8px #000, 0 0 20px rgba(0,0,0,0.8);
+  max-width: 800px;
+}
+
+#acoes {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  pointer-events: all;
+}
+
+.btn-acao {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem; letter-spacing: 0.12em;
+  padding: 5px 12px;
+  background: rgba(3,10,3,0.85);
+  border: 1px solid rgba(0,255,127,0.25);
+  color: rgba(232,240,224,0.8);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-acao::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: var(--verde-floresta);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.2s;
+  z-index: -1;
+}
+
+.btn-acao:hover, .btn-acao.selecionado {
+  color: var(--verde-neon);
+  border-color: var(--verde-neon);
+  box-shadow: 0 0 12px rgba(0,255,127,0.2);
+}
+.btn-acao:hover::before, .btn-acao.selecionado::before { transform: scaleX(1); }
+
+.btn-acao.perigo {
+  border-color: rgba(196,24,0,0.4);
+  color: rgba(255,120,100,0.8);
+}
+
+.btn-acao.perigo:hover, .btn-acao.perigo.selecionado {
+  color: #fff; border-color: var(--vermelho-vivo);
+  box-shadow: 0 0 12px rgba(255,50,0,0.3);
+}
+.btn-acao.perigo::before { background: var(--vermelho); }
+
+.btn-acao .atalho {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem; opacity: 0.5; margin-left: 4px;
+}
+
+/* ═══════════ MINI-MAPA ═══════════ */
+#mini-mapa {
+  position: fixed; bottom: 72px; right: 14px;
+  width: 110px; height: 110px;
+  border: 1px solid rgba(0,255,127,0.25);
+  background: rgba(3,10,3,0.8);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  overflow: hidden;
+}
+
+#mini-mapa::before {
+  content: 'MAPA';
+  position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+  font-family: 'Share Tech Mono', monospace; font-size: 0.45rem;
+  color: rgba(0,255,127,0.4); letter-spacing: 3px; z-index: 1;
+}
+
+#canvas-mini { width: 100%; height: 100%; }
+
+/* ═══════════ MODAL LENDA ═══════════ */
+#modal-lenda {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 500;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+#modal-lenda.aberto { display: flex; }
+
+.modal-lenda-inner {
+  max-width: 520px; width: 92%;
+  background: linear-gradient(145deg, #071a07 0%, #0d2e0d 50%, #071a07 100%);
+  border: 1px solid rgba(201,140,12,0.5);
+  padding: 0;
+  position: relative;
+  animation: modal-entrada 0.4s cubic-bezier(0.23,1,0.32,1);
+  overflow: hidden;
+}
+
+.modal-lenda-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(201,140,12,0.08), transparent 60%);
+  pointer-events: none;
+}
+
+.modal-decor-top {
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--dourado), var(--verde-neon), var(--dourado), transparent);
+}
+
+.modal-corpo {
+  padding: 2.5rem 2.5rem 2rem;
+  text-align: center;
+}
+
+.lenda-emoji-grande {
+  font-size: 4.5rem;
+  display: block;
+  margin-bottom: 1.2rem;
+  filter: drop-shadow(0 0 20px rgba(201,140,12,0.6));
+  animation: lenda-flutuar 3s ease-in-out infinite;
+}
+
+.lenda-tipo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 0.4em;
+  color: var(--verde-neon); text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.lenda-nome {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem; font-weight: 700;
+  color: var(--dourado-claro);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 30px rgba(201,140,12,0.4);
+}
+
+.lenda-sep {
+  width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--dourado), transparent);
+  margin: 0 auto 1.5rem;
+}
+
+.lenda-texto {
+  font-size: 0.95rem; line-height: 1.9;
+  color: rgba(232,240,224,0.9);
+  margin-bottom: 1.5rem;
+}
+
+.lenda-dica-box {
+  background: rgba(0,0,0,0.3);
+  border-left: 2px solid var(--dourado);
+  padding: 0.8rem 1rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.lenda-dica-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 2px;
+  color: var(--dourado); margin-bottom: 0.3rem; text-transform: uppercase;
+}
+
+.lenda-dica-texto { font-size: 0.85rem; font-style: italic; color: var(--cinza-suave); }
+
+.btn-fechar-modal {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem; letter-spacing: 0.3em;
+  padding: 10px 30px;
+  background: transparent;
+  border: 1px solid var(--dourado);
+  color: var(--dourado);
+  cursor: pointer; transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.btn-fechar-modal:hover { background: var(--dourado); color: var(--preto); }
+
+/* ═══════════ NOTIFICAÇÃO TOAST ═══════════ */
+#toast {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: rgba(3,10,3,0.95);
+  border: 1px solid rgba(201,140,12,0.6);
+  padding: 1rem 2rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem; letter-spacing: 0.15em;
+  color: var(--dourado-claro);
+  z-index: 600;
+  display: none;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+  transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+}
+
+#toast.visivel {
+  display: block;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* ═══════════ ALERTA CRÍTICO ═══════════ */
+#alerta-critico {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.8rem, 2vw, 1.1rem);
+  letter-spacing: 0.2em;
+  color: var(--vermelho-vivo);
+  text-shadow: 0 0 20px rgba(255,50,0,0.8);
+  text-align: center;
+  z-index: 300; pointer-events: none;
+  opacity: 0; transition: opacity 0.3s;
+}
+
+#alerta-critico.ativo { opacity: 1; animation: alerta-pulsar 1s ease-in-out infinite; }
+@keyframes alerta-pulsar { 0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1)} 50%{opacity:0.5;transform:translate(-50%,-50%) scale(0.98)} }
+
+/* ═══════════ TELA FIM ═══════════ */
+#tela-fim {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.96);
+  z-index: 700;
+  align-items: center; justify-content: center; flex-direction: column;
+  gap: 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+#tela-fim.aberto { display: flex; }
+
+.fim-titulo {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  background: linear-gradient(180deg, #ff6644, #cc2200);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  filter: drop-shadow(0 0 30px rgba(204,34,0,0.6));
+}
+
+.fim-linha { width: 200px; height: 1px; background: linear-gradient(90deg, transparent, var(--vermelho), transparent); opacity: 0.6; }
+
+.fim-stats {
+  display: grid; grid-template-columns: repeat(2, auto); gap: 0.5rem 2rem;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.75rem;
+  color: var(--cinza-suave); text-align: center;
+}
+
+.fim-stat-val { color: var(--branco); font-size: 1rem; }
+
+.fim-causa {
+  font-size: 1rem; font-style: italic;
+  color: rgba(232,240,224,0.7);
+  max-width: 380px; text-align: center; line-height: 1.8;
+}
+
+/* ═══════════ CLIMA OVERLAY ═══════════ */
+#clima-overlay {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 150;
+  opacity: 0; transition: opacity 1s;
+}
+
+/* ═══════════ GAMEPAD INDICATOR ═══════════ */
+#gp-badge {
+  position: fixed; top: 8px; left: 50%; transform: translateX(-50%);
+  font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; letter-spacing: 2px;
+  padding: 3px 12px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(0,255,127,0.3);
+  color: var(--verde-neon); z-index: 250;
+  display: none;
+}
+
+#gp-badge.ativo { display: block; }
+
+/* ═══════════ COMPASS ═══════════ */
+#bussola {
+  position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
+  z-index: 200;
+  display: none;
+}
+
+.bussola-inner {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 3px;
+  background: var(--bg-hud);
+  border: 1px solid var(--borda-hud);
+  padding: 4px 14px;
+  color: var(--cinza-suave); text-align: center;
+  backdrop-filter: blur(4px);
+}
+
+.bussola-dir { color: var(--verde-neon); }
+
+/* ═══════════ ANIMAÇÕES ═══════════ */
+@keyframes titulo-pulsar { 0%,100%{filter:drop-shadow(0 0 40px rgba(0,255,127,0.4)) drop-shadow(0 0 80px rgba(0,255,127,0.2))} 50%{filter:drop-shadow(0 0 60px rgba(0,255,127,0.7)) drop-shadow(0 0 120px rgba(0,255,127,0.4))} }
+@keyframes modal-entrada { from{opacity:0;transform:translateY(20px) scale(0.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes lenda-flutuar { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes chuva-cair { 0%{transform:translateY(-10px) translateX(0);opacity:0} 10%{opacity:0.6} 90%{opacity:0.3} 100%{transform:translateY(100vh) translateX(-20px);opacity:0} }
+@keyframes fog-drift { 0%{transform:translateX(-50%) translateY(0)} 100%{transform:translateX(50%) translateY(-20px)} }
+
+/* ═══════════ PARTÍCULAS TÍTULO ═══════════ */
+.particula-titulo {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: flutuar-p linear infinite;
+}
+
+@keyframes flutuar-p {
+  0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+  5% { opacity: 0.8; }
+  95% { opacity: 0.3; }
+  100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+}
+
+/* ═══════════ DAMAGE FLASH ═══════════ */
+#damage-flash {
+  position: fixed; inset: 0; z-index: 400;
+  pointer-events: none; opacity: 0;
+  background: rgba(200,0,0,0.3);
+  transition: opacity 0.1s;
+}
+
+#damage-flash.ativo { opacity: 1; }
+
+/* ═══════════ EFEITO VINHETA ═══════════ */
+#vinheta {
+  position: fixed; inset: 0; z-index: 160;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+  pointer-events: none;
+  transition: opacity 1s;
+}
+
+/* ═══════════ FOME/SEDE VISUAL ═══════════ */
+#overlay-morte {
+  position: fixed; inset: 0; z-index: 350;
+  pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(100,0,0,0.6) 100%);
+  transition: opacity 2s;
+}
 </style>
 </head>
 <body>
 
+<!-- TELA TÍTULO -->
 <div id="tela-titulo">
-  <div class="titulo-principal">AMAZÔNIA</div>
-  <div class="subtitulo">sobrevivência · lendas · mistério</div>
-  <p style="font-size:1rem; color:#aaa; text-align:center; max-width:460px; margin-bottom:2rem; font-style:italic; line-height:1.9;">
-    A floresta pulsa. Ela respira. E ela observa você.<br>
-    <strong style="color:#00ff88">WASD / Setas</strong> — mover &nbsp;|&nbsp; <strong style="color:#00ff88">E / Enter</strong> — interagir<br>
-    <strong style="color:#f0c94a">🎮 Controle:</strong> Analógico esquerdo — mover &nbsp;|&nbsp; <strong style="color:#f0c94a">A/X</strong> — ação &nbsp;|&nbsp; <strong style="color:#f0c94a">LB/RB</strong> — navegar ações<br>
-    Descubra as 6 lendas da Amazônia. Sobreviva.
+  <canvas id="titulo-canvas"></canvas>
+
+  <div class="titulo-logo">
+    <div class="titulo-principal">AMAZÔNIA</div>
+    <div class="titulo-sub">sobrevivência · lendas · mistério</div>
+  </div>
+
+  <div class="titulo-linha-deco"></div>
+
+  <p class="titulo-descricao">
+    A floresta não é apenas árvores e rios.<br>
+    Ela é consciência. Ela sente. Ela julga.<br>
+    Descubra as 6 lendas. Sobreviva à noite.
   </p>
-  <button class="btn-comecar" onclick="iniciarJogo()">Entrar na Floresta</button>
+
+  <div class="titulo-controles">
+    <div class="ctrl-grupo">
+      <div class="ctrl-titulo">⌨ Teclado</div>
+      <div class="ctrl-linha"><span class="tecla">WASD</span> mover</div>
+      <div class="ctrl-linha"><span class="tecla">E</span> / <span class="tecla">Enter</span> ação</div>
+      <div class="ctrl-linha"><span class="tecla">Q</span> <span class="tecla">R</span> navegar</div>
+    </div>
+    <div class="ctrl-grupo">
+      <div class="ctrl-titulo">🎮 Controle</div>
+      <div class="ctrl-linha">Analógico — mover</div>
+      <div class="ctrl-linha"><span class="tecla">A</span> ação · <span class="tecla">Y</span> inv.</div>
+      <div class="ctrl-linha"><span class="tecla">LB</span> <span class="tecla">RB</span> navegar</div>
+    </div>
+  </div>
+
+  <button class="btn-iniciar" onclick="iniciarJogo()">Entrar na Floresta</button>
+
+  <div class="titulo-versao">v2.0 · AMAZÔNIA</div>
 </div>
 
-<div id="gamepad-indicator">🎮 CONTROLE CONECTADO</div>
+<!-- BADGES -->
+<div id="gp-badge">🎮 CONTROLE CONECTADO</div>
+<div id="bussola" style="display:none"><div class="bussola-inner" id="bussola-txt">N <span class="bussola-dir">↑</span> S</div></div>
 
-<div id="hud" style="display:none;">
-  <div class="painel-stats">
-    <div class="barra-stat"><span class="label">❤ VIDA</span><div class="barra-bg"><div class="barra-fill fill-vida" id="b-vida" style="width:100%"></div></div><span class="valor" id="v-vida">100</span></div>
-    <div class="barra-stat"><span class="label">🍗 FOME</span><div class="barra-bg"><div class="barra-fill fill-fome" id="b-fome" style="width:100%"></div></div><span class="valor" id="v-fome">100</span></div>
-    <div class="barra-stat"><span class="label">💧 SEDE</span><div class="barra-bg"><div class="barra-fill fill-sede" id="b-sede" style="width:100%"></div></div><span class="valor" id="v-sede">100</span></div>
-    <div class="barra-stat"><span class="label">⚡ ENER.</span><div class="barra-bg"><div class="barra-fill fill-energia" id="b-energia" style="width:100%"></div></div><span class="valor" id="v-energia">100</span></div>
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-canto-esq">
+    <div class="painel-stats">
+      <div class="barra-linha" id="linha-vida">
+        <span class="barra-icone">❤</span>
+        <div class="barra-bg"><div class="barra-fill fill-vida" id="b-vida" style="width:100%"></div></div>
+        <span class="barra-val" id="v-vida">100</span>
+      </div>
+      <div class="barra-linha" id="linha-fome">
+        <span class="barra-icone">🍖</span>
+        <div class="barra-bg"><div class="barra-fill fill-fome" id="b-fome" style="width:100%"></div></div>
+        <span class="barra-val" id="v-fome">100</span>
+      </div>
+      <div class="barra-linha" id="linha-sede">
+        <span class="barra-icone">💧</span>
+        <div class="barra-bg"><div class="barra-fill fill-sede" id="b-sede" style="width:100%"></div></div>
+        <span class="barra-val" id="v-sede">100</span>
+      </div>
+      <div class="barra-linha" id="linha-energia">
+        <span class="barra-icone">⚡</span>
+        <div class="barra-bg"><div class="barra-fill fill-energia" id="b-energia" style="width:100%"></div></div>
+        <span class="barra-val" id="v-energia">100</span>
+      </div>
+    </div>
+    <div style="margin-top:6px; font-family:'Share Tech Mono',monospace; font-size:0.58rem; color:rgba(255,255,255,0.25); padding:0 2px;" id="inv-display"></div>
   </div>
-  <div id="painel-info">
-    <div id="localizacao">floresta profunda</div>
-    <div id="hora-dia">☀ Dia 1 — Manhã</div>
-    <div id="inventario-mini"></div>
+
+  <div class="hud-canto-dir">
+    <div class="painel-info">
+      <div id="localizacao">FLORESTA</div>
+      <div id="hora-dia">☀ Dia 1 — Manhã</div>
+      <div style="margin-top:6px;">
+        <div id="lendas-encontradas" style="font-size:0.65rem; letter-spacing:1px; color:rgba(255,255,255,0.3);">
+          LENDAS: — — — — — —
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- CANVAS PRINCIPAL -->
 <div id="jogo"><canvas id="canvas-mundo"></canvas></div>
+
+<!-- MINI-MAPA -->
 <div id="mini-mapa"><canvas id="canvas-mini"></canvas></div>
 
-<div id="log-eventos" style="display:none;">
+<!-- LOG / AÇÕES -->
+<div id="log-area">
   <div id="mensagem-atual">A floresta sussurra ao seu redor...</div>
   <div id="acoes"></div>
 </div>
-<div id="gamepad-hint">◄LB navegar RB► &nbsp;|&nbsp; A confirmar &nbsp;|&nbsp; B cancelar</div>
 
+<!-- MODAL LENDA -->
 <div id="modal-lenda">
-  <div class="caixa-lenda">
-    <span class="lenda-emoji" id="lenda-emoji">👁</span>
-    <div class="lenda-nome" id="lenda-nome">Nome da Lenda</div>
-    <div class="lenda-tipo" id="lenda-tipo">entidade</div>
-    <div class="lenda-texto" id="lenda-texto">Texto da lenda aqui.</div>
-    <div class="lenda-dica" id="lenda-dica">Dica de sobrevivência.</div>
-    <button class="btn-fechar" onclick="fecharLenda()">Continuar [A]</button>
+  <div class="modal-lenda-inner">
+    <div class="modal-decor-top"></div>
+    <div class="modal-corpo">
+      <span class="lenda-emoji-grande" id="lenda-emoji">👁</span>
+      <div class="lenda-tipo" id="lenda-tipo">ENTIDADE</div>
+      <div class="lenda-nome" id="lenda-nome">Nome</div>
+      <div class="lenda-sep"></div>
+      <p class="lenda-texto" id="lenda-texto"></p>
+      <div class="lenda-dica-box">
+        <div class="lenda-dica-label">⚠ Sobrevivência</div>
+        <div class="lenda-dica-texto" id="lenda-dica"></div>
+      </div>
+      <button class="btn-fechar-modal" onclick="fecharLenda()">Continuar</button>
+    </div>
   </div>
 </div>
 
-<div id="notificacao">Item coletado!</div>
+<!-- OVERLAYS -->
+<div id="toast"></div>
+<div id="alerta-critico"></div>
+<div id="damage-flash"></div>
+<div id="vinheta"></div>
+<div id="overlay-morte"></div>
+<div id="clima-overlay"></div>
 
+<!-- TELA FIM -->
 <div id="tela-fim">
   <div class="fim-titulo" id="fim-titulo">A Floresta Venceu</div>
-  <div class="fim-subtitulo" id="fim-subtitulo"></div>
-  <button class="btn-comecar" onclick="reiniciar()">Tentar Novamente [A]</button>
+  <div class="fim-linha"></div>
+  <div class="fim-stats" id="fim-stats"></div>
+  <div class="fim-causa" id="fim-causa"></div>
+  <button class="btn-iniciar" style="margin-top:1rem" onclick="reiniciar()">Tentar Novamente</button>
 </div>
 
 <script>
-// ─── LENDAS ───────────────────────────────────────────────────────────────────
+'use strict';
+
+// ══════════════════════════════════════════════════════
+//  DADOS DAS LENDAS
+// ══════════════════════════════════════════════════════
 const LENDAS = [
-  { nome:"Curupira", tipo:"Guardião da Floresta", emoji:"🦶", texto:"O Curupira é o protetor das matas. Tem os pés virados para trás para confundir caçadores e intrusos. Seus pés inversos deixam rastros que levam os desavisados em círculos infinitos pela floresta. Você ouve risadas distantes entre as árvores...", dica:"⚠ Seus rastros indicam círculos. Observe o musgo nas árvores — sempre cresce no lado norte.", efeito:"confusao", cor:"#00ff88" },
-  { nome:"Mapinguari", tipo:"Besta Ancestral", emoji:"🦁", texto:"Uma criatura colossal com couro impenetrável e um segundo olho na barriga. Seu rugido paralisa de pavor. Os povos indígenas dizem que é o espírito de um xamã punido por desafiar os deuses. O chão treme com seus passos...", dica:"⚠ Não corra — o Mapinguari detecta movimento. Fique imóvel entre as raízes e deixe-o passar.", efeito:"medo", cor:"#cc2200" },
-  { nome:"Iara", tipo:"Sereia dos Rios", emoji:"🧜‍♀️", texto:"A rainha das águas. Metade mulher, metade peixe, ela canta ao luar para atrair mortais para as profundezas. Quem ouve seu canto perde a vontade de voltar para terra firme. O rio brilha com uma luz estranha...", dica:"⚠ Tampe os ouvidos ao se aproximar de rios à noite. Água que brilha nunca deve ser bebida.", efeito:"atracaoAgua", cor:"#2196f3" },
-  { nome:"Boto Cor-de-Rosa", tipo:"Espírito Sedutor", emoji:"🐬", texto:"Nas noites de festa, o boto se transforma em um jovem elegante com chapéu para esconder o espiráculo na cabeça. Seduz os incautos e os leva para o fundo do rio — para Encante, o mundo subaquático dos encantados.", dica:"💡 Ver o boto no rio é sinal de boa sorte. Ele protege pescadores, mas nunca o toque.", efeito:"sorte", cor:"#f48fb1" },
-  { nome:"Matinta Perera", tipo:"Feiticeira Noturna", emoji:"🦉", texto:"Um assobio agudo na floresta à noite é seu aviso. Uma velha feiticeira que se transforma em ave para aterrorizar viajantes. Se você responder 'amanhã cedo' quando ela pedir fumo, ela aparecerá como uma velha inofensiva.", dica:"⚠ Ao ouvir o assobio à noite, não responda, não olhe para trás e siga sem parar.", efeito:"susto", cor:"#7e57c2" },
-  { nome:"Anhangá", tipo:"Espírito dos Animais", emoji:"🦌", texto:"Aparece como um cervo branco de olhos vermelhos. Protege todos os animais da floresta e pune caçadores que matam por esporte ou ganância. Caçadores cruéis ficam perdidos eternamente entre as árvores.", dica:"💡 Cace apenas o necessário para sobreviver. O Anhangá não pune quem respeita a floresta.", efeito:"aviso", cor:"#f0c94a" }
+  {
+    nome:"Curupira", tipo:"Guardião da Floresta", emoji:"🦶", cor:"#00ff88",
+    texto:"O Curupira protege a mata com seus pés virados para trás, deixando rastros que levam caçadores em círculos intermináveis. Você ouve risadas infantis ecoando entre as árvores, cada vez mais próximas — e então de repente, de todas as direções ao mesmo tempo.",
+    dica:"Observe o musgo nas árvores: cresce sempre no lado norte. Quando sentir que está em círculos, pare. Respire. Procure o musgo.",
+    efeito:"confusao"
+  },
+  {
+    nome:"Mapinguari", tipo:"Besta Ancestral", emoji:"🦁", cor:"#cc2200",
+    texto:"Colossal como uma árvore centenária, com couro que nenhuma lança perfura e um segundo olho rosado na barriga que vê o que os outros não veem. É o espírito punitivo de um xamã que desafiou os deuses. O chão treme. As aves silenciam.",
+    dica:"Jamais corra. O Mapinguari detecta movimento e vibração. Agache-se entre raízes altas, respire devagar, e deixe-o passar como uma tempestade.",
+    efeito:"medo"
+  },
+  {
+    nome:"Iara", tipo:"Sereia dos Rios", emoji:"🧜‍♀️", cor:"#2196f3",
+    texto:"Metade mulher, metade peixe, Rainha das águas. Ao luar, senta nas pedras e canta. Sua voz dissolve a vontade humana como sal na água — quem ouve deseja apenas afundar, ser envolvido, nunca mais voltar. O rio à sua frente brilha com uma luz que não deveria existir.",
+    dica:"Tampe os ouvidos com barro antes de cruzar rios à noite. Água que emite luz própria nunca deve ser bebida nem tocada.",
+    efeito:"atracaoAgua"
+  },
+  {
+    nome:"Boto Cor-de-Rosa", tipo:"Encantado dos Rios", emoji:"🐬", cor:"#f48fb1",
+    texto:"Nas noites de festa à beira do rio, ele sai das águas como um jovem elegante de roupa branca e chapéu — para esconder o espiráculo. Seduz e leva para o Encante, o mundo subaquático dos espíritos. Não é cruel. Apenas não entende por que você quereria ficar na superfície.",
+    dica:"Ver o boto saltar ao amanhecer traz boa sorte para o dia. Ele protege pescadores. Mas jamais o toque, jamais o siga.",
+    efeito:"sorte"
+  },
+  {
+    nome:"Matinta Perera", tipo:"Feiticeira Noturna", emoji:"🦉", cor:"#7e57c2",
+    texto:"Um assobio agudo cortando a noite. Uma sombra de ave que te segue entre as copas. Uma velha feiticeira que assume a forma de pássaro para aterrorizar viajantes sozinhos. Se ela pedir fumo à sua porta, responda apenas: 'Amanhã cedo' — e ela virá como velha inofensiva.",
+    dica:"Se ouvir o assobio à noite: não responda, não olhe para trás, não acelere o passo. Caminhe firme e em linha reta até um abrigo.",
+    efeito:"susto"
+  },
+  {
+    nome:"Anhangá", tipo:"Espírito dos Animais", emoji:"🦌", cor:"#f0c94a",
+    texto:"Um cervo de pelagem branca como neve, olhos que queimam vermelho como brasa. Ele vê cada animal que você caçou. Cada um. Os caçadores que matam por esporte desaparecem na floresta — não mortos, apenas perdidos para sempre, caminhando em círculos até virar parte da mata.",
+    dica:"A floresta sustenta quem a respeita. Cace apenas o essencial. O Anhangá não pune quem mata para sobreviver — apenas quem mata por prazer.",
+    efeito:"aviso"
+  }
 ];
 
-// ─── MAPA CONFIG ──────────────────────────────────────────────────────────────
-const TILE = 48, MAPA_W = 60, MAPA_H = 60;
-const T = { FLORESTA:0, AGUA:1, CLAREIRA:2, PEDRA:3, BAMBU:4, FRUTAS:5, ABRIGO:6, FOGO:7 };
+// ══════════════════════════════════════════════════════
+//  CONFIGURAÇÃO DO MAPA
+// ══════════════════════════════════════════════════════
+const TILE = 52, MAPA_W = 70, MAPA_H = 70;
+const T = { FLORESTA:0, AGUA:1, CLAREIRA:2, PEDRA:3, BAMBU:4, FRUTAS:5, ABRIGO:6, FOGO:7, TERRA:8, PENHASCO:9 };
 
-// ─── MINECRAFT BLOCK COLORS ───────────────────────────────────────────────────
-// Each tile has top face, left face (shadow), right face (shadow), and optional grid
-const MC_BLOCKS = {
-  0: { top:'#3a7d3a', left:'#1f4d1f', right:'#2d6b2d', grass:'#2d5c1a', label:'Floresta' },     // grass + trees
-  1: { top:'#1565a0', left:'#0a3d6b', right:'#1777bc', grass:null, label:'Rio' },                // water
-  2: { top:'#6aad3a', left:'#3d6b1f', right:'#5a9030', grass:'#4caf50', label:'Clareira' },      // light grass
-  3: { top:'#7a7a7a', left:'#4a4a4a', right:'#626262', grass:null, label:'Pedras' },             // stone
-  4: { top:'#2d7d2d', left:'#1a4d1a', right:'#257025', grass:'#1f5c1a', label:'Taquaral' },      // dark bamboo
-  5: { top:'#4d9c2a', left:'#2d6b10', right:'#3d8820', grass:'#2d7014', label:'Frutas' },        // fruity
-  6: { top:'#8b6234', left:'#5c3d1e', right:'#7a5228', grass:null, label:'Abrigo' },             // wood
-  7: { top:'#cc6600', left:'#7a3300', right:'#aa4400', grass:null, label:'Fogueira' },           // fire
+const BLOCOS = {
+  0: { top:'#2a6a2a', left:'#174d17', right:'#236a23', label:'Floresta Densa' },
+  1: { top:'#0e5080', left:'#063060', right:'#0e6090', label:'Rio' },
+  2: { top:'#5a9a30', left:'#358020', right:'#4a8825', label:'Clareira' },
+  3: { top:'#6a6a6a', left:'#404040', right:'#585858', label:'Afloramento de Pedras' },
+  4: { top:'#256825', left:'#145014', right:'#1e5a1e', label:'Taquaral' },
+  5: { top:'#3a8a20', left:'#205a10', right:'#307818', label:'Pomar Silvestre' },
+  6: { top:'#7a5228', left:'#503018', right:'#6a4422', label:'Abrigo' },
+  7: { top:'#8a4000', left:'#602800', right:'#7a3600', label:'Fogueira' },
+  8: { top:'#6a4a1a', left:'#4a3010', right:'#5a4015', label:'Margem Barrenta' },
+  9: { top:'#585858', left:'#303030', right:'#484848', label:'Penhasco' },
 };
 
-// Block height for 3D effect
-const BH = 12; // pixel height of block side
+const BH_TILE = { 0:14, 1:3, 2:8, 3:20, 4:16, 5:10, 6:22, 7:22, 8:10, 9:26 };
 
-let estado={}, mapa=[], entidades=[], itens=[], teclas={}, animFrame=null;
-let tempoDecorrido=0, diaNumero=1, periodoDia=1, ultimoTimestamp=0;
-let legendasVistas=new Set(), msgTimeout=null, notifTimeout=null;
-const periodos = ['Madrugada','Manhã','Tarde','Entardecer','Noite'];
+// ══════════════════════════════════════════════════════
+//  ESTADO DO JOGO
+// ══════════════════════════════════════════════════════
+let E = {}; // estado do jogador
+let mapa = [], itens = [], entidades = [], chuva = [];
+let teclas = {}, animID = null;
+let tempo = 0, diaNum = 1, periodoIdx = 1, tsAnterior = 0;
+let legendasVistas = new Set();
+let toastTimer = null, alertaTimer = null;
+let climaAtual = 'limpo'; // limpo, chuva, nevoeiro
+let climaTempo = 0, climaDuracao = 120;
+let particulas = [];
 
-// ─── GAMEPAD STATE ────────────────────────────────────────────────────────────
-let gamepadState = {
-  connected: false, index: -1,
-  axes: [0,0,0,0],
-  buttons: new Array(20).fill(false),
-  prevButtons: new Array(20).fill(false),
-  acaoSelecionada: 0,
-  deadzone: 0.2
-};
+const PERIODOS = ['Madrugada','Manhã','Tarde','Entardecer','Noite'];
+const ICONES_PERIODO = ['🌙','☀️','🌤️','🌅','🌙'];
 
-// Button mapping (standard layout - works for Xbox, PS, Switch Pro, generic)
-// https://w3c.github.io/gamepad/#remapping
-const GP = {
-  A: 0,       // Xbox A / PS Cross / Switch B
-  B: 1,       // Xbox B / PS Circle / Switch A
-  X: 2,       // Xbox X / PS Square / Switch Y
-  Y: 3,       // Xbox Y / PS Triangle / Switch X
-  LB: 4,      // Left Bumper / L1 / L
-  RB: 5,      // Right Bumper / R1 / R
-  LT: 6,      // Left Trigger / L2 / ZL
-  RT: 7,      // Right Trigger / R2 / ZR
-  SELECT: 8,  // Select / Share / Minus
-  START: 9,   // Start / Options / Plus
-  L3: 10,     // Left Stick Press
-  R3: 11,     // Right Stick Press
-  UP: 12,     // D-Pad Up
-  DOWN: 13,   // D-Pad Down
-  LEFT: 14,   // D-Pad Left
-  RIGHT: 15,  // D-Pad Right
-};
+// ══════════════════════════════════════════════════════
+//  GAMEPAD
+// ══════════════════════════════════════════════════════
+const GP_BTN = { A:0, B:1, X:2, Y:3, LB:4, RB:5, LT:6, RT:7, SELECT:8, START:9, L3:10, R3:11, UP:12, DOWN:13, LEFT:14, RIGHT:15 };
+let gp = { connected:false, idx:-1, axes:[0,0,0,0], buttons:new Array(20).fill(false), prev:new Array(20).fill(false), sel:0, dz:0.2 };
 
-// ─── GAMEPAD SETUP ────────────────────────────────────────────────────────────
 window.addEventListener('gamepadconnected', e => {
-  gamepadState.connected = true;
-  gamepadState.index = e.gamepad.index;
-  document.getElementById('gamepad-indicator').classList.add('ativo');
-  document.getElementById('gamepad-hint').classList.add('visivel');
-  mostrarNotificacao('🎮 Controle conectado!');
+  gp.connected = true; gp.idx = e.gamepad.index;
+  document.getElementById('gp-badge').classList.add('ativo');
+  toast('🎮 Controle conectado!');
 });
 window.addEventListener('gamepaddisconnected', e => {
-  if (e.gamepad.index === gamepadState.index) {
-    gamepadState.connected = false;
-    gamepadState.index = -1;
-    document.getElementById('gamepad-indicator').classList.remove('ativo');
-    document.getElementById('gamepad-hint').classList.remove('visivel');
+  if (e.gamepad.index === gp.idx) {
+    gp.connected = false; gp.idx = -1;
+    document.getElementById('gp-badge').classList.remove('ativo');
   }
 });
 
-function lerGamepad() {
-  if (!gamepadState.connected) return;
-  const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
-  let gp = null;
-  // Find first connected gamepad (handles index changes)
-  for (let i = 0; i < gamepads.length; i++) {
-    if (gamepads[i]) { gp = gamepads[i]; gamepadState.index = i; break; }
-  }
-  if (!gp) return;
-
-  gamepadState.prevButtons = [...gamepadState.buttons];
-  gamepadState.axes = Array.from(gp.axes);
-  gamepadState.buttons = gp.buttons.map(b => (typeof b === 'object') ? b.pressed : b);
+function lerGP() {
+  if (!gp.connected) return;
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  let pad = null;
+  for (let i = 0; i < pads.length; i++) { if (pads[i]) { pad = pads[i]; gp.idx = i; break; } }
+  if (!pad) return;
+  gp.prev = [...gp.buttons];
+  gp.axes = Array.from(pad.axes);
+  gp.buttons = pad.buttons.map(b => typeof b === 'object' ? b.pressed : b);
 }
 
-function gpJustPressed(btn) {
-  return gamepadState.buttons[btn] && !gamepadState.prevButtons[btn];
-}
-function gpPressed(btn) {
-  return gamepadState.buttons[btn];
-}
-function gpAxis(i) {
-  const v = gamepadState.axes[i] || 0;
-  return Math.abs(v) > gamepadState.deadzone ? v : 0;
-}
+const gpPress = b => gp.buttons[b] && !gp.prev[b];
+const gpHeld = b => gp.buttons[b];
+const gpAxis = i => { const v = gp.axes[i]||0; return Math.abs(v)>gp.dz ? v : 0; };
 
-// ─── MAPA GENERATION ──────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  GERAÇÃO DO MAPA
+// ══════════════════════════════════════════════════════
 function gerarMapa() {
   mapa = [];
-  for (let y=0; y<MAPA_H; y++) {
+  for (let y = 0; y < MAPA_H; y++) {
     mapa[y] = [];
-    for (let x=0; x<MAPA_W; x++) {
-      let r=Math.random(), t;
-      if(r<0.55) t=T.FLORESTA; else if(r<0.65) t=T.BAMBU;
-      else if(r<0.72) t=T.CLAREIRA; else if(r<0.78) t=T.AGUA;
-      else if(r<0.83) t=T.PEDRA; else if(r<0.88) t=T.FRUTAS;
-      else t=T.FLORESTA;
-      mapa[y][x] = { tipo:t, v:Math.random(), animOffset: Math.random()*Math.PI*2 };
+    for (let x = 0; x < MAPA_W; x++) {
+      const r = Math.random(), v = Math.random();
+      let tipo;
+      if (r < 0.48) tipo = T.FLORESTA;
+      else if (r < 0.58) tipo = T.BAMBU;
+      else if (r < 0.66) tipo = T.CLAREIRA;
+      else if (r < 0.73) tipo = T.AGUA;
+      else if (r < 0.79) tipo = T.PEDRA;
+      else if (r < 0.84) tipo = T.FRUTAS;
+      else if (r < 0.88) tipo = T.TERRA;
+      else tipo = T.FLORESTA;
+      mapa[y][x] = { tipo, v, animOffset: Math.random() * Math.PI * 2, visitado: false };
     }
   }
-  // Rivers
-  for (let r=0; r<4; r++) {
-    let x=Math.floor(Math.random()*(MAPA_W-20))+10, y=Math.floor(Math.random()*(MAPA_H-20))+5;
-    let len=8+Math.floor(Math.random()*15);
-    for (let i=0; i<len; i++) {
-      if(x>=0&&x<MAPA_W&&y>=0&&y<MAPA_H) mapa[y][x].tipo=T.AGUA;
-      x+=Math.random()>0.5?1:0; y+=Math.random()>0.4?1:(Math.random()>0.5?-1:0);
+  // Rios curvos
+  for (let r = 0; r < 5; r++) {
+    let x = 5 + Math.floor(Math.random() * (MAPA_W - 10));
+    let y = 3 + Math.floor(Math.random() * (MAPA_H - 6));
+    const len = 10 + Math.floor(Math.random() * 18);
+    const dir = Math.random() > 0.5 ? 'h' : 'v';
+    for (let i = 0; i < len; i++) {
+      if (x >= 0 && x < MAPA_W && y >= 0 && y < MAPA_H) {
+        mapa[y][x].tipo = T.AGUA;
+        if (x > 0) mapa[y][x-1].tipo = T.TERRA;
+        if (x < MAPA_W-1) mapa[y][x+1].tipo = T.TERRA;
+      }
+      if (dir === 'h') { x++; if (Math.random() < 0.35) y += Math.random() > 0.5 ? 1 : -1; }
+      else { y++; if (Math.random() < 0.35) x += Math.random() > 0.5 ? 1 : -1; }
     }
   }
-  // Shelters
-  for (let i=0; i<4; i++) {
-    let x=3+Math.floor(Math.random()*(MAPA_W-6)), y=3+Math.floor(Math.random()*(MAPA_H-6));
-    mapa[y][x].tipo = T.ABRIGO;
+  // Penhascos e rochas em grupo
+  for (let g = 0; g < 8; g++) {
+    let cx = 4 + Math.floor(Math.random() * (MAPA_W - 8));
+    let cy = 4 + Math.floor(Math.random() * (MAPA_H - 8));
+    const sz = 2 + Math.floor(Math.random() * 3);
+    for (let dy = -sz; dy <= sz; dy++) for (let dx = -sz; dx <= sz; dx++) {
+      if (Math.random() < 0.55 && cx+dx >= 0 && cx+dx < MAPA_W && cy+dy >= 0 && cy+dy < MAPA_H) {
+        mapa[cy+dy][cx+dx].tipo = T.PEDRA;
+      }
+    }
   }
-  // Central campfire
-  mapa[Math.floor(MAPA_H/2)][Math.floor(MAPA_W/2)].tipo = T.FOGO;
+  // Abrigos
+  for (let i = 0; i < 5; i++) {
+    let x = 4 + Math.floor(Math.random() * (MAPA_W - 8));
+    let y = 4 + Math.floor(Math.random() * (MAPA_H - 8));
+    if (mapa[y][x].tipo !== T.AGUA && mapa[y][x].tipo !== T.PEDRA) {
+      mapa[y][x].tipo = T.ABRIGO;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (mapa[y+dy]?.[x+dx] && mapa[y+dy][x+dx].tipo === T.FLORESTA) {
+          mapa[y+dy][x+dx].tipo = T.CLAREIRA;
+        }
+      }
+    }
+  }
+  // Fogueira central
+  const mx = Math.floor(MAPA_W / 2), my = Math.floor(MAPA_H / 2);
+  mapa[my][mx].tipo = T.FOGO;
+  for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
+    if (mapa[my+dy]?.[mx+dx] && mapa[my+dy][mx+dx].tipo === T.FLORESTA) mapa[my+dy][mx+dx].tipo = T.CLAREIRA;
+  }
 }
 
 function gerarItens() {
   itens = [];
   const tipos = [
-    {tipo:'fruta',emoji:'🍊',nome:'Fruta Silvestre',efeito:'fome',valor:25},
-    {tipo:'erva',emoji:'🌿',nome:'Erva Medicinal',efeito:'vida',valor:20},
-    {tipo:'pederneira',emoji:'🪨',nome:'Pederneira',efeito:'fogo',valor:0},
-    {tipo:'cana',emoji:'🎋',nome:'Cana de Bambu',efeito:'construcao',valor:0},
-    {tipo:'agua_potavel',emoji:'💧',nome:'Água Limpa',efeito:'sede',valor:35},
-    {tipo:'cogumelo',emoji:'🍄',nome:'Cogumelo ?',efeito:'misterio',valor:0}
+    { tipo:'fruta',   emoji:'🍊', nome:'Fruta Silvestre',  efeito:'fome',     valor:28, raro:false },
+    { tipo:'erva',    emoji:'🌿', nome:'Erva Medicinal',   efeito:'vida',     valor:22, raro:false },
+    { tipo:'pedra',   emoji:'🪨', nome:'Pederneira',       efeito:'fogo',     valor:0,  raro:false },
+    { tipo:'cana',    emoji:'🎋', nome:'Cana de Bambu',    efeito:'constr',   valor:0,  raro:false },
+    { tipo:'agua',    emoji:'💧', nome:'Água Limpa',       efeito:'sede',     valor:38, raro:false },
+    { tipo:'cogumelo',emoji:'🍄', nome:'Cogumelo Misterioso', efeito:'misterio', valor:0, raro:false },
+    { tipo:'mel',     emoji:'🍯', nome:'Mel Silvestre',    efeito:'fome_vida',valor:20, raro:true  },
+    { tipo:'raiz',    emoji:'🌱', nome:'Raiz Nutritiva',   efeito:'fome',     valor:18, raro:false },
+    { tipo:'peixe',   emoji:'🐟', nome:'Peixe Seco',       efeito:'fome_sede',valor:35, raro:true  },
   ];
-  for (let i=0; i<80; i++) {
-    let t = tipos[Math.floor(Math.random()*tipos.length)];
-    itens.push({...t, x:2+Math.floor(Math.random()*(MAPA_W-4)), y:2+Math.floor(Math.random()*(MAPA_H-4)), id:i});
+  for (let i = 0; i < 100; i++) {
+    const t = tipos[Math.floor(Math.random() * tipos.length)];
+    itens.push({ ...t, x: 2 + Math.random() * (MAPA_W - 4), y: 2 + Math.random() * (MAPA_H - 4), id: i, animPh: Math.random() * Math.PI * 2 });
   }
 }
 
 function gerarEntidades() {
   entidades = [];
-  LENDAS.forEach((l,i) => {
+  LENDAS.forEach((l, i) => {
     entidades.push({
-      lenda:i, x:5+Math.floor(Math.random()*(MAPA_W-10)), y:5+Math.floor(Math.random()*(MAPA_H-10)),
-      vx:(Math.random()-0.5)*0.02, vy:(Math.random()-0.5)*0.02,
-      raio:3+Math.floor(Math.random()*3), p:0
+      lenda: i,
+      x: 6 + Math.random() * (MAPA_W - 12),
+      y: 6 + Math.random() * (MAPA_H - 12),
+      vx: (Math.random() - 0.5) * 0.025,
+      vy: (Math.random() - 0.5) * 0.025,
+      raio: 3.5 + Math.random() * 2,
+      fase: Math.random() * Math.PI * 2,
+      trail: []
     });
   });
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  INICIAR / REINICIAR
+// ══════════════════════════════════════════════════════
 function iniciarJogo() {
-  document.getElementById('tela-titulo').style.display = 'none';
-  document.getElementById('jogo').style.display = 'block';
-  document.getElementById('hud').style.display = 'flex';
-  document.getElementById('log-eventos').style.display = 'block';
-  document.getElementById('mini-mapa').style.display = 'block';
+  document.getElementById('tela-titulo').style.animation = 'fadeIn 0.5s reverse forwards';
+  setTimeout(() => {
+    document.getElementById('tela-titulo').style.display = 'none';
+    document.getElementById('jogo').style.display = 'block';
+    document.getElementById('hud').style.display = 'block';
+    document.getElementById('log-area').style.display = 'block';
+    document.getElementById('mini-mapa').style.display = 'block';
+    document.getElementById('bussola').style.display = 'block';
+    document.getElementById('vinheta').style.display = 'block';
+  }, 400);
 
   const canvas = document.getElementById('canvas-mundo');
-  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-  gerarMapa(); gerarItens(); gerarEntidades();
-  estado = { x:MAPA_W/2, y:MAPA_H/2, vida:100, fome:100, sede:100, energia:100, inventario:[], temFogo:false, temAbrigo:false, passos:0, lendas:[], dormindo:false };
-  tempoDecorrido=0; diaNumero=1; periodoDia=1; legendasVistas=new Set(); ultimoTimestamp=performance.now();
+  gerarMapa();
+  gerarItens();
+  gerarEntidades();
+  gerarChuva();
 
-  document.onkeydown = e => { teclas[e.code]=true; e.preventDefault(); };
-  document.onkeyup = e => { teclas[e.code]=false; };
+  E = {
+    x: MAPA_W / 2, y: MAPA_H / 2,
+    vida: 100, fome: 100, sede: 100, energia: 100,
+    inventario: [],
+    temFogo: false, temAbrigo: false,
+    passos: 0, lendas: [],
+    dormindo: false,
+    danificado: false,
+    dir: 'S', // direção do jogador
+    velX: 0, velY: 0
+  };
 
-  // E / Enter = activate action
+  tempo = 0; diaNum = 1; periodoIdx = 1;
+  legendasVistas = new Set();
+  tsAnterior = performance.now();
+  climaAtual = 'limpo'; climaTempo = 0; climaDuracao = 80 + Math.random() * 120;
+  gp.sel = 0;
+
   document.onkeydown = e => {
     teclas[e.code] = true;
-    if (e.code==='KeyE'||e.code==='Enter') {
-      if (document.getElementById('modal-lenda').classList.contains('aberto')) { fecharLenda(); }
-      else { ativarAcaoSelecionada(); }
+    if (e.code === 'KeyE' || e.code === 'Enter') {
+      if (document.getElementById('modal-lenda').classList.contains('aberto')) fecharLenda();
+      else ativarAcaoSelecionada();
     }
-    if (e.code==='BracketLeft'||e.code==='KeyQ') navegarAcoes(-1);
-    if (e.code==='BracketRight'||e.code==='KeyR') navegarAcoes(1);
+    if (e.code === 'KeyQ') navegarAcoes(-1);
+    if (e.code === 'KeyR') navegarAcoes(1);
     e.preventDefault();
   };
-  document.onkeyup = e => { teclas[e.code]=false; };
+  document.onkeyup = e => { teclas[e.code] = false; };
 
-  gamepadState.acaoSelecionada = 0;
   atualizarAcoes();
-  mostrarMensagem("Você acorda na floresta. O ar é denso e úmido. A sobrevivência começa agora.");
-  animFrame = requestAnimationFrame(loop);
+  msg("Você acorda na floresta. O ar é denso e quente. A sobrevivência começa agora.");
+  animID = requestAnimationFrame(loop);
 }
 
-function reiniciar() { document.getElementById('tela-fim').classList.remove('aberto'); iniciarJogo(); }
+function reiniciar() {
+  document.getElementById('tela-fim').classList.remove('aberto');
+  cancelAnimationFrame(animID);
+  iniciarJogo();
+}
 
-// ─── MAIN LOOP ────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  LOOP PRINCIPAL
+// ══════════════════════════════════════════════════════
 function loop(ts) {
-  const dt = Math.min((ts-ultimoTimestamp)/1000, 0.1);
-  ultimoTimestamp = ts; tempoDecorrido += dt;
+  const dt = Math.min((ts - tsAnterior) / 1000, 0.12);
+  tsAnterior = ts; tempo += dt;
 
-  lerGamepad();
+  lerGP();
   processarGamepadUI();
 
-  if (!estado.dormindo) {
+  if (!E.dormindo) {
     moverJogador(dt);
     moverEntidades(dt);
     verificarColisoes();
     atualizarStats(dt);
-    atualizarDia();
+    atualizarDiaClima(dt);
   }
+
   renderizar();
   atualizarHUD();
-  if (estado.vida <= 0) { fimJogo(); return; }
-  animFrame = requestAnimationFrame(loop);
+
+  if (E.vida <= 0) { fimJogo(); return; }
+  animID = requestAnimationFrame(loop);
 }
 
+// ══════════════════════════════════════════════════════
+//  GAMEPAD UI
+// ══════════════════════════════════════════════════════
 function processarGamepadUI() {
-  if (!gamepadState.connected) return;
-
-  // Modal lenda: A = fechar
+  if (!gp.connected) return;
   if (document.getElementById('modal-lenda').classList.contains('aberto')) {
-    if (gpJustPressed(GP.A)) fecharLenda();
+    if (gpPress(GP_BTN.A) || gpPress(GP_BTN.B)) fecharLenda();
     return;
   }
-  // Tela fim: A = reiniciar
   if (document.getElementById('tela-fim').classList.contains('aberto')) {
-    if (gpJustPressed(GP.A)) reiniciar();
+    if (gpPress(GP_BTN.A) || gpPress(GP_BTN.START)) reiniciar();
     return;
   }
-
-  // Navigate actions with LB/RB or D-Pad Left/Right
-  if (gpJustPressed(GP.LB) || gpJustPressed(GP.LEFT)) navegarAcoes(-1);
-  if (gpJustPressed(GP.RB) || gpJustPressed(GP.RIGHT)) navegarAcoes(1);
-
-  // Activate action with A button
-  if (gpJustPressed(GP.A)) ativarAcaoSelecionada();
-
-  // Inventory with Y / Triangle
-  if (gpJustPressed(GP.Y)) verInventario();
-
-  // Legends with B / Circle
-  if (gpJustPressed(GP.B)) verLendas();
+  if (gpPress(GP_BTN.LB) || gpPress(GP_BTN.LEFT)) navegarAcoes(-1);
+  if (gpPress(GP_BTN.RB) || gpPress(GP_BTN.RIGHT)) navegarAcoes(1);
+  if (gpPress(GP_BTN.A)) ativarAcaoSelecionada();
+  if (gpPress(GP_BTN.Y)) verInventario();
+  if (gpPress(GP_BTN.B)) verLendas();
 }
 
-// ─── MOVEMENT ─────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  MOVIMENTO
+// ══════════════════════════════════════════════════════
 function moverJogador(dt) {
-  if (estado.energia <= 0) return;
-  const vel = 4*dt * (estado.energia>20 ? 1 : 0.5);
-  let dx=0, dy=0;
+  const cansado = E.energia <= 5;
+  const base = cansado ? 1.5 : 5;
+  const vel = base * dt;
+  let dx = 0, dy = 0;
 
-  // Keyboard
-  if (teclas['ArrowLeft']||teclas['KeyA']) dx -= vel;
-  if (teclas['ArrowRight']||teclas['KeyD']) dx += vel;
-  if (teclas['ArrowUp']||teclas['KeyW']) dy -= vel;
-  if (teclas['ArrowDown']||teclas['KeyS']) dy += vel;
+  if (teclas['ArrowLeft']  || teclas['KeyA']) dx -= 1;
+  if (teclas['ArrowRight'] || teclas['KeyD']) dx += 1;
+  if (teclas['ArrowUp']    || teclas['KeyW']) dy -= 1;
+  if (teclas['ArrowDown']  || teclas['KeyS']) dy += 1;
 
-  // Gamepad left stick + D-pad
   const ax = gpAxis(0), ay = gpAxis(1);
-  if (Math.abs(ax)>0||Math.abs(ay)>0) { dx += ax*vel; dy += ay*vel; }
-  if (gpPressed(GP.UP)) dy -= vel;
-  if (gpPressed(GP.DOWN)) dy += vel;
-  if (gpPressed(GP.LEFT)) dx -= vel;
-  if (gpPressed(GP.RIGHT)) dx += vel;
+  if (Math.abs(ax) > 0 || Math.abs(ay) > 0) { dx += ax; dy += ay; }
+  if (gpHeld(GP_BTN.UP))    dy -= 1;
+  if (gpHeld(GP_BTN.DOWN))  dy += 1;
+  if (gpHeld(GP_BTN.LEFT))  dx -= 1;
+  if (gpHeld(GP_BTN.RIGHT)) dx += 1;
 
-  if (dx!==0||dy!==0) {
-    // normalize diagonal
-    const mag = Math.sqrt(dx*dx+dy*dy);
-    if (mag>vel) { dx=(dx/mag)*vel; dy=(dy/mag)*vel; }
+  if (dx !== 0 || dy !== 0) {
+    const mag = Math.sqrt(dx * dx + dy * dy);
+    dx = (dx / mag) * vel;
+    dy = (dy / mag) * vel;
 
-    let nx = Math.max(0.5, Math.min(MAPA_W-1.5, estado.x+dx));
-    let ny = Math.max(0.5, Math.min(MAPA_H-1.5, estado.y+dy));
+    // Atualizar direção
+    if (Math.abs(dx) > Math.abs(dy)) E.dir = dx > 0 ? 'L' : 'O';
+    else E.dir = dy > 0 ? 'S' : 'N';
+
+    // Velocidade na chuva reduzida
+    if (climaAtual === 'chuva') { dx *= 0.7; dy *= 0.7; }
+
+    const nx = Math.max(0.6, Math.min(MAPA_W - 1.6, E.x + dx));
+    const ny = Math.max(0.6, Math.min(MAPA_H - 1.6, E.y + dy));
     const tile = mapa[Math.floor(ny)]?.[Math.floor(nx)];
-    if (tile && tile.tipo !== T.PEDRA) {
-      estado.x=nx; estado.y=ny; estado.passos++;
-      if (estado.passos%60===0) { estado.fome=Math.max(0,estado.fome-1.5); estado.sede=Math.max(0,estado.sede-2); estado.energia=Math.max(0,estado.energia-1); }
-      if (tile.tipo===T.AGUA) { estado.sede=Math.min(100,estado.sede+0.5); if(Math.random()<0.005) mostrarMensagem("Você bebe um pouco d'água. Cuidado — pode ter parasitas!"); }
-      if (tile.tipo===T.FRUTAS&&Math.random()<0.005) { estado.fome=Math.min(100,estado.fome+5); mostrarMensagem("Você encontrou frutos silvestres e comeu alguns."); }
+
+    if (tile && tile.tipo !== T.PEDRA && tile.tipo !== T.PENHASCO) {
+      E.x = nx; E.y = ny; E.passos++;
+      tile.visitado = true;
+
+      if (E.passos % 55 === 0) {
+        E.fome = Math.max(0, E.fome - 1.5 * (climaAtual === 'chuva' ? 1.3 : 1));
+        E.sede = Math.max(0, E.sede - 2.0);
+        E.energia = Math.max(0, E.energia - 0.8);
+      }
+      if (tile.tipo === T.AGUA) {
+        E.sede = Math.min(100, E.sede + 0.6);
+        if (Math.random() < 0.004) msg("Você bebe um pouco d'água do rio. Cuidado com parasitas!");
+      }
+      if (tile.tipo === T.FRUTAS && Math.random() < 0.006) {
+        E.fome = Math.min(100, E.fome + 6);
+        msg("Você encontra frutos caídos e come alguns.");
+      }
     }
   }
+
+  // Velocidade para animação
+  E.velX = dx / dt;
+  E.velY = dy / dt;
 }
 
 function navegarAcoes(dir) {
   const btns = document.querySelectorAll('.btn-acao');
   if (!btns.length) return;
-  gamepadState.acaoSelecionada = (gamepadState.acaoSelecionada + dir + btns.length) % btns.length;
-  btns.forEach((b,i) => b.classList.toggle('selecionado', i===gamepadState.acaoSelecionada));
+  gp.sel = (gp.sel + dir + btns.length) % btns.length;
+  btns.forEach((b, i) => b.classList.toggle('selecionado', i === gp.sel));
 }
 
 function ativarAcaoSelecionada() {
   const btns = document.querySelectorAll('.btn-acao');
-  if (btns[gamepadState.acaoSelecionada]) btns[gamepadState.acaoSelecionada].click();
+  if (btns[gp.sel]) btns[gp.sel].click();
 }
 
-// ─── ENTITIES ─────────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  ENTIDADES
+// ══════════════════════════════════════════════════════
 function moverEntidades(dt) {
   entidades.forEach(e => {
-    e.x+=e.vx; e.y+=e.vy;
-    if(e.x<1||e.x>MAPA_W-2) e.vx*=-1;
-    if(e.y<1||e.y>MAPA_H-2) e.vy*=-1;
-    if(Math.random()<0.005) { e.vx=(Math.random()-0.5)*0.025; e.vy=(Math.random()-0.5)*0.025; }
-    e.p=(e.p+dt*2)%(Math.PI*2);
+    // Trail para efeito visual
+    e.trail.push({ x: e.x, y: e.y, t: tempo });
+    if (e.trail.length > 8) e.trail.shift();
+
+    e.x += e.vx;
+    e.y += e.vy;
+    if (e.x < 2 || e.x > MAPA_W - 2) e.vx *= -1;
+    if (e.y < 2 || e.y > MAPA_H - 2) e.vy *= -1;
+    if (Math.random() < 0.006) {
+      e.vx = (Math.random() - 0.5) * 0.03;
+      e.vy = (Math.random() - 0.5) * 0.03;
+    }
+    e.fase = (e.fase + dt * 2.2) % (Math.PI * 2);
   });
 }
 
+// ══════════════════════════════════════════════════════
+//  COLISÕES
+// ══════════════════════════════════════════════════════
 function verificarColisoes() {
-  for (let i=itens.length-1; i>=0; i--) {
-    if (Math.hypot(itens[i].x-estado.x, itens[i].y-estado.y)<0.8) { coletarItem(itens[i]); itens.splice(i,1); }
+  for (let i = itens.length - 1; i >= 0; i--) {
+    if (Math.hypot(itens[i].x - E.x, itens[i].y - E.y) < 0.9) {
+      coletarItem(itens[i]);
+      itens.splice(i, 1);
+    }
   }
   entidades.forEach(ent => {
-    if (Math.hypot(ent.x-estado.x, ent.y-estado.y)<ent.raio && !legendasVistas.has(ent.lenda)) {
-      legendasVistas.add(ent.lenda); estado.lendas.push(ent.lenda); exibirLenda(ent.lenda, ent);
+    if (Math.hypot(ent.x - E.x, ent.y - E.y) < ent.raio && !legendasVistas.has(ent.lenda)) {
+      legendasVistas.add(ent.lenda);
+      E.lendas.push(ent.lenda);
+      exibirLenda(ent.lenda, false, ent);
     }
   });
 }
 
 function coletarItem(item) {
-  mostrarNotificacao(item.emoji+' '+item.nome+'!');
-  switch(item.efeito) {
-    case'fome': estado.fome=Math.min(100,estado.fome+item.valor); break;
-    case'vida': estado.vida=Math.min(100,estado.vida+item.valor); break;
-    case'sede': estado.sede=Math.min(100,estado.sede+item.valor); break;
-    case'fogo': estado.inventario.push({nome:'Pederneira',emoji:'🪨'}); break;
-    case'construcao': estado.inventario.push({nome:'Bambu',emoji:'🎋'}); break;
-    case'misterio':
-      if(Math.random()<0.5) { estado.vida=Math.min(100,estado.vida+15); mostrarMensagem("O cogumelo era comestível! Você se sente revigorado."); }
-      else { estado.vida=Math.max(0,estado.vida-20); mostrarMensagem("⚠ O cogumelo era venenoso! Sua visão escurece..."); }
+  toast(item.emoji + ' ' + item.nome);
+  switch (item.efeito) {
+    case 'fome':       E.fome = Math.min(100, E.fome + item.valor); break;
+    case 'vida':       E.vida = Math.min(100, E.vida + item.valor); break;
+    case 'sede':       E.sede = Math.min(100, E.sede + item.valor); break;
+    case 'fome_vida':  E.fome = Math.min(100, E.fome + item.valor); E.vida = Math.min(100, E.vida + item.valor); break;
+    case 'fome_sede':  E.fome = Math.min(100, E.fome + item.valor); E.sede = Math.min(100, E.sede + item.valor/2); break;
+    case 'constr':     E.inventario.push({ nome:'Bambu', emoji:'🎋', tipo:'mat' }); break;
+    case 'fogo':       E.inventario.push({ nome:'Pederneira', emoji:'🪨', tipo:'ferr' }); break;
+    case 'misterio':
+      if (Math.random() < 0.5) {
+        E.vida = Math.min(100, E.vida + 18);
+        msg("O cogumelo era comestível! Você se sente revigorado. Sorte sua.");
+      } else {
+        danoJogador(22);
+        msg("⚠ Cogumelo venenoso! Sua visão turva e o estômago dói.");
+      }
       break;
   }
   atualizarAcoes();
 }
 
-// ─── STATS & DAY ──────────────────────────────────────────────────────────────
-function atualizarStats(dt) {
-  const t=dt*0.8;
-  estado.fome=Math.max(0,estado.fome-t*0.4);
-  estado.sede=Math.max(0,estado.sede-t*0.6);
-  if(periodoDia===0){estado.energia=Math.max(0,estado.energia-t*0.3); if(!estado.temAbrigo) estado.vida=Math.max(0,estado.vida-t*0.2);}
-  if(estado.fome<20){estado.vida=Math.max(0,estado.vida-dt*0.5); if(Math.random()<0.003) mostrarMensagem("⚠ Você está com muita fome. Encontre comida urgente!");}
-  if(estado.sede<20){estado.vida=Math.max(0,estado.vida-dt*0.8); if(Math.random()<0.003) mostrarMensagem("⚠ Você está desidratando! Encontre água!");}
-  if(estado.energia<10&&Math.random()<0.002) mostrarMensagem("💤 Você está exausto. Descanse em um abrigo.");
+function danoJogador(qtd) {
+  E.vida = Math.max(0, E.vida - qtd);
+  const flash = document.getElementById('damage-flash');
+  flash.classList.add('ativo');
+  setTimeout(() => flash.classList.remove('ativo'), 200);
 }
 
-function atualizarDia() {
-  const dur=60;
-  const p=Math.floor(tempoDecorrido/dur)%periodos.length;
-  const d=Math.floor(tempoDecorrido/(dur*periodos.length))+1;
-  if(p!==periodoDia||d!==diaNumero){
-    periodoDia=p; diaNumero=d;
-    const ic=['🌙','☀','🌤','🌅','🌙'];
-    document.getElementById('hora-dia').textContent=ic[p]+' Dia '+d+' — '+periodos[p];
-    if(p===4) mostrarMensagem("🌙 A noite cai. Sons estranhos ao longe...");
-    if(p===1) mostrarMensagem("☀ Mais um amanhecer. A floresta acorda.");
-    if(p===4&&Math.random()<0.6) {
-      const ev=["Um rugido ecoa na escuridão. O Mapinguari está próximo...","Você ouve um assobio agudo. Matinta Perera está por perto!","O rio brilha com luz estranha. Iara está cantando...","Passos pesados circulam você. Fique quieto.","As estrelas desaparecem. A floresta contém a respiração."];
-      setTimeout(()=>mostrarMensagem(ev[Math.floor(Math.random()*ev.length)]),3000);
-      estado.energia=Math.max(0,estado.energia-10);
+// ══════════════════════════════════════════════════════
+//  STATS & DIA & CLIMA
+// ══════════════════════════════════════════════════════
+function atualizarStats(dt) {
+  const mult = climaAtual === 'chuva' ? 1.2 : 1;
+  E.fome   = Math.max(0, E.fome   - dt * 0.35 * mult);
+  E.sede   = Math.max(0, E.sede   - dt * 0.5  * mult);
+
+  // Noite sem abrigo drena energia e vida
+  if (periodoIdx === 0 || periodoIdx === 4) {
+    if (!E.temAbrigo) {
+      E.energia = Math.max(0, E.energia - dt * 0.5);
+      if (Math.random() < 0.003) danoJogador(5);
     }
   }
+
+  if (E.fome < 15) { E.vida = Math.max(0, E.vida - dt * 0.6); if (Math.random() < 0.004) msg("⚠ Fome crítica! Você precisa comer agora."); }
+  if (E.sede < 15) { E.vida = Math.max(0, E.vida - dt * 1.0); if (Math.random() < 0.004) msg("⚠ Desidratação grave! Encontre água imediatamente."); }
+  if (E.energia < 8 && Math.random() < 0.003) msg("💤 Você está exausto. Seus movimentos ficam lentos.");
+
+  // Overlay vermelho ao quase morrer
+  const overlay = document.getElementById('overlay-morte');
+  overlay.style.opacity = E.vida < 30 ? String((30 - E.vida) / 30 * 0.8) : '0';
 }
 
-// ─── ACTIONS ──────────────────────────────────────────────────────────────────
-function atualizarAcoes() {
-  const ac=document.getElementById('acoes'); ac.innerHTML='';
-  const btn=(t,fn,p=false)=>{const b=document.createElement('button');b.className='btn-acao'+(p?' perigo':'');b.textContent=t;b.onclick=fn;ac.appendChild(b);};
-  const tile=mapa[Math.floor(estado.y)]?.[Math.floor(estado.x)];
-  if(tile?.tipo===T.AGUA) btn('💧 Beber Água',beberAgua);
-  if(tile?.tipo===T.FRUTAS) btn('🍊 Colher Frutas',colherFrutas);
-  if(tile?.tipo===T.ABRIGO) btn('🏕 Descansar',descansar);
-  if(tile?.tipo===T.FOGO) btn('🔥 Sentar no Fogo',sentarFogo);
-  if(tile?.tipo===T.BAMBU) btn('🎋 Cortar Bambu',cortarBambu);
-  if(tile?.tipo===T.CLAREIRA) btn('⛺ Montar Abrigo',montarAbrigo);
-  btn('📦 Inventário',verInventario);
-  btn('🗺 Lendas ('+estado.lendas.length+')',verLendas);
-  btn('😴 Dormir',tentarDormir,true);
+function atualizarDiaClima(dt) {
+  const durPeriodo = 65;
+  const novoP = Math.floor(tempo / durPeriodo) % PERIODOS.length;
+  const novoD = Math.floor(tempo / (durPeriodo * PERIODOS.length)) + 1;
 
-  // Maintain gamepad selection highlight
-  const btns=document.querySelectorAll('.btn-acao');
-  if(gamepadState.acaoSelecionada>=btns.length) gamepadState.acaoSelecionada=0;
-  btns.forEach((b,i)=>b.classList.toggle('selecionado',gamepadState.connected&&i===gamepadState.acaoSelecionada));
-}
+  if (novoP !== periodoIdx || novoD !== diaNum) {
+    periodoIdx = novoP; diaNum = novoD;
+    document.getElementById('hora-dia').textContent = ICONES_PERIODO[novoP] + ' Dia ' + novoD + ' — ' + PERIODOS[novoP];
+    if (novoP === 4) { msg("🌙 A noite cai sobre a floresta. Sons que não deveriam existir começam."); E.temAbrigo = false; }
+    if (novoP === 1) msg("☀️ Um novo amanhecer. Você sobreviveu mais uma noite.");
+    if ((novoP === 0 || novoP === 4) && Math.random() < 0.7) {
+      const evts = [
+        "Um rugido grave ecoa ao longe. O Mapinguari está acordado.",
+        "Você ouve um assobio agudo cortando a escuridão. Matinta Perera.",
+        "O rio próximo brilha com luz azulada. Iara está cantando.",
+        "Passos pesados circundam você no escuro. Fique absolutamente imóvel.",
+        "As cigarras param. A floresta prende a respiração. Algo está vindo.",
+        "Um cervo branco passa por você sem medo. Os olhos queimam vermelho.",
+      ];
+      setTimeout(() => msg(evts[Math.floor(Math.random() * evts.length)]), 4000);
+      E.energia = Math.max(0, E.energia - 8);
+    }
+  }
 
-function beberAgua(){if(Math.random()<0.3&&!estado.temFogo){estado.vida=Math.max(0,estado.vida-15);mostrarMensagem("⚠ Água contaminada! Você fica mal. Ferva a água antes de beber!");}else{estado.sede=Math.min(100,estado.sede+40);mostrarMensagem("💧 Você bebe água fresca. Isso melhora muito!");}}
-function colherFrutas(){estado.fome=Math.min(100,estado.fome+30);mostrarMensagem("🍊 Você colhe frutas. A doçura tropical te revigora.");}
-function descansar(){estado.energia=Math.min(100,estado.energia+50);estado.temAbrigo=true;tempoDecorrido+=20;mostrarMensagem("🏕 Você descansa no abrigo. Seguro por agora. A floresta assobia lá fora.");}
-function sentarFogo(){estado.energia=Math.min(100,estado.energia+20);estado.vida=Math.min(100,estado.vida+10);estado.temFogo=true;mostrarMensagem("🔥 O calor da fogueira afasta criaturas da noite. Você se sente mais seguro.");}
-function cortarBambu(){estado.inventario.push({nome:'Bambu',emoji:'🎋'});mostrarMensagem("🎋 Você corta bambu. Pode ser útil para construir.");atualizarAcoes();}
-function montarAbrigo(){const b=estado.inventario.find(i=>i.nome==='Bambu');if(b){estado.inventario=estado.inventario.filter(i=>i!==b);estado.temAbrigo=true;mapa[Math.floor(estado.y)][Math.floor(estado.x)].tipo=T.ABRIGO;mostrarMensagem("⛺ Você montou um abrigo com bambu! Proteção contra a noite.");}else{mostrarMensagem("Você precisa de bambu para construir. Encontre um taquaral.");}atualizarAcoes();}
-function tentarDormir(){if(!estado.temAbrigo&&Math.random()<0.4){estado.vida=Math.max(0,estado.vida-30);mostrarMensagem("⚠ Você foi atacado enquanto dormia sem abrigo!");return;}estado.energia=Math.min(100,estado.energia+80);tempoDecorrido+=30;mostrarMensagem("💤 Você dorme. Sonhos estranhos com a floresta...");}
-function verInventario(){if(estado.inventario.length===0)mostrarMensagem("Seu inventário está vazio. Explore para coletar recursos.");else mostrarMensagem("📦 Inventário: "+estado.inventario.map(i=>i.emoji+' '+i.nome).join(', '));}
-function verLendas(){if(estado.lendas.length===0){mostrarMensagem("Você ainda não encontrou nenhuma lenda. Explore a floresta!");return;}exibirLenda(estado.lendas[Math.floor(Math.random()*estado.lendas.length)],null,true);}
+  // Clima
+  climaTempo += dt;
+  if (climaTempo >= climaDuracao) {
+    climaTempo = 0;
+    climaDuracao = 60 + Math.random() * 120;
+    const climas = ['limpo', 'limpo', 'chuva', 'nevoeiro'];
+    climaAtual = climas[Math.floor(Math.random() * climas.length)];
+    if (climaAtual === 'chuva') {
+      msg("🌧 Uma chuva tropical começa a cair. A visibilidade cai e a sede está mais fácil de saciar.");
+      gerarChuva();
+    } else if (climaAtual === 'nevoeiro') {
+      msg("🌫 Um nevoeiro denso envolve a floresta. Cuidado ao se orientar.");
+    } else {
+      msg("☀️ O tempo clareou. A floresta respira sob o sol.");
+    }
+  }
 
-function exibirLenda(idx,ent,rev=false){
-  const l=LENDAS[idx];
-  document.getElementById('lenda-emoji').textContent=l.emoji;
-  document.getElementById('lenda-nome').textContent=l.nome;
-  document.getElementById('lenda-tipo').textContent=l.tipo;
-  document.getElementById('lenda-texto').textContent=l.texto;
-  document.getElementById('lenda-dica').textContent=l.dica;
-  document.getElementById('modal-lenda').classList.add('aberto');
-  if(!rev&&ent) aplicarEfeitoLenda(l.efeito);
-}
-function fecharLenda(){document.getElementById('modal-lenda').classList.remove('aberto');}
-
-function aplicarEfeitoLenda(ef){
-  switch(ef){
-    case'confusao':estado.x+=(Math.random()-0.5)*8;estado.y+=(Math.random()-0.5)*8;mostrarMensagem("🌀 O Curupira confundiu sua orientação!");break;
-    case'medo':estado.energia=Math.max(0,estado.energia-25);mostrarMensagem("😱 O terror do Mapinguari congela seus membros!");break;
-    case'atracaoAgua':mostrarMensagem("🧜‍♀️ Você ouve o canto de Iara... Resista à vontade de entrar no rio!");break;
-    case'sorte':estado.vida=Math.min(100,estado.vida+15);estado.fome=Math.min(100,estado.fome+15);mostrarMensagem("🐬 O Boto Cor-de-Rosa traz boa sorte!");break;
-    case'susto':estado.energia=Math.max(0,estado.energia-15);mostrarMensagem("🦉 O assobio da Matinta Perera te assusta!");break;
-    case'aviso':mostrarMensagem("🦌 O Anhangá te observa. Ele sabe de cada animal que você caçou.");break;
+  // Atualizar chuva
+  if (climaAtual === 'chuva') {
+    chuva.forEach(g => { g.y += g.vy; if (g.y > 1.2) { g.y = -0.1; g.x = Math.random(); } });
+    E.sede = Math.min(100, E.sede + dt * 1.2); // chuva repõe sede
   }
 }
 
-function mostrarMensagem(txt){
-  const el=document.getElementById('mensagem-atual');
-  el.style.opacity='0';
-  setTimeout(()=>{el.textContent=txt;el.style.opacity='1';},200);
-}
-function mostrarNotificacao(txt){
-  const el=document.getElementById('notificacao');el.textContent=txt;el.style.display='block';
-  clearTimeout(notifTimeout);notifTimeout=setTimeout(()=>el.style.display='none',2000);
+function gerarChuva() {
+  chuva = [];
+  for (let i = 0; i < 200; i++) {
+    chuva.push({ x: Math.random(), y: Math.random(), vy: 0.004 + Math.random() * 0.006, op: 0.2 + Math.random() * 0.5 });
+  }
 }
 
-// ─── HUD ──────────────────────────────────────────────────────────────────────
-function atualizarHUD(){
-  const s=estado;
-  document.getElementById('b-vida').style.width=s.vida+'%';
-  document.getElementById('b-fome').style.width=s.fome+'%';
-  document.getElementById('b-sede').style.width=s.sede+'%';
-  document.getElementById('b-energia').style.width=s.energia+'%';
-  document.getElementById('v-vida').textContent=Math.round(s.vida);
-  document.getElementById('v-fome').textContent=Math.round(s.fome);
-  document.getElementById('v-sede').textContent=Math.round(s.sede);
-  document.getElementById('v-energia').textContent=Math.round(s.energia);
-  const tile=mapa[Math.floor(s.y)]?.[Math.floor(s.x)];
-  document.getElementById('localizacao').textContent=MC_BLOCKS[tile?.tipo]?.label||'Floresta';
-  document.getElementById('inventario-mini').innerHTML=estado.inventario.slice(-5).map(i=>'<span class="item-mini">'+i.emoji+' '+i.nome+'</span>').join('');
+// ══════════════════════════════════════════════════════
+//  AÇÕES
+// ══════════════════════════════════════════════════════
+function atualizarAcoes() {
+  const acDiv = document.getElementById('acoes');
+  acDiv.innerHTML = '';
+  const tile = mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
+  const btn = (label, fn, perig = false) => {
+    const b = document.createElement('button');
+    b.className = 'btn-acao' + (perig ? ' perigo' : '');
+    b.textContent = label;
+    b.onclick = fn;
+    acDiv.appendChild(b);
+    return b;
+  };
+  if (tile?.tipo === T.AGUA)    btn('💧 Beber', beberAgua);
+  if (tile?.tipo === T.FRUTAS)  btn('🍊 Colher', colherFrutas);
+  if (tile?.tipo === T.ABRIGO)  btn('🏕 Descansar', descansar);
+  if (tile?.tipo === T.FOGO)    btn('🔥 Fogueira', sentarFogueira);
+  if (tile?.tipo === T.BAMBU)   btn('🎋 Cortar', cortarBambu);
+  if (tile?.tipo === T.CLAREIRA || tile?.tipo === T.TERRA) btn('⛺ Montar Abrigo', montarAbrigo);
+  btn('📦 Inventário', verInventario);
+  btn('🗺 Lendas (' + E.lendas.length + '/6)', verLendas);
+  btn('😴 Dormir', tentarDormir, true);
+
+  // Highlight gamepad selection
+  const btns = document.querySelectorAll('.btn-acao');
+  if (gp.sel >= btns.length) gp.sel = 0;
+  if (gp.connected) btns.forEach((b, i) => b.classList.toggle('selecionado', i === gp.sel));
+}
+
+function beberAgua() {
+  if (!E.temFogo && Math.random() < 0.28) {
+    danoJogador(14);
+    msg("⚠ Água contaminada! Enjôo imediato. Ferva a água com uma fogueira antes.");
+  } else {
+    E.sede = Math.min(100, E.sede + 45);
+    msg("💧 Água fresca do rio. A hidratação retorna. Melhor tê-la fervido antes.");
+  }
+}
+
+function colherFrutas() {
+  E.fome = Math.min(100, E.fome + 32);
+  msg("🍊 Você colhe frutas maduras. A doçura tropical devolve as energias.");
+}
+
+function descansar() {
+  E.energia = Math.min(100, E.energia + 55);
+  E.temAbrigo = true;
+  tempo += 22;
+  msg("🏕 Você descansa no abrigo. Seguro por enquanto. A floresta assobia lá fora.");
+}
+
+function sentarFogueira() {
+  E.energia = Math.min(100, E.energia + 22);
+  E.vida = Math.min(100, E.vida + 12);
+  E.temFogo = true;
+  msg("🔥 O calor da fogueira afasta as criaturas. A noite parece menos hostil.");
+}
+
+function cortarBambu() {
+  E.inventario.push({ nome:'Bambu', emoji:'🎋', tipo:'mat' });
+  msg("🎋 Você corta canas de bambu. Material útil para construção.");
   atualizarAcoes();
 }
 
-function fimJogo(){
-  cancelAnimationFrame(animFrame);
-  let causa='Os perigos da Amazônia foram demais para você.';
-  if(estado.fome<=0&&estado.sede<=0) causa='Você sucumbiu à fome e desidratação na floresta implacável.';
-  else if(estado.fome<=0) causa='A fome consumiu suas forças.';
-  else if(estado.sede<=0) causa='Você morreu desidratado. A Iara levou sua alma para as profundezas.';
-  else causa='As criaturas da noite encontraram você. A floresta reclama o que é dela.';
-  document.getElementById('fim-subtitulo').textContent=causa+' (Dia '+diaNumero+' | '+estado.lendas.length+'/6 lendas)';
+function montarAbrigo() {
+  const bambus = E.inventario.filter(i => i.nome === 'Bambu');
+  if (bambus.length >= 2) {
+    E.inventario = E.inventario.filter(i => i.nome !== 'Bambu').concat(bambus.slice(2));
+    E.temAbrigo = true;
+    mapa[Math.floor(E.y)][Math.floor(E.x)].tipo = T.ABRIGO;
+    msg("⛺ Abrigo construído! Proteção contra a noite e o frio.");
+    toast('⛺ Abrigo construído!');
+  } else {
+    msg("Você precisa de pelo menos 2 canas de bambu para construir um abrigo.");
+  }
+  atualizarAcoes();
+}
+
+function tentarDormir() {
+  if (!E.temAbrigo && Math.random() < 0.45) {
+    danoJogador(35);
+    msg("⚠ Você foi atacado enquanto dormia exposto! Sempre durma em abrigo.");
+    return;
+  }
+  E.energia = Math.min(100, E.energia + 85);
+  tempo += 32;
+  msg("💤 Você adormece. Sonhos estranhos com a floresta — rostos que não reconhece, línguas que não entende.");
+}
+
+function verInventario() {
+  if (E.inventario.length === 0) msg("Seu inventário está vazio. Explore para coletar recursos.");
+  else msg("📦 " + E.inventario.map(i => i.emoji + ' ' + i.nome).join('  ·  '));
+}
+
+function verLendas() {
+  if (E.lendas.length === 0) { msg("Você ainda não encontrou nenhuma lenda. Explore a floresta!"); return; }
+  exibirLenda(E.lendas[Math.floor(Math.random() * E.lendas.length)], true, null);
+}
+
+// ══════════════════════════════════════════════════════
+//  MODAL LENDA
+// ══════════════════════════════════════════════════════
+function exibirLenda(idx, revisao = false, ent = null) {
+  const l = LENDAS[idx];
+  document.getElementById('lenda-emoji').textContent = l.emoji;
+  document.getElementById('lenda-tipo').textContent = l.tipo;
+  document.getElementById('lenda-nome').textContent = l.nome;
+  document.getElementById('lenda-texto').textContent = l.texto;
+  document.getElementById('lenda-dica').textContent = l.dica;
+  document.getElementById('modal-lenda').classList.add('aberto');
+  if (!revisao && ent) aplicarEfeitoLenda(l.efeito);
+}
+
+function fecharLenda() { document.getElementById('modal-lenda').classList.remove('aberto'); }
+
+function aplicarEfeitoLenda(ef) {
+  switch (ef) {
+    case 'confusao':
+      E.x = Math.max(1, Math.min(MAPA_W-1, E.x + (Math.random()-0.5)*10));
+      E.y = Math.max(1, Math.min(MAPA_H-1, E.y + (Math.random()-0.5)*10));
+      msg("🌀 O Curupira embaralhou sua orientação! Você não sabe mais onde está.");
+      break;
+    case 'medo':
+      E.energia = Math.max(0, E.energia - 28);
+      danoJogador(8);
+      msg("😱 O terror do Mapinguari paralisa seus músculos. Você dificilmente consegue se mover.");
+      break;
+    case 'atracaoAgua':
+      msg("🧜‍♀️ O canto de Iara ressoa em sua mente. Uma vontade inexplicável de entrar no rio te domina...");
+      break;
+    case 'sorte':
+      E.vida = Math.min(100, E.vida + 18);
+      E.fome = Math.min(100, E.fome + 18);
+      msg("🐬 O Boto Cor-de-Rosa te abençoou! Você se sente revitalizado.");
+      break;
+    case 'susto':
+      E.energia = Math.max(0, E.energia - 18);
+      msg("🦉 O assobio da Matinta Perera te congela de pavor. Seu coração dispara.");
+      break;
+    case 'aviso':
+      msg("🦌 O Anhangá te olha nos olhos por um longo momento — e desaparece entre as árvores.");
+      break;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  MENSAGENS & TOASTS
+// ══════════════════════════════════════════════════════
+function msg(txt) {
+  const el = document.getElementById('mensagem-atual');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = txt; el.style.opacity = '1'; }, 220);
+}
+
+function toast(txt) {
+  const el = document.getElementById('toast');
+  el.textContent = txt;
+  el.classList.add('visivel');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('visivel'), 1800);
+}
+
+// ══════════════════════════════════════════════════════
+//  HUD UPDATE
+// ══════════════════════════════════════════════════════
+function atualizarHUD() {
+  const stats = [
+    ['vida','b-vida','v-vida','linha-vida'],
+    ['fome','b-fome','v-fome','linha-fome'],
+    ['sede','b-sede','v-sede','linha-sede'],
+    ['energia','b-energia','v-energia','linha-energia'],
+  ];
+  stats.forEach(([key, bid, vid, lid]) => {
+    const v = Math.round(E[key]);
+    document.getElementById(bid).style.width = v + '%';
+    document.getElementById(vid).textContent = v;
+    document.getElementById(lid).classList.toggle('stat-critico', v < 20);
+  });
+
+  const tile = mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
+  document.getElementById('localizacao').textContent = BLOCOS[tile?.tipo ?? 0]?.label?.toUpperCase() ?? 'FLORESTA';
+
+  // Bússola
+  const dirs = { 'N':'↑ Norte', 'S':'↓ Sul', 'L':'→ Leste', 'O':'← Oeste' };
+  document.getElementById('bussola-txt').innerHTML = `<span class="bussola-dir">${dirs[E.dir]||'↑ Norte'}</span>`;
+
+  // Lendas
+  const icons = LENDAS.map((l, i) =>
+    `<span class="lenda-icone ${E.lendas.includes(i) ? 'ativa' : ''}" title="${l.nome}">${l.emoji}</span>`
+  ).join(' ');
+  document.getElementById('lendas-encontradas').innerHTML = icons;
+
+  // Inventário
+  const invEl = document.getElementById('inv-display');
+  if (E.inventario.length === 0) {
+    invEl.textContent = '';
+  } else {
+    const counts = {};
+    E.inventario.forEach(i => { counts[i.nome] = (counts[i.nome] || { emoji: i.emoji, n: 0 }); counts[i.nome].n++; counts[i.nome].emoji = i.emoji; });
+    invEl.innerHTML = Object.entries(counts).map(([nome, d]) =>
+      `<span class="inv-item">${d.emoji} ${nome}${d.n > 1 ? ' ×' + d.n : ''}</span>`
+    ).join('');
+  }
+
+  atualizarAcoes();
+}
+
+// ══════════════════════════════════════════════════════
+//  FIM DE JOGO
+// ══════════════════════════════════════════════════════
+function fimJogo() {
+  cancelAnimationFrame(animID);
+  let causa = 'A floresta reclamou o que é dela.';
+  if (E.fome <= 0 && E.sede <= 0) causa = 'Fome e sede consumiram você aos poucos, longe de qualquer socorro.';
+  else if (E.fome <= 0) causa = 'A fome apagou suas forças. A floresta não alimenta quem não sabe pedi-la.';
+  else if (E.sede <= 0) causa = 'A desidratação foi rápida e implacável. Iara levou sua alma para as profundezas.';
+  else causa = 'As criaturas da noite encontraram você. A floresta absorveu mais um viajante descuidado.';
+
+  document.getElementById('fim-causa').textContent = causa;
+  document.getElementById('fim-stats').innerHTML = `
+    <span>Dias sobrevividos</span><span class="fim-stat-val">${diaNum}</span>
+    <span>Lendas descobertas</span><span class="fim-stat-val">${E.lendas.length}/6</span>
+    <span>Passos dados</span><span class="fim-stat-val">${E.passos.toLocaleString()}</span>
+    <span>Clima ao morrer</span><span class="fim-stat-val">${climaAtual}</span>
+  `;
   document.getElementById('tela-fim').classList.add('aberto');
 }
 
-// ─── MINECRAFT-STYLE RENDERER ─────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  RENDERER PRINCIPAL
+// ══════════════════════════════════════════════════════
 function renderizar() {
-  const canvas=document.getElementById('canvas-mundo');
-  const ctx=canvas.getContext('2d');
-  const W=canvas.width, H=canvas.height;
-  const noite=(periodoDia===0||periodoDia===4);
+  const canvas = document.getElementById('canvas-mundo');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const noite = (periodoIdx === 0 || periodoIdx === 4);
+  const entardecer = periodoIdx === 3;
+  const manha = periodoIdx === 1;
 
-  ctx.fillStyle='#050d05'; ctx.fillRect(0,0,W,H);
+  // Céu de fundo
+  let bgColor;
+  if (noite) bgColor = '#030810';
+  else if (entardecer) bgColor = '#1a0a03';
+  else if (manha) bgColor = '#0a1a0a';
+  else bgColor = '#030a03';
+  ctx.fillStyle = bgColor; ctx.fillRect(0, 0, W, H);
 
-  const camX=estado.x*TILE-W/2, camY=estado.y*TILE-H/2;
-  const tx0=Math.max(0,Math.floor(camX/TILE)), ty0=Math.max(0,Math.floor(camY/TILE));
-  const tx1=Math.min(MAPA_W-1,Math.ceil((camX+W)/TILE)), ty1=Math.min(MAPA_H-1,Math.ceil((camY+H)/TILE));
+  const camX = E.x * TILE - W / 2;
+  const camY = E.y * TILE - H / 2;
+  const tx0 = Math.max(0, Math.floor(camX / TILE) - 1);
+  const ty0 = Math.max(0, Math.floor(camY / TILE) - 1);
+  const tx1 = Math.min(MAPA_W - 1, Math.ceil((camX + W) / TILE) + 1);
+  const ty1 = Math.min(MAPA_H - 1, Math.ceil((camY + H) / TILE) + 1);
 
-  for (let ty=ty0; ty<=ty1; ty++) {
-    for (let tx=tx0; tx<=tx1; tx++) {
-      const tile=mapa[ty][tx];
-      const sx=Math.round(tx*TILE-camX), sy=Math.round(ty*TILE-camY);
-      desenharBlocoMC(ctx, tile, sx, sy, noite);
+  // Desenhar mapa isométrico-style (tiles ordenados para depth)
+  for (let ty = ty0; ty <= ty1; ty++) {
+    for (let tx = tx0; tx <= tx1; tx++) {
+      const tile = mapa[ty][tx];
+      const sx = Math.round(tx * TILE - camX);
+      const sy = Math.round(ty * TILE - camY);
+      desenharTile(ctx, tile, sx, sy, noite, entardecer, manha);
     }
   }
 
-  // Items
-  itens.forEach(item => {
-    const sx=item.x*TILE-camX, sy=item.y*TILE-camY;
-    if(sx>-40&&sx<W+40&&sy>-40&&sy<H+40) {
-      const pu=Math.sin(tempoDecorrido*3+item.id)*3;
-      ctx.save();
-      // Minecraft-style item: pixel block shadow
-      ctx.fillStyle='rgba(0,0,0,0.4)';
-      ctx.fillRect(sx-10, sy+8, 20, 6);
-      ctx.font=(18+pu)+'px serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(item.emoji, sx, sy-pu*0.5);
-      ctx.restore();
-    }
-  });
-
-  // Entities
+  // Sombra de entidades (desenhada antes)
   entidades.forEach(ent => {
-    const sx=ent.x*TILE-camX, sy=ent.y*TILE-camY;
-    if(sx>-60&&sx<W+60&&sy>-60&&sy<H+60) {
-      const l=LENDAS[ent.lenda], pu=Math.sin(ent.p)*0.3+0.7;
-      if(!legendasVistas.has(ent.lenda)) {
-        // Minecraft beacon beam effect
-        ctx.save();
-        ctx.globalAlpha=0.08*pu;
-        const grad=ctx.createRadialGradient(sx,sy,0,sx,sy,40);
-        grad.addColorStop(0,l.cor); grad.addColorStop(1,'transparent');
-        ctx.fillStyle=grad;
-        ctx.beginPath(); ctx.arc(sx,sy,40,0,Math.PI*2); ctx.fill();
-        // Beam
-        ctx.globalAlpha=0.05*pu;
-        ctx.fillStyle=l.cor;
-        ctx.fillRect(sx-4, sy-H, 8, H+50);
-        ctx.restore();
-      }
+    const sx = ent.x * TILE - camX, sy = ent.y * TILE - camY;
+    if (sx < -80 || sx > W + 80 || sy < -80 || sy > H + 80) return;
+    if (!legendasVistas.has(ent.lenda)) {
+      // Beam de luz
+      const l = LENDAS[ent.lenda];
+      const brilho = 0.5 + Math.sin(ent.fase) * 0.3;
       ctx.save();
-      ctx.globalAlpha=legendasVistas.has(ent.lenda)?0.3:pu;
-      // Entity block shadow
-      ctx.fillStyle='rgba(0,0,0,0.5)';
-      ctx.fillRect(sx-14,sy+10,28,8);
-      ctx.font=(28+Math.sin(ent.p)*4)+'px serif';
-      ctx.textAlign='center'; ctx.textBaseline='middle';
-      ctx.fillText(l.emoji,sx,sy+Math.sin(ent.p)*4);
+      // Coluna de luz
+      const grad = ctx.createLinearGradient(sx, 0, sx, sy);
+      grad.addColorStop(0, 'transparent');
+      grad.addColorStop(0.7, l.cor + '11');
+      grad.addColorStop(1, l.cor + '44');
+      ctx.globalAlpha = brilho * 0.4;
+      ctx.fillStyle = grad;
+      ctx.fillRect(sx - 8, 0, 16, sy);
+      // Halo no chão
+      const haloGrad = ctx.createRadialGradient(sx, sy, 0, sx, sy, 50);
+      haloGrad.addColorStop(0, l.cor + '55');
+      haloGrad.addColorStop(1, 'transparent');
+      ctx.globalAlpha = brilho * 0.3;
+      ctx.fillStyle = haloGrad;
+      ctx.beginPath(); ctx.arc(sx, sy, 50, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
+
+      // Trail
+      ent.trail.forEach((pt, i) => {
+        const tsx = pt.x * TILE - camX, tsy = pt.y * TILE - camY;
+        ctx.save();
+        ctx.globalAlpha = (i / ent.trail.length) * 0.2 * brilho;
+        ctx.fillStyle = l.cor;
+        ctx.beginPath(); ctx.arc(tsx, tsy, 6 * (i / ent.trail.length), 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
     }
   });
 
-  // Player (Minecraft-style flat sprite box)
-  const px=W/2, py=H/2;
+  // Itens
+  itens.forEach(item => {
+    const sx = item.x * TILE - camX, sy = item.y * TILE - camY;
+    if (sx < -40 || sx > W + 40 || sy < -40 || sy > H + 40) return;
+    const bob = Math.sin(tempo * 2.5 + item.animPh) * 3;
+    ctx.save();
+    // Sombra
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.beginPath(); ctx.ellipse(sx, sy + 10, 10, 4, 0, 0, Math.PI * 2); ctx.fill();
+    // Glow para raros
+    if (item.raro) {
+      ctx.globalAlpha = 0.3 + Math.sin(tempo * 3 + item.animPh) * 0.15;
+      const rg = ctx.createRadialGradient(sx, sy, 0, sx, sy, 18);
+      rg.addColorStop(0, '#ffd700'); rg.addColorStop(1, 'transparent');
+      ctx.fillStyle = rg; ctx.beginPath(); ctx.arc(sx, sy, 18, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.font = '18px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(item.emoji, sx, sy - 2 - bob);
+    ctx.restore();
+  });
+
+  // Entidades (emoji)
+  entidades.forEach(ent => {
+    const sx = ent.x * TILE - camX, sy = ent.y * TILE - camY;
+    if (sx < -60 || sx > W + 60 || sy < -60 || sy > H + 60) return;
+    const l = LENDAS[ent.lenda];
+    const bob = Math.sin(ent.fase) * 4;
+    ctx.save();
+    ctx.globalAlpha = legendasVistas.has(ent.lenda) ? 0.25 : 0.85 + Math.sin(ent.fase) * 0.1;
+    ctx.font = (32 + Math.sin(ent.fase) * 3) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.shadowColor = l.cor; ctx.shadowBlur = 15;
+    ctx.fillText(l.emoji, sx, sy + bob);
+    ctx.restore();
+  });
+
+  // Jogador
+  const px = W / 2, py = H / 2;
   desenharJogador(ctx, px, py);
 
-  // Night overlay
-  if(noite){
+  // Chuva
+  if (climaAtual === 'chuva') {
     ctx.save();
-    ctx.fillStyle='rgba(0,0,15,0.65)';
-    ctx.fillRect(0,0,W,H);
-    const r=estado.temFogo?220:95;
-    const g=ctx.createRadialGradient(px,py,0,px,py,r);
-    g.addColorStop(0,'rgba(0,0,0,0)');
-    g.addColorStop(0.7,'rgba(0,0,0,0)');
-    g.addColorStop(1,'rgba(0,0,15,0.65)');
-    ctx.globalCompositeOperation='destination-out';
-    ctx.fillStyle=g;
-    ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2); ctx.fill();
+    chuva.forEach(g => {
+      ctx.globalAlpha = g.op * (0.6 + Math.sin(tempo * 5 + g.x * 10) * 0.4);
+      ctx.strokeStyle = '#aaddff';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(g.x * W, g.y * H);
+      ctx.lineTo(g.x * W - 4, g.y * H + 14);
+      ctx.stroke();
+    });
+    ctx.restore();
+    // Escurecer levemente
+    ctx.fillStyle = 'rgba(20,40,60,0.25)';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // Nevoeiro
+  if (climaAtual === 'nevoeiro') {
+    ctx.save();
+    const fg = ctx.createRadialGradient(W/2, H/2, 0, W/2, H/2, Math.max(W, H) * 0.8);
+    fg.addColorStop(0, 'transparent');
+    fg.addColorStop(0.5, 'rgba(180,200,160,0.2)');
+    fg.addColorStop(1, 'rgba(180,200,160,0.6)');
+    ctx.fillStyle = fg; ctx.fillRect(0, 0, W, H);
+    ctx.restore();
+  }
+
+  // Overlay noturno com lanterna ao redor do jogador
+  if (noite) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(2,5,15,0.75)';
+    ctx.fillRect(0, 0, W, H);
+    const raio = E.temFogo ? 200 : 80;
+    const spotGrad = ctx.createRadialGradient(px, py, 0, px, py, raio);
+    spotGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    spotGrad.addColorStop(0.65, 'rgba(0,0,0,0)');
+    spotGrad.addColorStop(1, 'rgba(2,5,15,0.75)');
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.fillStyle = spotGrad;
+    ctx.beginPath(); ctx.arc(px, py, raio, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    // Tom laranja-quente na luz
+    if (E.temFogo) {
+      ctx.save();
+      const warmGrad = ctx.createRadialGradient(px, py, 0, px, py, 200);
+      warmGrad.addColorStop(0, 'rgba(255,120,30,0.08)');
+      warmGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = warmGrad; ctx.fillRect(0, 0, W, H);
+      ctx.restore();
+    }
+  }
+
+  // Entardecer: luz alaranjada
+  if (entardecer) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(180,80,10,0.15)';
+    ctx.fillRect(0, 0, W, H);
     ctx.restore();
   }
 
   renderMiniMapa();
 }
 
-// ─── MINECRAFT BLOCK DRAW ─────────────────────────────────────────────────────
-function desenharBlocoMC(ctx, tile, sx, sy, noite) {
-  const b = MC_BLOCKS[tile.tipo];
-  const t = tile.tipo;
-  const BH2 = (t===T.PEDRA||t===T.ABRIGO||t===T.FOGO) ? BH : (t===T.FLORESTA||t===T.BAMBU) ? BH*0.5 : BH*0.3;
+// ══════════════════════════════════════════════════════
+//  DESENHAR TILE (estilo Minecraft pixel-art)
+// ══════════════════════════════════════════════════════
+function desenharTile(ctx, tile, sx, sy, noite, entardecer, manha) {
+  const b = BLOCOS[tile.tipo];
+  const bh = BH_TILE[tile.tipo] || 10;
+  const tileH = TILE - bh;
 
-  // ── TOP FACE ──
-  ctx.fillStyle = b.top;
-  ctx.fillRect(sx, sy, TILE, TILE-BH2);
+  // Escurecer tiles não visitados (fog of war suave)
+  let darkFactor = tile.visitado ? 0 : 0.45;
 
-  // ── TOP FACE texture/detail ──
-  desenharTopTile(ctx, tile, sx, sy, BH2);
+  // ── FACE SUPERIOR (top) ──
+  ctx.fillStyle = ajustarBrilho(b.top, darkFactor);
+  ctx.fillRect(sx, sy, TILE, tileH);
 
-  // ── LEFT FACE (darker) ──
-  ctx.fillStyle = b.left;
+  // ── DETALHE DO TILE ──
+  desenharDetalheTile(ctx, tile, sx, sy, tileH);
+
+  // ── FACE ESQUERDA ──
+  ctx.fillStyle = ajustarBrilho(b.left, darkFactor + 0.1);
   ctx.beginPath();
-  ctx.moveTo(sx, sy+TILE-BH2);
-  ctx.lineTo(sx, sy+TILE);
-  ctx.lineTo(sx+TILE/2, sy+TILE+BH2/2);
-  ctx.lineTo(sx+TILE/2, sy+TILE-BH2+BH2/2);
-  ctx.closePath();
-  ctx.fill();
+  ctx.moveTo(sx, sy + tileH);
+  ctx.lineTo(sx, sy + TILE);
+  ctx.lineTo(sx + TILE / 2, sy + TILE + bh / 2);
+  ctx.lineTo(sx + TILE / 2, sy + tileH + bh / 2);
+  ctx.closePath(); ctx.fill();
 
-  // ── RIGHT FACE (medium shadow) ──
-  ctx.fillStyle = b.right;
+  // ── FACE DIREITA ──
+  ctx.fillStyle = ajustarBrilho(b.right, darkFactor + 0.05);
   ctx.beginPath();
-  ctx.moveTo(sx+TILE/2, sy+TILE-BH2+BH2/2);
-  ctx.lineTo(sx+TILE/2, sy+TILE+BH2/2);
-  ctx.lineTo(sx+TILE, sy+TILE);
-  ctx.lineTo(sx+TILE, sy+TILE-BH2);
-  ctx.closePath();
-  ctx.fill();
+  ctx.moveTo(sx + TILE / 2, sy + tileH + bh / 2);
+  ctx.lineTo(sx + TILE / 2, sy + TILE + bh / 2);
+  ctx.lineTo(sx + TILE, sy + TILE);
+  ctx.lineTo(sx + TILE, sy + tileH);
+  ctx.closePath(); ctx.fill();
 
-  // ── Block outline (Minecraft grid) ──
-  ctx.strokeStyle='rgba(0,0,0,0.25)';
-  ctx.lineWidth=0.8;
-  ctx.strokeRect(sx+0.5, sy+0.5, TILE-1, TILE-BH2-1);
-
-  // ── Water animation ──
-  if(t===T.AGUA) {
-    const wave=Math.sin(tempoDecorrido*2+tile.animOffset)*2;
-    ctx.fillStyle='rgba(100,200,255,0.2)';
-    ctx.fillRect(sx, sy+wave+4, TILE, 4);
-    ctx.fillStyle='rgba(100,200,255,0.12)';
-    ctx.fillRect(sx, sy+wave+14, TILE, 4);
-  }
-  // ── Fire flicker ──
-  if(t===T.FOGO) {
-    const fl=Math.sin(tempoDecorrido*8+tile.animOffset);
-    ctx.save();
-    ctx.globalAlpha=0.7+fl*0.3;
-    ctx.font='22px serif';
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('🔥',sx+TILE/2, sy+TILE/2-4+fl*3);
-    ctx.restore();
-  }
+  // ── GRID MC ──
+  ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+  ctx.lineWidth = 0.7;
+  ctx.strokeRect(sx + 0.5, sy + 0.5, TILE - 1, tileH - 1);
 }
 
-function desenharTopTile(ctx, tile, sx, sy, BH2) {
-  const t = tile.tipo;
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(sx, sy, TILE, TILE-BH2);
-  ctx.clip();
+function ajustarBrilho(hexColor, darken) {
+  // Converte hex para RGB e aplica escurecimento
+  if (darken <= 0) return hexColor;
+  const r = parseInt(hexColor.slice(1,3), 16);
+  const g = parseInt(hexColor.slice(3,5), 16);
+  const b = parseInt(hexColor.slice(5,7), 16);
+  const f = 1 - Math.min(darken, 0.95);
+  return `rgb(${Math.round(r*f)},${Math.round(g*f)},${Math.round(b*f)})`;
+}
 
-  switch(t) {
-    case T.FLORESTA:
-      // Tree canopy dots
-      for(let i=0;i<5;i++) {
-        const tx2=(tile.v*40+i*17)%TILE+sx;
-        const ty2=(tile.v*30+i*13)%(TILE-BH2)+sy;
-        const r=5+i%3*3;
-        ctx.fillStyle=i%2===0?'#2d6e2d':'#1a5c1a';
-        ctx.beginPath();ctx.arc(tx2,ty2,r,0,Math.PI*2);ctx.fill();
+function desenharDetalheTile(ctx, tile, sx, sy, tileH) {
+  ctx.save();
+  ctx.beginPath(); ctx.rect(sx, sy, TILE, tileH); ctx.clip();
+
+  switch (tile.tipo) {
+    case T.FLORESTA: {
+      // Copas de árvores em pixel-art
+      const seed = tile.v;
+      for (let i = 0; i < 3; i++) {
+        const tx = sx + 6 + ((seed * 50 + i * 17) % (TILE - 12));
+        const ty = sy + 4 + ((seed * 40 + i * 13) % (tileH - 12));
+        const r = 6 + (i % 3) * 3;
+        ctx.fillStyle = i % 2 ? '#1a5a1a' : '#2a6e2a';
+        ctx.beginPath(); ctx.arc(tx, ty, r, 0, Math.PI * 2); ctx.fill();
+        // Highlight
+        ctx.fillStyle = 'rgba(100,200,100,0.15)';
+        ctx.beginPath(); ctx.arc(tx - 2, ty - 2, r * 0.5, 0, Math.PI * 2); ctx.fill();
       }
-      // Trunk hint
-      ctx.fillStyle='#5c3d1e';
-      ctx.fillRect(sx+TILE/2-3, sy+TILE-BH2-10, 6, 10);
+      // Tronco
+      ctx.fillStyle = '#4a2a0e';
+      ctx.fillRect(sx + TILE / 2 - 4, sy + tileH - 10, 8, 10);
       break;
-    case T.BAMBU:
-      ctx.fillStyle='#1f5c1a';
-      for(let i=0;i<5;i++) {
-        const bx=sx+4+i*9;
-        ctx.fillRect(bx,sy,4,TILE-BH2);
-        ctx.fillStyle='rgba(0,0,0,0.1)';
-        ctx.fillRect(bx,sy+(tile.v*20+i*7)%((TILE-BH2)/2),4,3);
-        ctx.fillStyle='#1f5c1a';
+    }
+    case T.BAMBU: {
+      for (let i = 0; i < 5; i++) {
+        const bx = sx + 3 + i * 9;
+        ctx.fillStyle = '#1a5a1a';
+        ctx.fillRect(bx, sy, 5, tileH);
+        // Nós
+        for (let n = 1; n < 3; n++) {
+          ctx.fillStyle = '#0e3e0e';
+          ctx.fillRect(bx - 1, sy + (tileH / 3) * n, 7, 2);
+        }
+        // Folhinhas no topo
+        ctx.fillStyle = '#2a7a2a';
+        ctx.fillRect(bx - 3, sy + 2, 4, 3);
+        ctx.fillRect(bx + 3, sy + 5, 4, 3);
       }
       break;
-    case T.AGUA:
-      ctx.fillStyle='rgba(10,80,150,0.5)';
-      ctx.fillRect(sx,sy,TILE,TILE-BH2);
-      ctx.fillStyle='rgba(100,200,255,0.15)';
-      const wa=Math.sin(tempoDecorrido*1.5+tile.animOffset)*TILE*0.2;
+    }
+    case T.AGUA: {
+      const wave = Math.sin(tempo * 1.8 + tile.animOffset) * 3;
+      // Reflexo
+      ctx.fillStyle = 'rgba(40,140,220,0.35)';
+      ctx.fillRect(sx, sy, TILE, tileH);
+      ctx.fillStyle = 'rgba(120,200,255,0.15)';
       ctx.beginPath();
-      ctx.ellipse(sx+TILE/2+wa, sy+(TILE-BH2)/2, TILE*0.4, (TILE-BH2)*0.2, 0, 0, Math.PI*2);
+      ctx.ellipse(sx + TILE / 2 + wave, sy + tileH * 0.35, TILE * 0.38, tileH * 0.15, 0, 0, Math.PI * 2);
       ctx.fill();
-      break;
-    case T.CLAREIRA:
-      // Grass pattern
-      for(let i=0;i<3;i++) {
-        const gx=sx+5+i*15+(tile.v*10)%8;
-        ctx.fillStyle='#5aaa30';
-        ctx.fillRect(gx,sy+(TILE-BH2)-8,3,8);
-        ctx.fillRect(gx-2,sy+(TILE-BH2)-5,3,5);
+      // Ondas
+      ctx.strokeStyle = 'rgba(120,200,255,0.3)';
+      ctx.lineWidth = 1;
+      for (let w = 0; w < 2; w++) {
+        ctx.beginPath();
+        ctx.moveTo(sx + 4, sy + (tileH / 3) * (w + 1) + wave * (1 - w * 0.5));
+        ctx.bezierCurveTo(
+          sx + TILE * 0.3, sy + (tileH / 3) * (w + 1) - 3 + wave,
+          sx + TILE * 0.7, sy + (tileH / 3) * (w + 1) + 3 - wave,
+          sx + TILE - 4, sy + (tileH / 3) * (w + 1) + wave * (1 - w * 0.5)
+        );
+        ctx.stroke();
       }
       break;
-    case T.PEDRA:
-      ctx.fillStyle='rgba(0,0,0,0.1)';
-      for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(sx+12+i*16,sy+(TILE-BH2)/2,8,0,Math.PI*2);ctx.fill();}
-      ctx.strokeStyle='rgba(255,255,255,0.08)';
-      ctx.lineWidth=1;
-      for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(sx+12+i*16,sy+(TILE-BH2)/2,7,0,Math.PI*2);ctx.stroke();}
+    }
+    case T.CLAREIRA: {
+      // Grama
+      ctx.fillStyle = 'rgba(100,180,60,0.2)';
+      ctx.fillRect(sx, sy, TILE, tileH);
+      for (let g = 0; g < 5; g++) {
+        const gx = sx + 4 + ((tile.v * 60 + g * 12) % (TILE - 8));
+        ctx.fillStyle = '#4aaa28';
+        ctx.fillRect(gx, sy + tileH - 6, 2, 6);
+        ctx.fillRect(gx + 3, sy + tileH - 4, 2, 4);
+      }
       break;
-    case T.FRUTAS:
-      ctx.font='10px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('🍃',sx+TILE/2,sy+10);
-      ctx.fillText('🍊',sx+TILE/2-8,sy+TILE-BH2-8);
-      ctx.fillText('🍊',sx+TILE/2+8,sy+TILE-BH2-8);
-      break;
-    case T.ABRIGO:
-      // Roof shape
-      ctx.fillStyle='#7a5228';
+    }
+    case T.PEDRA: {
+      // Padrão de pedra com rachaduras
+      ctx.fillStyle = 'rgba(0,0,0,0.12)';
+      ctx.fillRect(sx + 4, sy + 4, TILE - 8, tileH - 8);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.moveTo(sx+TILE/2, sy+4);
-      ctx.lineTo(sx+TILE-4, sy+TILE-BH2-2);
-      ctx.lineTo(sx+4, sy+TILE-BH2-2);
-      ctx.closePath(); ctx.fill();
-      ctx.fillStyle='#5c3d1e';
-      ctx.fillRect(sx+TILE/2-5,sy+TILE-BH2-14,10,14);
+      ctx.moveTo(sx + 8, sy + 4); ctx.lineTo(sx + 4, sy + tileH / 2); ctx.lineTo(sx + 12, sy + tileH - 4);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(sx + TILE - 6, sy + 6); ctx.lineTo(sx + TILE - 3, sy + tileH * 0.6);
+      ctx.stroke();
       break;
+    }
+    case T.FRUTAS: {
+      ctx.font = '12px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const shake = Math.sin(tempo * 2 + tile.animOffset) * 1.5;
+      ctx.fillText('🍃', sx + TILE / 2, sy + 8 + shake);
+      ctx.fillText('🍊', sx + TILE * 0.3, sy + tileH - 10);
+      ctx.fillText('🍊', sx + TILE * 0.7, sy + tileH - 12);
+      ctx.fillText('🍋', sx + TILE / 2, sy + tileH - 8 + shake);
+      break;
+    }
+    case T.ABRIGO: {
+      // Telhado estilo cabana
+      ctx.fillStyle = '#8b6030';
+      ctx.beginPath();
+      ctx.moveTo(sx + TILE / 2, sy + 3);
+      ctx.lineTo(sx + TILE - 3, sy + tileH - 4);
+      ctx.lineTo(sx + 3, sy + tileH - 4);
+      ctx.closePath(); ctx.fill();
+      // Porta
+      ctx.fillStyle = '#3a2010';
+      ctx.fillRect(sx + TILE / 2 - 5, sy + tileH - 14, 10, 14);
+      // Janela
+      ctx.fillStyle = 'rgba(255,220,100,0.4)';
+      ctx.fillRect(sx + TILE / 2 - 12, sy + tileH - 16, 6, 6);
+      ctx.fillRect(sx + TILE / 2 + 6, sy + tileH - 16, 6, 6);
+      break;
+    }
+    case T.FOGO: {
+      const flicker = Math.sin(tempo * 8 + tile.animOffset);
+      ctx.fillStyle = 'rgba(150,60,0,0.6)';
+      ctx.fillRect(sx + TILE / 2 - 8, sy + tileH - 6, 16, 6);
+      ctx.font = (22 + flicker * 3) + 'px serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.shadowColor = '#ff8800'; ctx.shadowBlur = 15;
+      ctx.fillText('🔥', sx + TILE / 2, sy + tileH / 2 + flicker * 3);
+      ctx.shadowBlur = 0;
+      break;
+    }
+    case T.TERRA: {
+      // Barro com textura
+      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      for (let i = 0; i < 4; i++) {
+        ctx.fillRect(sx + ((tile.v * 40 + i * 14) % (TILE - 4)), sy + ((tile.v * 30 + i * 10) % (tileH - 4)), 4, 4);
+      }
+      break;
+    }
   }
   ctx.restore();
 }
 
-// ─── PLAYER SPRITE ────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════
+//  JOGADOR (pixel-art sprite simples)
+// ══════════════════════════════════════════════════════
 function desenharJogador(ctx, px, py) {
-  const bobY=Math.sin(tempoDecorrido*6)*2;
+  const mov = Math.abs(E.velX) + Math.abs(E.velY);
+  const bob = mov > 0.1 ? Math.sin(tempo * 12) * 2 : Math.sin(tempo * 1.5) * 0.5;
+  const by = py + bob;
+
   ctx.save();
-  // Shadow
-  ctx.fillStyle='rgba(0,0,0,0.5)';
-  ctx.beginPath();ctx.ellipse(px,py+14,10,4,0,0,Math.PI*2);ctx.fill();
-  // Body (Minecraft-ish flat pixel art look)
-  // Head
-  ctx.fillStyle='#f5c07a';
-  ctx.fillRect(px-7, py-18+bobY, 14, 12);
-  ctx.fillStyle='#1a1a1a';
-  ctx.fillRect(px-4, py-14+bobY, 3, 3); // eye L
-  ctx.fillRect(px+1, py-14+bobY, 3, 3); // eye R
-  // Body
-  ctx.fillStyle='#2d6e2d';
-  ctx.fillRect(px-8, py-6+bobY, 16, 14);
-  // Arms
-  ctx.fillStyle='#f5c07a';
-  ctx.fillRect(px-12, py-4+bobY, 4, 10);
-  ctx.fillRect(px+8, py-4+bobY, 4, 10);
-  // Legs
-  ctx.fillStyle='#3d2a1a';
-  ctx.fillRect(px-7, py+8+bobY, 6, 8);
-  ctx.fillRect(px+1, py+8+bobY, 6, 8);
-  // Glow outline
-  ctx.strokeStyle='#00ff88';
-  ctx.lineWidth=1.5;
-  ctx.shadowColor='#00ff88'; ctx.shadowBlur=8;
-  ctx.strokeRect(px-8, py-18+bobY, 16, 34);
+  // Sombra
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.beginPath(); ctx.ellipse(px, py + 16, 11, 5, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Pernas (com animação de caminhada)
+  const legSwing = mov > 0.1 ? Math.sin(tempo * 12) * 3 : 0;
+  ctx.fillStyle = '#2a1a0a';
+  ctx.fillRect(px - 7, by + 8, 6, 8 + legSwing * 0.3); // perna esquerda
+  ctx.fillRect(px + 1, by + 8, 6, 8 - legSwing * 0.3); // perna direita
+
+  // Corpo (colete verde-floresta)
+  ctx.fillStyle = '#265a26';
+  ctx.fillRect(px - 9, by - 5, 18, 14);
+  // Detalhe colete
+  ctx.fillStyle = '#1a4a1a';
+  ctx.fillRect(px - 4, by - 3, 8, 10);
+
+  // Braços
+  const armSwing = mov > 0.1 ? Math.sin(tempo * 12 + Math.PI) * 4 : 0;
+  ctx.fillStyle = '#e8c080';
+  ctx.fillRect(px - 13, by - 3 - armSwing * 0.3, 5, 10);
+  ctx.fillRect(px + 8,  by - 3 + armSwing * 0.3, 5, 10);
+
+  // Cabeça
+  ctx.fillStyle = '#e8c080';
+  ctx.fillRect(px - 8, by - 18, 16, 14);
+  // Cabelo / chapéu
+  ctx.fillStyle = '#3a2210';
+  ctx.fillRect(px - 9, by - 20, 18, 5);
+  ctx.fillRect(px - 6, by - 18, 12, 3);
+  // Olhos
+  ctx.fillStyle = '#1a1a1a';
+  if (E.dir === 'L' || E.dir === 'S') {
+    ctx.fillRect(px + 1, by - 13, 3, 3);
+    ctx.fillRect(px - 4, by - 13, 3, 3);
+  } else {
+    ctx.fillRect(px - 4, by - 13, 3, 3);
+  }
+
+  // Glow verde ao redor do jogador
+  ctx.shadowColor = '#00ff88'; ctx.shadowBlur = 12;
+  ctx.strokeStyle = 'rgba(0,255,136,0.5)';
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(px - 9, by - 18, 18, 34);
+  ctx.shadowBlur = 0;
+
   ctx.restore();
 }
 
-// ─── MINI MAP ─────────────────────────────────────────────────────────────────
-const corT2 = {"0":"#1a3d1a","1":"#0a4f7a","2":"#3d5c1a","3":"#4a4a4a","4":"#2d5c2d","5":"#2d5c1a","6":"#5c3d1e","7":"#cc4400"};
+// ══════════════════════════════════════════════════════
+//  MINI-MAPA
+// ══════════════════════════════════════════════════════
+const COR_TILE_MINI = ['#1a4a1a','#0e5080','#4a7a28','#505050','#204820','#2a6018','#6a4018','#7a3800','#5a3a10','#484848'];
 
-function renderMiniMapa(){
-  const c=document.getElementById('canvas-mini'); c.width=120; c.height=120;
-  const ctx=c.getContext('2d'), sc=120/MAPA_W;
-  for(let y=0;y<MAPA_H;y++) for(let x=0;x<MAPA_W;x++){ctx.fillStyle=corT2[mapa[y][x].tipo];ctx.fillRect(x*sc,y*sc,sc+0.5,sc+0.5);}
-  ctx.fillStyle='#00ff88';
-  ctx.beginPath();ctx.arc(estado.x*sc,estado.y*sc,3,0,Math.PI*2);ctx.fill();
-  entidades.forEach(e=>{
-    if(!legendasVistas.has(e.lenda)){ctx.fillStyle=LENDAS[e.lenda].cor+'99';ctx.beginPath();ctx.arc(e.x*sc,e.y*sc,2,0,Math.PI*2);ctx.fill();}
+function renderMiniMapa() {
+  const c = document.getElementById('canvas-mini');
+  c.width = 110; c.height = 110;
+  const ctx = c.getContext('2d');
+  const sc = 110 / MAPA_W;
+
+  for (let y = 0; y < MAPA_H; y++) {
+    for (let x = 0; x < MAPA_W; x++) {
+      const tile = mapa[y][x];
+      ctx.fillStyle = tile.visitado ? COR_TILE_MINI[tile.tipo] : '#0a120a';
+      ctx.fillRect(x * sc, y * sc, sc + 0.5, sc + 0.5);
+    }
+  }
+
+  // Entidades (só se visitadas próximas)
+  entidades.forEach(e => {
+    if (!legendasVistas.has(e.lenda)) {
+      ctx.fillStyle = LENDAS[e.lenda].cor + '99';
+      ctx.beginPath(); ctx.arc(e.x * sc, e.y * sc, 2, 0, Math.PI * 2); ctx.fill();
+    }
   });
+
+  // Jogador
+  ctx.fillStyle = '#00ff88';
+  ctx.beginPath(); ctx.arc(E.x * sc, E.y * sc, 2.5, 0, Math.PI * 2); ctx.fill();
+  // Glow jogador
+  ctx.strokeStyle = 'rgba(0,255,136,0.4)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.arc(E.x * sc, E.y * sc, 5, 0, Math.PI * 2); ctx.stroke();
 }
 
-// ─── PARTICLES ON TITLE ───────────────────────────────────────────────────────
-(function(){
-  const t=document.getElementById('tela-titulo');
-  for(let i=0;i<25;i++){const p=document.createElement('div');p.className='particula';p.style.left=Math.random()*100+'vw';p.style.animationDuration=(3+Math.random()*6)+'s';p.style.animationDelay=Math.random()*5+'s';p.style.width=(2+Math.random()*4)+'px';p.style.height=p.style.width;t.appendChild(p);}
+// ══════════════════════════════════════════════════════
+//  TELA TÍTULO — ANIMAÇÃO DE FUNDO
+// ══════════════════════════════════════════════════════
+(function animacaoTitulo() {
+  const canvas = document.getElementById('titulo-canvas');
+  const ctx = canvas.getContext('2d');
+  let animTs = 0;
+  const particulas = [];
+
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Criar partículas
+  for (let i = 0; i < 35; i++) {
+    particulas.push({
+      x: Math.random(), y: 1 + Math.random() * 0.5,
+      size: 1.5 + Math.random() * 4,
+      speed: 0.0003 + Math.random() * 0.0006,
+      drift: (Math.random() - 0.5) * 0.0001,
+      op: 0.3 + Math.random() * 0.7,
+      color: Math.random() < 0.6 ? '#00ff88' : '#f0c840'
+    });
+  }
+
+  function frame(ts) {
+    if (!document.getElementById('tela-titulo').style.display ||
+        document.getElementById('tela-titulo').style.display !== 'none') {
+      const dt = ts - animTs; animTs = ts;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Linhas de grade muito suaves
+      ctx.strokeStyle = 'rgba(0,255,136,0.03)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 20; i++) {
+        ctx.beginPath();
+        ctx.moveTo(i * canvas.width / 20, 0);
+        ctx.lineTo(i * canvas.width / 20, canvas.height);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i * canvas.height / 20);
+        ctx.lineTo(canvas.width, i * canvas.height / 20);
+        ctx.stroke();
+      }
+
+      particulas.forEach(p => {
+        p.y -= p.speed * dt;
+        p.x += p.drift;
+        if (p.y < -0.05) { p.y = 1.05; p.x = Math.random(); }
+        ctx.save();
+        ctx.globalAlpha = p.op * Math.min(1, (1.05 - p.y) * 5) * Math.min(1, p.y * 20);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color; ctx.shadowBlur = p.size * 3;
+        ctx.beginPath();
+        ctx.arc(p.x * canvas.width, p.y * canvas.height, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      requestAnimationFrame(frame);
+    }
+  }
+
+  requestAnimationFrame(frame);
 })();
 
-window.addEventListener('resize',()=>{
-  const c=document.getElementById('canvas-mundo');
-  if(c){c.width=window.innerWidth;c.height=window.innerHeight;}
+// ══════════════════════════════════════════════════════
+//  RESIZE
+// ══════════════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  const c = document.getElementById('canvas-mundo');
+  if (c && document.getElementById('jogo').style.display !== 'none') {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+  }
 });
 </script>
 </body>
 </html>
-HTMLEOF
-echo "Done"
-Saída
-
-Done
-Concluído
-
-
-
-
-
