@@ -1,376 +1,11 @@
-bash
-
-cat > /mnt/user-data/outputs/amazonia.html << 'ENDOFHTML'
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AMAZÔNIA — Sobrevivência</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap');
-:root{
-  --vd:#040e04;--vm:#0b2510;--vf:#143a14;--vc:#236023;--vv:#38a038;--vn:#00ff7f;
-  --mt:#2e1404;--mb:#5a3010;--mc:#8a5528;
-  --dou:#c89010;--dol:#e8c040;--dob:#ffe868;
-  --verm:#b81800;--verv:#ff2800;
-  --azr:#053050;--aza:#0860a0;
-  --bg-h:rgba(2,8,2,.92);--bd-h:rgba(0,255,127,.15);
-  --roxo:#7e57c2;--roxv:#b085f5;
-  --ciano:#00bcd4;--rosa:#f48fb1;
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;overflow:hidden;}
-body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,serif;cursor:crosshair;}
-
-/* ═══ TELA INTRO ═══ */
-#tela-intro{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;overflow:hidden;}
-#intro-canvas{position:absolute;inset:0;}
-.intro-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.2rem;opacity:0;animation:introFadeIn 1.2s ease-out 0.5s forwards;}
-@keyframes introFadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-.intro-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(4rem,14vw,11rem);font-weight:900;line-height:.85;background:linear-gradient(170deg,#ffe868 0%,#c89010 30%,#00ff7f 60%,#236023 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 80px rgba(0,255,127,.6));animation:logoPulse 3s ease-in-out infinite;}
-@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 60px rgba(0,255,127,.5))}50%{filter:drop-shadow(0 0 100px rgba(0,255,127,.9)) drop-shadow(0 0 160px rgba(200,144,16,.4))}}
-.intro-sub{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.7em;color:rgba(0,255,127,.6);text-transform:uppercase;}
-.intro-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(.9rem,2vw,1.15rem);color:rgba(220,236,212,.7);text-align:center;max-width:420px;line-height:2;}
-.intro-bar{width:280px;height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin:.5rem 0;}
-.intro-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--vn),var(--dol));transition:width .1s linear;border-radius:2px;}
-.intro-status{font-family:'Share Tech Mono',monospace;font-size:.52rem;letter-spacing:.25em;color:rgba(0,255,127,.45);text-transform:uppercase;min-height:1em;}
-.intro-press{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.4em;color:rgba(220,236,212,.5);text-transform:uppercase;animation:blink 1.4s ease-in-out infinite;display:none;}
-@keyframes blink{0%,100%{opacity:.5}50%{opacity:1}}
-
-/* ═══ TÍTULO ═══ */
-#tela-titulo{position:fixed;inset:0;z-index:1000;display:none;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;background:#000;}
-#titulo-canvas{position:absolute;inset:0;}
-.titulo-wrap{position:relative;z-index:3;display:flex;flex-direction:column;align-items:center;gap:.8rem;}
-.titulo-sub-top{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.6em;color:var(--vn);opacity:.7;text-transform:uppercase;}
-.titulo-principal{font-family:'Cinzel Decorative',serif;font-size:clamp(3rem,11vw,9rem);font-weight:900;line-height:.9;background:linear-gradient(170deg,var(--dob) 0%,var(--dou) 35%,var(--vn) 65%,var(--vc) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 60px rgba(0,255,127,.5));animation:tpulse 3s ease-in-out infinite;}
-.titulo-ornamento{display:flex;align-items:center;gap:1rem;width:80%;max-width:500px;}
-.orn-linha{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--dou),transparent);}
-.orn-ico{color:var(--dou);font-size:1.2rem;}
-.titulo-descricao{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(.85rem,1.7vw,1.05rem);color:rgba(220,236,212,.8);text-align:center;max-width:480px;line-height:2;letter-spacing:.02em;}
-.titulo-controles{display:flex;gap:2.5rem;margin:.5rem 0;}
-.ctrl-col{text-align:center;}
-.ctrl-head{font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:3px;color:var(--dou);margin-bottom:.5rem;text-transform:uppercase;}
-.ctrl-row{font-size:.68rem;color:rgba(220,236,212,.6);margin:.2rem 0;font-family:'Share Tech Mono',monospace;}
-.k{background:rgba(0,255,127,.06);border:1px solid rgba(0,255,127,.25);padding:1px 5px;border-radius:2px;color:var(--vn);font-size:.6rem;}
-.btn-start{font-family:'Cinzel Decorative',serif;font-size:.75rem;letter-spacing:.3em;padding:14px 48px;border:1px solid var(--vn);background:transparent;color:var(--vn);cursor:pointer;text-transform:uppercase;position:relative;overflow:hidden;transition:all .5s cubic-bezier(.23,1,.32,1);}
-.btn-start::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--vf),var(--vc));transform:translateX(-100%);transition:transform .5s cubic-bezier(.23,1,.32,1);z-index:-1;}
-.btn-start:hover{color:#000;border-color:var(--vc);box-shadow:0 0 40px rgba(0,255,127,.5);}
-.btn-start:hover::after{transform:translateX(0);}
-.v-badge{position:absolute;bottom:1.2rem;right:1.5rem;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(255,255,255,.18);letter-spacing:2px;}
-
-/* ═══ HUD ═══ */
-#hud{display:none;position:fixed;top:0;left:0;right:0;z-index:200;pointer-events:none;}
-.hud-esq{position:fixed;top:12px;left:14px;pointer-events:all;}
-.hud-dir{position:fixed;top:12px;right:14px;pointer-events:all;text-align:right;}
-.painel{background:var(--bg-h);border:1px solid var(--bd-h);padding:10px 14px;backdrop-filter:blur(16px);border-radius:2px;box-shadow:0 6px 32px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04);}
-.barra-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
-.barra-row:last-child{margin-bottom:0;}
-.barra-ico{font-size:.8rem;width:16px;text-align:center;flex-shrink:0;}
-.barra-track{flex:1;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;position:relative;min-width:80px;}
-.barra-track::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 9px,rgba(255,255,255,.03) 9px,rgba(255,255,255,.03) 10px);}
-.barra-fill{height:100%;border-radius:3px;transition:width .6s cubic-bezier(.23,1,.32,1);}
-.fill-vida{background:linear-gradient(90deg,#701008,#d83030,#ff6060);box-shadow:0 0 8px rgba(220,50,50,.5);}
-.fill-fome{background:linear-gradient(90deg,#603010,#c07020,#e8a040);box-shadow:0 0 8px rgba(200,130,40,.4);}
-.fill-sede{background:linear-gradient(90deg,#083858,#1878b8,#40b0e0);box-shadow:0 0 8px rgba(60,150,220,.4);}
-.fill-energia{background:linear-gradient(90deg,#505010,#a8c020,#d8f040);box-shadow:0 0 8px rgba(180,220,40,.4);}
-.fill-temperatura{background:linear-gradient(90deg,#0848b0,#40a0ff,#80d0ff);box-shadow:0 0 8px rgba(60,150,255,.4);}
-.fill-sanidade{background:linear-gradient(90deg,#5a1870,#a040c8,#d080ff);box-shadow:0 0 8px rgba(160,60,200,.4);}
-.barra-num{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:rgba(255,255,255,.45);min-width:26px;text-align:right;}
-.stat-crit .barra-fill{animation:bpiscar .65s ease-in-out infinite;}
-@keyframes bpiscar{0%,100%{opacity:1}50%{opacity:.2}}
-.painel-info{min-width:170px;}
-#loc-txt{font-family:'Cinzel Decorative',serif;font-size:.58rem;letter-spacing:.1em;color:var(--vn);margin-bottom:3px;}
-#hora-txt{font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--dol);}
-#status-efeitos{margin-top:5px;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
-.efeit-chip{font-size:.65rem;padding:1px 5px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);}
-#lendas-ico{margin-top:6px;display:flex;gap:3px;justify-content:flex-end;}
-.lenda-ico-wrap{font-size:.9rem;transition:all .3s;filter:grayscale(1) opacity(.2);}
-.lenda-ico-wrap.vista{filter:none;filter:drop-shadow(0 0 4px gold);}
-#inv-wrap{margin-top:5px;display:flex;flex-wrap:wrap;gap:3px;}
-.inv-chip{background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.08);padding:1px 6px;font-size:.58rem;border-radius:2px;color:rgba(220,236,212,.75);cursor:pointer;transition:all .15s;}
-.inv-chip:hover{border-color:rgba(0,255,127,.4);color:var(--vn);}
-#lanterna-hud{position:fixed;bottom:88px;left:14px;display:none;pointer-events:none;}
-.lant-box{background:var(--bg-h);border:1px solid var(--bd-h);padding:6px 10px;backdrop-filter:blur(8px);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(180,180,180,.7);}
-.lant-track{width:88px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:4px;overflow:hidden;}
-.lant-fill{height:100%;border-radius:2px;transition:width .5s,background .5s;}
-
-/* ═══ CRAFTING ═══ */
-#painel-craft{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:520px;max-width:96vw;background:linear-gradient(160deg,rgba(4,18,4,.97),rgba(8,28,8,.97));border:1px solid rgba(0,255,127,.2);z-index:450;display:none;backdrop-filter:blur(20px);border-radius:3px;box-shadow:0 20px 80px rgba(0,0,0,.9);}
-#painel-craft.aberto{display:block;animation:mentrada .3s cubic-bezier(.23,1,.32,1);}
-.craft-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(0,255,127,.1);}
-.craft-titulo{font-family:'Cinzel Decorative',serif;font-size:.75rem;color:var(--vn);letter-spacing:.15em;}
-.craft-fechar{background:none;border:none;color:rgba(220,236,212,.4);cursor:pointer;font-size:1.1rem;padding:2px 6px;transition:color .2s;}
-.craft-fechar:hover{color:var(--verv);}
-.craft-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px;}
-.craft-item{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.07);padding:10px 12px;border-radius:2px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:4px;}
-.craft-item:hover:not(.bloq){border-color:rgba(0,255,127,.35);background:rgba(0,255,127,.04);}
-.craft-item.bloq{opacity:.35;cursor:default;}
-.craft-item-nome{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:var(--vn);letter-spacing:.08em;}
-.craft-item-req{font-size:.58rem;color:rgba(180,200,170,.5);}
-.craft-item-desc{font-size:.7rem;font-style:italic;color:rgba(220,236,212,.7);font-family:'Cormorant Garamond',serif;}
-
-/* ═══ DIÁRIO ═══ */
-#painel-diario{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:480px;max-width:96vw;max-height:75vh;background:linear-gradient(160deg,rgba(16,10,4,.97),rgba(26,18,8,.97));border:1px solid rgba(200,144,16,.25);z-index:450;display:none;backdrop-filter:blur(20px);border-radius:3px;overflow:hidden;}
-#painel-diario.aberto{display:flex;flex-direction:column;animation:mentrada .3s cubic-bezier(.23,1,.32,1);}
-.diario-header{padding:14px 18px 12px;border-bottom:1px solid rgba(200,144,16,.15);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
-.diario-titulo{font-family:'Cinzel Decorative',serif;font-size:.8rem;color:var(--dol);letter-spacing:.15em;}
-.diario-corpo{overflow-y:auto;padding:12px 18px;flex:1;}
-.diario-corpo::-webkit-scrollbar{width:3px;}
-.diario-corpo::-webkit-scrollbar-track{background:rgba(255,255,255,.02);}
-.diario-corpo::-webkit-scrollbar-thumb{background:rgba(200,144,16,.3);}
-.entrada-diario{border-left:2px solid rgba(200,144,16,.2);padding:6px 10px;margin-bottom:8px;font-size:.82rem;line-height:1.8;color:rgba(220,210,185,.85);font-family:'Cormorant Garamond',serif;font-style:italic;}
-.entrada-diario .entrada-ts{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(200,144,16,.5);display:block;margin-bottom:3px;font-style:normal;}
-
-/* ═══ CONQUISTAS ═══ */
-#conquista-notif{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-80px);background:linear-gradient(135deg,rgba(2,10,2,.97),rgba(6,20,6,.97));border:1px solid var(--dol);padding:10px 22px;z-index:600;border-radius:2px;backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;min-width:260px;transition:transform .4s cubic-bezier(.23,1,.32,1);}
-#conquista-notif.vis{transform:translateX(-50%) translateY(0);}
-.conq-ico{font-size:1.6rem;}
-.conq-texto{display:flex;flex-direction:column;}
-.conq-label{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:2px;color:var(--dou);text-transform:uppercase;}
-.conq-nome{font-family:'Cinzel Decorative',serif;font-size:.75rem;color:var(--dob);}
-
-/* ═══ CANVAS / JOGO ═══ */
-#jogo{display:none;width:100vw;height:100vh;}
-#canvas-mundo{display:block;}
-
-/* ═══ MINI-MAPA ═══ */
-#mini-mapa{position:fixed;bottom:88px;right:14px;width:135px;height:135px;border:1px solid rgba(0,255,127,.2);background:rgba(2,8,2,.9);backdrop-filter:blur(4px);z-index:200;display:none;overflow:hidden;border-radius:2px;box-shadow:0 4px 24px rgba(0,0,0,.8);}
-#mini-mapa::after{content:'MAPA';position:absolute;top:3px;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.42rem;color:rgba(0,255,127,.3);letter-spacing:3px;pointer-events:none;}
-#canvas-mini{width:100%;height:100%;}
-
-/* ═══ LOG / AÇÕES ═══ */
-#log-area{position:fixed;bottom:0;left:0;right:0;padding:10px 14px 14px;background:linear-gradient(to top,rgba(2,8,2,.97) 60%,transparent);z-index:200;display:none;pointer-events:none;}
-#msg-atual{font-family:'Cormorant Garamond',serif;font-size:clamp(.85rem,1.9vw,1.05rem);font-style:italic;color:rgba(220,236,212,.92);min-height:1.5em;transition:opacity .2s;text-shadow:1px 1px 10px #000;max-width:900px;}
-#acoes-wrap{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;pointer-events:all;}
-.btn-ac{font-family:'Share Tech Mono',monospace;font-size:.56rem;letter-spacing:.1em;padding:5px 11px;background:rgba(2,8,2,.9);border:1px solid rgba(0,255,127,.18);color:rgba(220,236,212,.75);cursor:pointer;transition:all .2s;text-transform:uppercase;position:relative;overflow:hidden;}
-.btn-ac::before{content:'';position:absolute;inset:0;background:var(--vf);transform:scaleX(0);transform-origin:left;transition:transform .2s;z-index:-1;}
-.btn-ac:hover,.btn-ac.sel{color:var(--vn);border-color:var(--vn);box-shadow:0 0 10px rgba(0,255,127,.18);}
-.btn-ac:hover::before,.btn-ac.sel::before{transform:scaleX(1);}
-.btn-ac.peri{border-color:rgba(180,24,0,.35);color:rgba(255,100,80,.8);}
-.btn-ac.peri::before{background:var(--verm);}
-.btn-ac.peri:hover,.btn-ac.peri.sel{color:#fff;border-color:var(--verv);box-shadow:0 0 12px rgba(255,40,0,.25);}
-.btn-ac.dest{border-color:rgba(240,200,0,.45);color:rgba(255,220,80,.9);animation:bdest 1.8s ease-in-out infinite;}
-.btn-ac.craft-btn{border-color:rgba(0,150,255,.3);color:rgba(120,200,255,.9);}
-.btn-ac.craft-btn::before{background:rgba(0,60,120,.6);}
-@keyframes bdest{0%,100%{box-shadow:0 0 4px rgba(240,200,0,.15)}50%{box-shadow:0 0 14px rgba(240,200,0,.45)}}
-
-/* ═══ BÚSSOLA ═══ */
-#bussola{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:200;display:none;}
-.buss-inner{font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:3px;background:var(--bg-h);border:1px solid var(--bd-h);padding:4px 14px;color:rgba(180,200,170,.6);backdrop-filter:blur(4px);border-radius:2px;}
-.buss-dir{color:var(--vn);}
-
-/* ═══ INIMIGOS ═══ */
-#aviso-inimigo{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cinzel Decorative',serif;font-size:clamp(.7rem,1.6vw,.95rem);letter-spacing:.18em;color:var(--verv);text-shadow:0 0 24px rgba(255,40,0,.9);text-align:center;z-index:300;pointer-events:none;opacity:0;transition:opacity .3s;}
-#aviso-inimigo.ativo{opacity:1;animation:apulsar .9s ease-in-out infinite;}
-
-/* ═══ MODAL LENDA ═══ */
-#modal-lenda{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(12px);}
-#modal-lenda.aberto{display:flex;}
-.modal-inner{max-width:560px;width:93%;background:linear-gradient(160deg,#061206 0%,#0c280c 50%,#061206 100%);border:1px solid rgba(200,144,16,.45);border-radius:3px;overflow:hidden;animation:mentrada .4s cubic-bezier(.23,1,.32,1);}
-@keyframes mentrada{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
-.modal-top-bar{height:3px;background:linear-gradient(90deg,transparent,var(--dou),var(--vn),var(--dou),transparent);}
-.modal-body{padding:2.5rem 2.5rem 2rem;text-align:center;}
-.m-emoji{font-size:4.5rem;display:block;margin-bottom:1.2rem;filter:drop-shadow(0 0 24px rgba(200,144,16,.7));animation:mflutu 3.5s ease-in-out infinite;}
-@keyframes mflutu{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.m-tipo{font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:.45em;color:var(--vn);margin-bottom:.4rem;}
-.m-nome{font-family:'Cinzel Decorative',serif;font-size:1.7rem;font-weight:700;color:var(--dol);margin-bottom:1.2rem;text-shadow:0 0 30px rgba(200,144,16,.4);}
-.m-sep{width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--dou),transparent);margin:0 auto 1.2rem;}
-.m-texto{font-size:.98rem;line-height:2;color:rgba(220,236,212,.9);margin-bottom:1.2rem;font-family:'Cormorant Garamond',serif;}
-.m-dica{background:rgba(0,0,0,.35);border-left:2px solid var(--dou);padding:.8rem 1rem;text-align:left;margin-bottom:1.5rem;}
-.m-dica-label{font-family:'Share Tech Mono',monospace;font-size:.52rem;letter-spacing:2px;color:var(--dou);margin-bottom:.3rem;}
-.m-dica-txt{font-size:.88rem;font-style:italic;color:rgba(180,200,170,.8);font-family:'Cormorant Garamond',serif;}
-.btn-fechar{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3em;padding:10px 30px;background:transparent;border:1px solid var(--dou);color:var(--dou);cursor:pointer;transition:all .3s;text-transform:uppercase;border-radius:2px;}
-.btn-fechar:hover{background:var(--dou);color:#000;}
-
-/* ═══ TOAST / OVERLAYS ═══ */
-#toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.88);background:rgba(2,8,2,.97);border:1px solid rgba(200,144,16,.55);padding:1rem 2rem;font-family:'Cinzel Decorative',serif;font-size:.78rem;letter-spacing:.12em;color:var(--dol);z-index:600;display:none;text-align:center;backdrop-filter:blur(10px);box-shadow:0 0 60px rgba(0,0,0,.95);transition:all .3s cubic-bezier(.23,1,.32,1);border-radius:2px;}
-#toast.vis{display:block;transform:translate(-50%,-50%) scale(1);}
-#alerta-crit{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Cinzel Decorative',serif;font-size:clamp(.75rem,1.8vw,1rem);letter-spacing:.18em;color:var(--verv);text-shadow:0 0 24px rgba(255,40,0,.9);text-align:center;z-index:300;pointer-events:none;opacity:0;}
-#alerta-crit.ativo{opacity:1;animation:apulsar 1s ease-in-out infinite;}
-@keyframes apulsar{0%,100%{opacity:1}50%{opacity:.3}}
-#dmg-flash{position:fixed;inset:0;z-index:400;pointer-events:none;opacity:0;background:rgba(180,0,0,.4);transition:opacity .18s;}
-#vinheta{position:fixed;inset:0;z-index:160;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.8) 100%);pointer-events:none;}
-#overlay-morte{position:fixed;inset:0;z-index:350;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 20%,rgba(100,0,0,.7) 100%);transition:opacity 2s;}
-#overlay-frio{position:fixed;inset:0;z-index:155;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,30,80,.75) 100%);transition:opacity 1.5s;}
-#overlay-veneno{position:fixed;inset:0;z-index:156;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,80,30,.7) 100%);transition:opacity 1s;}
-#overlay-sanidade{position:fixed;inset:0;z-index:157;pointer-events:none;opacity:0;transition:opacity 1s;}
-
-/* ═══ TELA FIM ═══ */
-#tela-fim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:700;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;backdrop-filter:blur(10px);}
-#tela-fim.aberto{display:flex;}
-.fim-titulo{font-family:'Cinzel Decorative',serif;font-size:clamp(1.8rem,5vw,3.5rem);font-weight:900;background:linear-gradient(180deg,#ff6644,#bb1800);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(200,30,0,.6));}
-.fim-linha{width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--verm),transparent);opacity:.6;}
-.fim-stats{display:grid;grid-template-columns:repeat(2,auto);gap:.5rem 2rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:rgba(180,200,170,.6);text-align:center;}
-.fim-stat-v{color:var(--dob);font-size:.95rem;}
-.fim-causa{font-size:1rem;font-style:italic;color:rgba(220,236,212,.65);max-width:400px;text-align:center;line-height:1.9;font-family:'Cormorant Garamond',serif;}
-.fim-conquistas{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;max-width:360px;}
-.fim-c-chip{font-size:.85rem;padding:4px 8px;background:rgba(200,144,16,.1);border:1px solid rgba(200,144,16,.2);border-radius:2px;}
-
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes tpulse{0%,100%{filter:drop-shadow(0 0 50px rgba(0,255,127,.5))}50%{filter:drop-shadow(0 0 80px rgba(0,255,127,.8)) drop-shadow(0 0 120px rgba(200,144,16,.3))}}
-</style>
-</head>
-<body>
-
-<!-- INTRO LOADING -->
-<div id="tela-intro">
-  <canvas id="intro-canvas"></canvas>
-  <div class="intro-content">
-    <div class="intro-sub">floresta amazônica · lendas · sobrevivência</div>
-    <div class="intro-logo">AMAZÔNIA</div>
-    <p class="intro-tagline">A floresta não é apenas árvores e rios.<br>Ela é consciência. Ela sente. Ela julga.</p>
-    <div class="intro-bar"><div class="intro-bar-fill" id="intro-bar-fill"></div></div>
-    <div class="intro-status" id="intro-status">Iniciando...</div>
-    <div class="intro-press" id="intro-press">▶ Pressione qualquer tecla para entrar</div>
-  </div>
-</div>
-
-<!-- TÍTULO -->
-<div id="tela-titulo">
-  <canvas id="titulo-canvas"></canvas>
-  <div class="titulo-wrap">
-    <div class="titulo-sub-top">floresta amazônica · lendas · sobrevivência</div>
-    <div class="titulo-principal">AMAZÔNIA</div>
-    <div class="titulo-ornamento"><div class="orn-linha"></div><div class="orn-ico">🌿</div><div class="orn-linha"></div></div>
-    <p class="titulo-descricao">
-      A floresta não é apenas árvores e rios.<br>
-      Ela é consciência. Ela sente. Ela julga.<br>
-      Descubra as 6 lendas. Sobreviva à noite.
-    </p>
-    <div class="titulo-controles">
-      <div class="ctrl-col">
-        <div class="ctrl-head">⌨ Teclado</div>
-        <div class="ctrl-row"><span class="k">WASD</span> mover</div>
-        <div class="ctrl-row"><span class="k">E</span>/<span class="k">Enter</span> ação</div>
-        <div class="ctrl-row"><span class="k">Q</span><span class="k">R</span> navegar</div>
-        <div class="ctrl-row"><span class="k">F</span> lanterna</div>
-        <div class="ctrl-row"><span class="k">C</span> crafting</div>
-        <div class="ctrl-row"><span class="k">J</span> diário</div>
-      </div>
-      <div class="ctrl-col">
-        <div class="ctrl-head">🖱 Mouse</div>
-        <div class="ctrl-row">Direção da lanterna</div>
-        <div class="ctrl-row">e do olhar</div>
-        <div class="ctrl-head" style="margin-top:.8rem">🎯 Novo</div>
-        <div class="ctrl-row">Crafting avançado</div>
-        <div class="ctrl-row">Inimigos e combate</div>
-      </div>
-    </div>
-    <button class="btn-start" onclick="iniciarJogo()">Entrar na Floresta</button>
-  </div>
-  <div class="v-badge">v6.0 · AMAZÔNIA Ultimate</div>
-</div>
-
-<!-- HUD -->
-<div id="hud">
-  <div class="hud-esq">
-    <div class="painel">
-      <div class="barra-row" id="row-vida"><span class="barra-ico">❤</span><div class="barra-track"><div class="barra-fill fill-vida" id="b-vida" style="width:100%"></div></div><span class="barra-num" id="n-vida">100</span></div>
-      <div class="barra-row" id="row-fome"><span class="barra-ico">🍖</span><div class="barra-track"><div class="barra-fill fill-fome" id="b-fome" style="width:100%"></div></div><span class="barra-num" id="n-fome">100</span></div>
-      <div class="barra-row" id="row-sede"><span class="barra-ico">💧</span><div class="barra-track"><div class="barra-fill fill-sede" id="b-sede" style="width:100%"></div></div><span class="barra-num" id="n-sede">100</span></div>
-      <div class="barra-row" id="row-ener"><span class="barra-ico">⚡</span><div class="barra-track"><div class="barra-fill fill-energia" id="b-ener" style="width:100%"></div></div><span class="barra-num" id="n-ener">100</span></div>
-      <div class="barra-row" id="row-san"><span class="barra-ico">🧠</span><div class="barra-track"><div class="barra-fill fill-sanidade" id="b-san" style="width:100%"></div></div><span class="barra-num" id="n-san">100</span></div>
-      <div class="barra-row" id="row-temp"><span class="barra-ico">🌡</span><div class="barra-track"><div class="barra-fill fill-temperatura" id="b-temp" style="width:55%"></div></div><span class="barra-num" id="n-temp">37°</span></div>
-    </div>
-    <div id="inv-wrap" style="margin-top:5px;display:flex;flex-wrap:wrap;gap:3px;pointer-events:all;max-width:200px;"></div>
-  </div>
-  <div class="hud-dir">
-    <div class="painel painel-info">
-      <div id="loc-txt">FLORESTA</div>
-      <div id="hora-txt">☀ Dia 1 — Manhã</div>
-      <div id="status-efeitos"></div>
-      <div id="lendas-ico"></div>
-    </div>
-  </div>
-</div>
-
-<div id="lanterna-hud">
-  <div class="lant-box">
-    🔦 <span id="lant-estado" style="color:#555">DESLIGADA</span>
-    <div class="lant-track"><div class="lant-fill" id="lant-fill" style="width:100%;background:linear-gradient(90deg,#ffaa00,#ffe066)"></div></div>
-  </div>
-</div>
-
-<div id="jogo"><canvas id="canvas-mundo"></canvas></div>
-<div id="mini-mapa"><canvas id="canvas-mini"></canvas></div>
-
-<div id="log-area">
-  <div id="msg-atual">A floresta sussurra ao seu redor...</div>
-  <div id="acoes-wrap"></div>
-</div>
-
-<div id="bussola"><div class="buss-inner" id="buss-txt"><span class="buss-dir">↑ Norte</span></div></div>
-
-<!-- CRAFTING -->
-<div id="painel-craft">
-  <div class="craft-header">
-    <div class="craft-titulo">⚒ CRAFTING — FABRICAÇÃO</div>
-    <button class="craft-fechar" onclick="fecharCraft()">✕</button>
-  </div>
-  <div class="craft-grid" id="craft-grid"></div>
-</div>
-
-<!-- DIÁRIO -->
-<div id="painel-diario">
-  <div class="diario-header">
-    <div class="diario-titulo">📖 DIÁRIO DO EXPLORADOR</div>
-    <button class="craft-fechar" onclick="fecharDiario()">✕</button>
-  </div>
-  <div class="diario-corpo" id="diario-corpo"></div>
-</div>
-
-<!-- CONQUISTA -->
-<div id="conquista-notif">
-  <div class="conq-ico" id="conq-ico">🏆</div>
-  <div class="conq-texto">
-    <div class="conq-label">Conquista Desbloqueada</div>
-    <div class="conq-nome" id="conq-nome">Nome</div>
-  </div>
-</div>
-
-<!-- LENDA MODAL -->
-<div id="modal-lenda">
-  <div class="modal-inner">
-    <div class="modal-top-bar"></div>
-    <div class="modal-body">
-      <span class="m-emoji" id="m-emoji">👁</span>
-      <div class="m-tipo" id="m-tipo">ENTIDADE</div>
-      <div class="m-nome" id="m-nome">Nome</div>
-      <div class="m-sep"></div>
-      <p class="m-texto" id="m-texto"></p>
-      <div class="m-dica"><div class="m-dica-label">⚠ Sobrevivência</div><div class="m-dica-txt" id="m-dica"></div></div>
-      <button class="btn-fechar" onclick="fecharLenda()">Continuar</button>
-    </div>
-  </div>
-</div>
-
-<div id="toast"></div>
-<div id="alerta-crit"></div>
-<div id="aviso-inimigo"></div>
-<div id="dmg-flash"></div>
-<div id="vinheta"></div>
-<div id="overlay-morte"></div>
-<div id="overlay-frio"></div>
-<div id="overlay-veneno"></div>
-<div id="overlay-sanidade"></div>
-
-<div id="tela-fim">
-  <div class="fim-titulo" id="fim-titulo">A Floresta Venceu</div>
-  <div class="fim-linha"></div>
-  <div class="fim-stats" id="fim-stats"></div>
-  <div class="fim-causa" id="fim-causa"></div>
-  <div class="fim-conquistas" id="fim-conquistas"></div>
-  <button class="btn-start" style="margin-top:.5rem" onclick="reiniciar()">Tentar Novamente</button>
-</div>
-
+cat > /tmp/amazonia_part3.js << 'ENDJS'
 <script>
 'use strict';
 
 // ══════════════════════════════════════════════════════════════
-//  AUDIO ENGINE
+//  AUDIO ENGINE MELHORADO
 // ══════════════════════════════════════════════════════════════
-let audioCtx=null,masterGain=null,ambienceNodes={},ambiencePlaying=false;
+let audioCtx=null,masterGain=null,ambiencePlaying=false,ambienceNodes={};
 function initAudio(){
   if(audioCtx)return;
   try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.65;masterGain.connect(audioCtx.destination);}
@@ -394,6 +29,7 @@ function makeNoise(duration,filterFreq,vol,type='lowpass',sd=0){
   gain.gain.linearRampToValueAtTime(vol,t+.03);gain.gain.exponentialRampToValueAtTime(.001,t+duration-.05);
   src.start(t);src.stop(t+duration);
 }
+// Funções básicas
 function sfx_passos(tipo){if(!audioCtx)return;const freq=tipo===1?180:tipo===3?320:220;makeNoise(.08,freq,tipo===1?.04:.025,'bandpass');playTone(freq*.5,'sine',.06,.012);}
 function sfx_coletar(){if(!audioCtx)return;[440,554,660,880].forEach((f,i)=>playTone(f,'sine',.18,.08,.01,.1,i*.06));}
 function sfx_beber(){if(!audioCtx)return;[800,600,450,350].forEach((f,i)=>makeNoise(.12,f,.07,'bandpass',i*.1));}
@@ -401,14 +37,6 @@ function sfx_dano(){if(!audioCtx)return;playTone(80,'sawtooth',.3,.2,.005,.15);m
 function sfx_lanterna_on(){if(!audioCtx)return;makeNoise(.04,4000,.15,'highpass');playTone(220,'square',.08,.06,.002,.05,.01);playTone(1200,'sine',.12,.04,.001,.08,.03);}
 function sfx_lanterna_off(){if(!audioCtx)return;makeNoise(.04,3000,.1,'highpass');playTone(180,'square',.06,.05,.002,.04);}
 function sfx_fogueira(){if(!audioCtx)return;makeNoise(.15,2500,.12,'highpass');makeNoise(.4,600,.08,'lowpass',.1);playTone(120,'sawtooth',.3,.07,.01,.2,.05);}
-function sfx_lenda(){if(!audioCtx)return;[220,261,311,370,440,523,622].forEach((f,i)=>playTone(f,'sine',.6,.06,.02,.4,i*.07));playTone(55,'sine',.8,.1,.1,.5);makeNoise(.5,200,.05,'lowpass',.1);}
-function sfx_assobio(){if(!audioCtx)return;const t=audioCtx.currentTime,osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.connect(gain);gain.connect(masterGain);osc.type='sine';osc.frequency.setValueAtTime(1400,t);osc.frequency.linearRampToValueAtTime(1800,t+.3);osc.frequency.linearRampToValueAtTime(1200,t+.7);osc.frequency.linearRampToValueAtTime(1600,t+1.0);gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.18,t+.1);gain.gain.exponentialRampToValueAtTime(.001,t+1.2);osc.start(t);osc.stop(t+1.3);}
-function sfx_rugido(){if(!audioCtx)return;[40,55,65].forEach((f,i)=>{const t=audioCtx.currentTime+i*.03,osc=audioCtx.createOscillator(),gain=audioCtx.createGain(),dist=audioCtx.createWaveShaper();const curve=new Float32Array(256);for(let k=0;k<256;k++){const x=(k*2)/256-1;curve[k]=Math.tanh(x*3);}dist.curve=curve;osc.connect(dist);dist.connect(gain);gain.connect(masterGain);osc.type='sawtooth';osc.frequency.setValueAtTime(f,t);osc.frequency.linearRampToValueAtTime(f*.7,t+.8);gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.15,t+.1);gain.gain.exponentialRampToValueAtTime(.001,t+1.0);osc.start(t);osc.stop(t+1.2);});makeNoise(.8,100,.06,'lowpass',.05);}
-function sfx_iara(){if(!audioCtx)return;[523,659,784,1047,784,698,659,523].forEach((f,i)=>{const t=audioCtx.currentTime+i*.22,osc=audioCtx.createOscillator(),osc2=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.connect(gain);osc2.connect(gain);gain.connect(masterGain);osc.type='sine';osc.frequency.value=f;osc2.type='sine';osc2.frequency.value=f*1.5;gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.07,t+.05);gain.gain.exponentialRampToValueAtTime(.001,t+.5);osc.start(t);osc.stop(t+.6);osc2.start(t);osc2.stop(t+.6);});}
-function sfx_boto(){if(!audioCtx)return;[880,1100,1320,1100,880,1320,1760].forEach((f,i)=>playTone(f,'sine',.2,.06,.01,.15,i*.08));}
-function sfx_curupira(){if(!audioCtx)return;[520,560,580,540,510,570,590,610].forEach((f,i)=>{playTone(f,'triangle',.12,.05,.01,.08,i*.12);if(i%2===0)makeNoise(.08,1800,.02,'bandpass',i*.12);});}
-function sfx_anhanga(){if(!audioCtx)return;[110,138,165].forEach((f,i)=>playTone(f,'sine',1.2-.2*i,.1-.02*i,.2+.05*i,.5,i*.1));makeNoise(.6,300,.04,'lowpass',.3);}
-function sfx_dormir(){if(!audioCtx)return;[200,180,160,140].forEach((f,i)=>makeNoise(.4,f,.04,'lowpass',i*.35));}
 function sfx_botao(){if(!audioCtx)return;playTone(440,'sine',.08,.05,.002,.06);playTone(660,'sine',.06,.03,.002,.05,.02);}
 function sfx_morte(){if(!audioCtx)return;[400,300,200,130,80].forEach((f,i)=>playTone(f,'sawtooth',.5,.12,.01,.3,i*.18));makeNoise(1.0,200,.08,'lowpass',.2);}
 function sfx_conquista(){if(!audioCtx)return;[330,392,494,659,784].forEach((f,i)=>playTone(f,'triangle',.35,.09,.02,.22,i*.09));playTone(784,'sine',.6,.1,.02,.4,.45);}
@@ -418,6 +46,107 @@ function sfx_cobra(){if(!audioCtx)return;makeNoise(.3,2800,.08,'bandpass');playT
 function sfx_onca(){if(!audioCtx)return;[50,65,80].forEach((f,i)=>{playTone(f,'sawtooth',.6,.12,.02,.3,i*.04);});makeNoise(.5,150,.07,'lowpass',.1);}
 function sfx_chuva(){if(!audioCtx)return;makeNoise(.8,3000,.06,'highpass');makeNoise(.6,800,.04,'bandpass',.2);}
 function sfx_remedio(){if(!audioCtx)return;[440,554,660].forEach((f,i)=>playTone(f,'sine',.25,.07,.01,.18,i*.08));makeNoise(.2,600,.03,'bandpass',.1);}
+function sfx_dormir(){if(!audioCtx)return;[200,180,160,140].forEach((f,i)=>makeNoise(.4,f,.04,'lowpass',i*.35));}
+
+// LENDAS SFX MELHORADOS — efeitos únicos para cada uma
+function sfx_lenda_base(){if(!audioCtx)return;[220,261,311,370,440,523,622].forEach((f,i)=>playTone(f,'sine',.6,.06,.02,.4,i*.07));playTone(55,'sine',.8,.1,.1,.5);makeNoise(.5,200,.05,'lowpass',.1);}
+function sfx_curupira(){
+  if(!audioCtx)return;
+  // Risadas eco distorcidas + passos invertidos
+  [520,560,580,540,510,570,590,610].forEach((f,i)=>{playTone(f,'triangle',.12,.055,.01,.08,i*.12);if(i%2===0)makeNoise(.08,1800,.022,'bandpass',i*.12);});
+  // Passos de criança correndo
+  for(let i=0;i<8;i++){const t=i*.15+.2;makeNoise(.06,600+Math.random()*200,.018,'bandpass',t);playTone(180+Math.random()*60,'sine',.08,.012,.003,.06,t);}
+  // Risada final
+  setTimeout(()=>{[800,900,1000,1100,950,850,750].forEach((f,i)=>playTone(f,'sine',.08,.04,.005,.05,i*.05));},1200);
+}
+function sfx_mapinguari(){
+  if(!audioCtx)return;
+  // Rugido profundo + tremor da terra
+  [30,40,50,60].forEach((f,i)=>{const t=audioCtx.currentTime+i*.06;const osc=audioCtx.createOscillator(),dist=audioCtx.createWaveShaper(),gain=audioCtx.createGain();const curve=new Float32Array(512);for(let k=0;k<512;k++){const x=(k*2)/512-1;curve[k]=Math.tanh(x*5);}dist.curve=curve;osc.connect(dist);dist.connect(gain);gain.connect(masterGain);osc.type='sawtooth';osc.frequency.setValueAtTime(f,t);osc.frequency.linearRampToValueAtTime(f*.5,t+1.2);gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.2,t+.1);gain.gain.exponentialRampToValueAtTime(.001,t+1.4);osc.start(t);osc.stop(t+1.5);});
+  makeNoise(1.5,80,.1,'lowpass',.2);makeNoise(.8,400,.05,'bandpass',.4);
+  // Passos pesados
+  for(let i=0;i<5;i++){const t=i*.35+.5;makeNoise(.15,200,.08,'lowpass',t);playTone(40,'sine',.15,.1,.005,.1,t);}
+}
+function sfx_iara(){
+  if(!audioCtx)return;
+  // Canto de sereia: ondas senoidais sobrespostas
+  const melody=[523,659,784,1047,1175,1047,880,784,659,523,659,784,880,1047,784];
+  melody.forEach((f,i)=>{const t=audioCtx.currentTime+i*.22;const osc=audioCtx.createOscillator(),osc2=audioCtx.createOscillator(),rev=audioCtx.createGain(),gain=audioCtx.createGain();osc.connect(gain);osc2.connect(gain);gain.connect(masterGain);osc.type='sine';osc.frequency.value=f;osc2.type='sine';osc2.frequency.value=f*1.0015;// Leve desafinação para efeito etéreo
+  gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.06,t+.06);gain.gain.exponentialRampToValueAtTime(.001,t+.55);osc.start(t);osc.stop(t+.6);osc2.start(t);osc2.stop(t+.6);});
+  // Borbulhas de água
+  for(let i=0;i<6;i++){makeNoise(.05,2000+Math.random()*1000,.015,'bandpass',.3+i*.18);}
+  makeNoise(.8,400,.035,'lowpass',.1);
+}
+function sfx_boto(){
+  if(!audioCtx)return;
+  // Clicks e assobios de golfinho
+  [880,1100,1320,1540,1760,1320,1100].forEach((f,i)=>playTone(f,'sine',.12,.05,.005,.08,i*.08));
+  // Som de água/nado
+  makeNoise(.3,3000,.04,'highpass',.1);makeNoise(.5,800,.03,'bandpass',.3);
+  // Click de ecolocalização
+  for(let i=0;i<4;i++){playTone(2200+i*400,'sine',.04,.04,.001,.03,.7+i*.08);}
+}
+function sfx_matinta(){
+  if(!audioCtx)return;
+  // Assobio que muda de direção — muito característico
+  const t=audioCtx.currentTime;
+  const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.connect(gain);gain.connect(masterGain);osc.type='sine';
+  osc.frequency.setValueAtTime(1600,t);osc.frequency.linearRampToValueAtTime(2200,t+.35);
+  osc.frequency.linearRampToValueAtTime(1400,t+.7);osc.frequency.linearRampToValueAtTime(1900,t+1.0);
+  osc.frequency.linearRampToValueAtTime(1200,t+1.3);osc.frequency.linearRampToValueAtTime(1800,t+1.6);
+  gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.22,t+.1);gain.gain.exponentialRampToValueAtTime(.001,t+1.8);
+  osc.start(t);osc.stop(t+1.9);
+  // Penas e vento
+  makeNoise(.6,5000,.025,'highpass',.3);makeNoise(.4,800,.02,'bandpass',1.0);
+}
+function sfx_anhanga(){
+  if(!audioCtx)return;
+  // Casco de cervo + vento etéreo + vozes distantes
+  [110,138,165].forEach((f,i)=>playTone(f,'sine',1.5-.2*i,.12-.02*i,.25+.05*i,.6,i*.12));
+  makeNoise(.8,300,.05,'lowpass',.3);
+  // Casco
+  for(let i=0;i<6;i++){makeNoise(.08,800+Math.random()*400,.02,'bandpass',.1+i*.2);}
+}
+function sfx_caipora(){
+  if(!audioCtx)return;
+  // Rugido misturado com vento + latido misterioso + batidas no chão
+  [120,160,200].forEach((f,i)=>playTone(f,'sawtooth',.5,.1,.02,.25,i*.08));
+  makeNoise(.7,1200,.04,'bandpass',.15);
+  // Batidas no chão
+  for(let i=0;i<4;i++){makeNoise(.12,300,.06,'lowpass',.4+i*.28);playTone(60,'sine',.1,.08,.01,.08,.4+i*.28);}
+  // Galopes ao longe
+  setTimeout(()=>{for(let i=0;i<6;i++){makeNoise(.06,500,.025,'bandpass',i*.1);}},800);
+}
+function sfx_minhocao(){
+  if(!audioCtx)return;
+  // Terra se abrindo — baixíssimas frequências + tremor
+  [20,25,30,35].forEach((f,i)=>playTone(f,'sawtooth',2,.18,.3,.8,i*.1));
+  makeNoise(2.0,80,.12,'lowpass');
+  // Rachaduras na terra
+  for(let i=0;i<8;i++){makeNoise(.15,2000+Math.random()*3000,.04,'highpass',.3+i*.2);}
+}
+function sfx_pisadeira(){
+  if(!audioCtx)return;
+  // Peso opressor — baixos graves + respiração pesada + paralisia
+  playTone(55,'sine',2.0,.2,.5,.8);playTone(40,'sine',1.8,.15,.4,.7,.1);
+  makeNoise(1.5,200,.06,'lowpass',.3);
+  // Respiração pesada
+  for(let i=0;i<4;i++){makeNoise(.3,400+Math.random()*200,.04,'bandpass',.5+i*.4);}
+}
+function sfx_cobra_grande(){
+  if(!audioCtx)return;
+  // Cobra gigante — serpenteio + chocalho + sopro
+  makeNoise(.4,3000,.1,'bandpass');makeNoise(.6,200,.07,'lowpass',.1);
+  // Chocalho
+  for(let i=0;i<12;i++){makeNoise(.04,4000+Math.random()*2000,.025,'highpass',i*.04);}
+  playTone(80,'sine',.8,.1,.1,.5,.2);
+}
+function sfx_lenda(idx){
+  if(!audioCtx)return;
+  const fns=[sfx_curupira,sfx_mapinguari,sfx_iara,sfx_boto,sfx_matinta,sfx_anhanga,sfx_caipora,sfx_minhocao,sfx_pisadeira,sfx_cobra_grande];
+  sfx_lenda_base();
+  setTimeout(()=>{if(fns[idx])fns[idx]();},600);
+}
 
 // AMBIENTE
 let ambienceInterval=null;
@@ -456,7 +185,7 @@ let passosTimer=0;
 function sfxPassoT(tile){const agora=Date.now();if(agora-passosTimer>320){passosTimer=agora;sfx_passos(tile?.tipo??0);}}
 
 // ══════════════════════════════════════════════════════════════
-//  CONSTANTES DE MAPA E TILES
+//  CONSTANTES
 // ══════════════════════════════════════════════════════════════
 const TILE=56,MAPA_W=88,MAPA_H=88;
 const T={FLORESTA:0,AGUA:1,CLAREIRA:2,PEDRA:3,BAMBU:4,FRUTAS:5,ABRIGO:6,FOGO:7,TERRA:8,PENHASCO:9,COGUMELO:10,LIRIO:11,PANTANO:12,BAMBU_DENSO:13,GRUTA:14};
@@ -480,43 +209,65 @@ const BLOCOS={
 const MINI_COR=['#1a4a1a','#0a3a60','#3a6a18','#484848','#1a4e1a','#266018','#5a3a18','#5a3000','#4a3410','#383838','#1e5a14','#184a28','#142a08','#145014','#1a1a28'];
 
 // ══════════════════════════════════════════════════════════════
-//  RECEITAS DE CRAFTING
+//  10 LENDAS DA AMAZÔNIA
 // ══════════════════════════════════════════════════════════════
-const RECEITAS=[
-  {id:'machado',nome:'🪓 Machado de Pedra',emoji:'🪓',req:{Pederneira:1,'Bambu':2},desc:'Dano +40% contra inimigos. Permite cortar árvores.',ef:'arma_machado'},
-  {id:'faca',nome:'🔪 Faca de Bambu',emoji:'🔪',req:{'Bambu':3},desc:'Arma leve. Útil contra cobras e para pescar.',ef:'arma_faca'},
-  {id:'tocha',nome:'🔥 Tocha',emoji:'🔥',req:{'Bambu':1,'Pederneira':1},desc:'Ilumina sem consumir pilhas. Dura 3 períodos.',ef:'tocha'},
-  {id:'filtro',nome:'🫙 Filtro d\'Água',emoji:'🫙',req:{'Bambu':2,'Pederneira':1},desc:'Purifica qualquer água do rio sem risco de doença.',ef:'filtro_agua'},
-  {id:'antidoto',nome:'💊 Antídoto',emoji:'💊',req:{'Erva Medicinal':3},desc:'Cura veneno de cobra e cogumelo venenoso.',ef:'antidoto'},
-  {id:'bandagem',nome:'🩹 Bandagem',emoji:'🩹',req:{'Erva Medicinal':2},desc:'Recupera 35 de vida instantaneamente.',ef:'bandagem'},
-  {id:'abrigo_imp',nome:'⛺ Abrigo Reforçado',emoji:'⛺',req:{'Bambu':4,'Pederneira':1},desc:'Proteção total. Inimigos não atacam enquanto descansa.',ef:'abrigo_reforcado'},
-  {id:'armadilha',nome:'🪤 Armadilha',emoji:'🪤',req:{'Bambu':2},desc:'Captura pequenos animais. Coloque e espere.',ef:'armadilha'},
-  {id:'boia',nome:'🛶 Jangada de Bambu',emoji:'🛶',req:{'Bambu':5},desc:'Permite atravessar rios sem se molhar.',ef:'jangada'},
-  {id:'repelente',nome:'🌿 Repelente Natural',emoji:'🌿',req:{'Erva Medicinal':2,'Mel Silvestre':1},desc:'Insetos e cobras evitam você por 1 dia inteiro.',ef:'repelente'},
+const LENDAS=[
+  {nome:"Curupira",tipo:"Guardião da Floresta",emoji:"🦶",
+   cor:"#00ff88",bgGrad:["#004422","#002211"],particleCor:"#00ff88",
+   texto:"O Curupira protege a mata com seus pés virados para trás, deixando rastros que levam caçadores em círculos intermináveis. Você ouve risadas infantis ecoando entre as árvores — de todas as direções ao mesmo tempo.",
+   dica:"Observe o musgo nas árvores: cresce sempre no lado norte. Quando sentir que está em círculos, pare, respire, e procure o musgo.",efeito:"confusao"},
+  {nome:"Mapinguari",tipo:"Besta Ancestral",emoji:"🦁",
+   cor:"#cc2200",bgGrad:["#440000","#220000"],particleCor:"#ff4400",
+   texto:"Colossal como uma árvore centenária, com couro impenetrável e um segundo olho rosado na barriga. É o espírito punitivo de um xamã que desafiou os deuses. O chão treme. As aves silenciam.",
+   dica:"Jamais corra. O Mapinguari detecta movimento e vibração. Agache-se entre raízes altas, respire devagar, e deixe-o passar como uma tempestade.",efeito:"medo"},
+  {nome:"Iara",tipo:"Sereia dos Rios",emoji:"🧜‍♀️",
+   cor:"#2196f3",bgGrad:["#001844","#000822"],particleCor:"#40b0ff",
+   texto:"Metade mulher, metade peixe. Ao luar, senta nas pedras e canta. Sua voz dissolve a vontade humana — quem ouve deseja apenas afundar, ser envolvido, nunca mais voltar.",
+   dica:"Tampe os ouvidos com barro antes de cruzar rios à noite. Água que emite luz própria nunca deve ser bebida nem tocada.",efeito:"atracaoAgua"},
+  {nome:"Boto Cor-de-Rosa",tipo:"Encantado dos Rios",emoji:"🐬",
+   cor:"#f48fb1",bgGrad:["#440022","#220011"],particleCor:"#ff80bb",
+   texto:"Nas noites de festa, ele sai das águas como um jovem elegante de roupa branca — para esconder o espiráculo. Seduz e leva para o Encante, o mundo subaquático dos espíritos.",
+   dica:"Ver o boto saltar ao amanhecer traz boa sorte. Ele protege pescadores. Mas jamais o toque, jamais o siga.",efeito:"sorte"},
+  {nome:"Matinta Perera",tipo:"Feiticeira Noturna",emoji:"🦉",
+   cor:"#7e57c2",bgGrad:["#1a0844","#0c0422"],particleCor:"#b085f5",
+   texto:"Um assobio agudo cortando a noite. Uma sombra de ave que te segue entre as copas. Uma velha feiticeira que assume forma de pássaro para aterrorizar viajantes sozinhos.",
+   dica:"Se ouvir o assobio à noite: não responda, não olhe para trás, não acelere o passo. Caminhe firme e em linha reta até um abrigo.",efeito:"susto"},
+  {nome:"Anhangá",tipo:"Espírito dos Animais",emoji:"🦌",
+   cor:"#f0c94a",bgGrad:["#3a2a00","#1c1400"],particleCor:"#ffd060",
+   texto:"Um cervo de pelagem branca como neve, olhos que queimam vermelho como brasa. Ele vê cada animal que você caçou. Caçadores que matam por esporte desaparecem — perdidos para sempre.",
+   dica:"A floresta sustenta quem a respeita. Cace apenas o essencial. O Anhangá não pune quem mata para sobreviver.",efeito:"aviso"},
+  {nome:"Caipora",tipo:"Senhor das Matas",emoji:"🐎",
+   cor:"#ff6600",bgGrad:["#3a1400","#1c0800"],particleCor:"#ff9040",
+   texto:"Montado num javali preto, fumando cachimbo de pedra, Caipora comanda os animais da floresta. Diferente do Curupira, ele é implacável — não defende a flora, mas cobra tributo de sangue de caçadores.",
+   dica:"Antes de entrar na mata densa, faça uma oferenda na raiz de uma árvore centenária. Tabaco, farinha ou qualquer alimento. O Caipora aprecia quem pede licença.",efeito:"caipora"},
+  {nome:"Minhocão",tipo:"Terror das Profundezas",emoji:"🌊",
+   cor:"#4a1580",bgGrad:["#1a0844","#0a0422"],particleCor:"#8040ff",
+   texto:"Uma cobra-gigante subterrânea, mais longa que três rios. Quando se move, provoca terremotos e engole rios inteiros. Diz-se que vive nos fundos dos lagos negros da Amazônia, esperando.",
+   dica:"Nunca acampe nas margens de lagos negros. Se o chão tremer e a água recuar, corra para terreno alto e rochoso. O Minhocão não sobe pedras.",efeito:"tremor"},
+  {nome:"Pisadeira",tipo:"Pesadelo Encarnado",emoji:"👣",
+   cor:"#c0392b",bgGrad:["#2a0010","#150008"],particleCor:"#ff4060",
+   texto:"Uma mulher velha e gorda que senta sobre o peito de quem dorme de barriga cheia ao relento. A vítima acorda sem conseguir se mover, sufocar, gritar — paralisia total enquanto a criatura se alimenta de seu ar.",
+   dica:"Nunca durma ao relento com barriga cheia. Sempre no abrigo, de lado, nunca de barriga para cima. Um galho de arruda pendurado na entrada afasta a Pisadeira.",efeito:"pesadelo"},
+  {nome:"Grande Cobra-Norato",tipo:"Senhor dos Rios",emoji:"🐍",
+   cor:"#00cc66",bgGrad:["#003322","#001811"],particleCor:"#00ff88",
+   texto:"Uma cobra mágica que se transforma em homem loiro e belo. Cobra-Norato domina os rios amazônicos e pode conceder poderes sobrenaturais a quem consiga arrancar sua pele. Mas o preço é sempre a sanidade.",
+   dica:"Se encontrar um homem estranho à beira do rio ao anoitecer, com olhos amarelos e sorriso largo demais — não aceite ajuda. Não aperte sua mão.",efeito:"cobraNorato"},
 ];
 
 // ══════════════════════════════════════════════════════════════
-//  LENDAS
+//  RECEITAS
 // ══════════════════════════════════════════════════════════════
-const LENDAS=[
-  {nome:"Curupira",tipo:"Guardião da Floresta",emoji:"🦶",cor:"#00ff88",
-   texto:"O Curupira protege a mata com seus pés virados para trás, deixando rastros que levam caçadores em círculos intermináveis. Você ouve risadas infantis ecoando entre as árvores — de todas as direções ao mesmo tempo.",
-   dica:"Observe o musgo nas árvores: cresce sempre no lado norte. Quando sentir que está em círculos, pare. Respire. Procure o musgo.",efeito:"confusao",sfx:sfx_curupira},
-  {nome:"Mapinguari",tipo:"Besta Ancestral",emoji:"🦁",cor:"#cc2200",
-   texto:"Colossal como uma árvore centenária, com couro impenetrável e um segundo olho rosado na barriga. É o espírito punitivo de um xamã que desafiou os deuses. O chão treme. As aves silenciam.",
-   dica:"Jamais corra. O Mapinguari detecta movimento e vibração. Agache-se entre raízes altas, respire devagar, e deixe-o passar como uma tempestade.",efeito:"medo",sfx:sfx_rugido},
-  {nome:"Iara",tipo:"Sereia dos Rios",emoji:"🧜‍♀️",cor:"#2196f3",
-   texto:"Metade mulher, metade peixe. Ao luar, senta nas pedras e canta. Sua voz dissolve a vontade humana — quem ouve deseja apenas afundar, ser envolvido, nunca mais voltar.",
-   dica:"Tampe os ouvidos com barro antes de cruzar rios à noite. Água que emite luz própria nunca deve ser bebida nem tocada.",efeito:"atracaoAgua",sfx:sfx_iara},
-  {nome:"Boto Cor-de-Rosa",tipo:"Encantado dos Rios",emoji:"🐬",cor:"#f48fb1",
-   texto:"Nas noites de festa, ele sai das águas como um jovem elegante de roupa branca — para esconder o espiráculo. Seduz e leva para o Encante, o mundo subaquático dos espíritos.",
-   dica:"Ver o boto saltar ao amanhecer traz boa sorte. Ele protege pescadores. Mas jamais o toque, jamais o siga.",efeito:"sorte",sfx:sfx_boto},
-  {nome:"Matinta Perera",tipo:"Feiticeira Noturna",emoji:"🦉",cor:"#7e57c2",
-   texto:"Um assobio agudo cortando a noite. Uma sombra de ave que te segue entre as copas. Uma velha feiticeira que assume forma de pássaro para aterrorizar viajantes sozinhos.",
-   dica:"Se ouvir o assobio à noite: não responda, não olhe para trás, não acelere o passo. Caminhe firme e em linha reta até um abrigo.",efeito:"susto",sfx:sfx_assobio},
-  {nome:"Anhangá",tipo:"Espírito dos Animais",emoji:"🦌",cor:"#f0c94a",
-   texto:"Um cervo de pelagem branca como neve, olhos que queimam vermelho como brasa. Ele vê cada animal que você caçou. Caçadores que matam por esporte desaparecem — perdidos para sempre.",
-   dica:"A floresta sustenta quem a respeita. Cace apenas o essencial. O Anhangá não pune quem mata para sobreviver.",efeito:"aviso",sfx:sfx_anhanga}
+const RECEITAS=[
+  {id:'machado',nome:'🪓 Machado de Pedra',emoji:'🪓',req:{Pederneira:1,'Bambu':2},desc:'Dano +40% contra inimigos.',ef:'arma_machado'},
+  {id:'faca',nome:'🔪 Faca de Bambu',emoji:'🔪',req:{'Bambu':3},desc:'Arma leve. Útil contra cobras.',ef:'arma_faca'},
+  {id:'tocha',nome:'🔥 Tocha',emoji:'🔥',req:{'Bambu':1,'Pederneira':1},desc:'Ilumina sem consumir pilhas. Dura 3 períodos.',ef:'tocha'},
+  {id:'filtro',nome:'🫙 Filtro d\'Água',emoji:'🫙',req:{'Bambu':2,'Pederneira':1},desc:'Purifica qualquer água do rio.',ef:'filtro_agua'},
+  {id:'antidoto',nome:'💊 Antídoto',emoji:'💊',req:{'Erva Medicinal':3},desc:'Cura veneno de cobra e cogumelo.',ef:'antidoto'},
+  {id:'bandagem',nome:'🩹 Bandagem',emoji:'🩹',req:{'Erva Medicinal':2},desc:'Recupera 35 de vida.',ef:'bandagem'},
+  {id:'abrigo_imp',nome:'⛺ Abrigo Reforçado',emoji:'⛺',req:{'Bambu':4,'Pederneira':1},desc:'Proteção total contra a noite.',ef:'abrigo_reforcado'},
+  {id:'armadilha',nome:'🪤 Armadilha',emoji:'🪤',req:{'Bambu':2},desc:'Captura pequenos animais.',ef:'armadilha'},
+  {id:'boia',nome:'🛶 Jangada de Bambu',emoji:'🛶',req:{'Bambu':5},desc:'Atravessa rios sem se molhar.',ef:'jangada'},
+  {id:'repelente',nome:'🌿 Repelente Natural',emoji:'🌿',req:{'Erva Medicinal':2,'Mel Silvestre':1},desc:'Cobras e insetos evitam você.',ef:'repelente'},
 ];
 
 // ══════════════════════════════════════════════════════════════
@@ -535,18 +286,19 @@ const INIMIGO_DEF=[
 const CONQUISTAS_DEF=[
   {id:'primeirodia',emoji:'🌄',nome:'Primeiro Amanhecer',check:e=>e.diaNum>=2},
   {id:'lendas3',emoji:'📖',nome:'Folclorista',check:e=>e.lendas.length>=3},
-  {id:'todas_lendas',emoji:'🏆',nome:'Guardião das Lendas',check:e=>e.lendas.length>=6},
+  {id:'lendas6',emoji:'🏆',nome:'Guardião das Lendas',check:e=>e.lendas.length>=6},
+  {id:'todas_lendas',emoji:'⭐',nome:'Mestre do Folclore Amazônico',check:e=>e.lendas.length>=10},
   {id:'craft_machado',emoji:'🪓',nome:'Ferreiro da Mata',check:e=>e.craftados.includes('machado')},
   {id:'primeira_cura',emoji:'💊',nome:'Sobrevivente',check:e=>e.curas>=1},
   {id:'sobreviveu_noite',emoji:'🌙',nome:'Noite Superada',check:e=>e.noitesSobrevividas>=1},
   {id:'onca',emoji:'🐆',nome:'Caçador Supremo',check:e=>e.inimigosVencidos>=5},
   {id:'semfome',emoji:'🍊',nome:'Natureza Sustenta',check:e=>e.fome>=90&&e.diaNum>=3},
   {id:'jangada',emoji:'🛶',nome:'Explorador Fluvial',check:e=>e.craftados.includes('jangada')},
-  {id:'10dias',emoji:'⭐',nome:'Lenda Viva',check:e=>e.diaNum>=10},
+  {id:'10dias',emoji:'🌟',nome:'Lenda Viva',check:e=>e.diaNum>=10},
 ];
 
 // ══════════════════════════════════════════════════════════════
-//  ESTADO DO JOGO
+//  ESTADO
 // ══════════════════════════════════════════════════════════════
 let E={};
 let mapa=[],itens=[],entidades=[],inimigos=[],chuva=[],vagalumes=[];
@@ -559,21 +311,119 @@ let mouseX=0,mouseY=0;
 let lightCanvas=null,lightCtx=null;
 let particles=[];
 let diario=[];
+let lendaBgAnim=null;
 
 const lanterna={ativa:false,nivel:100,raioBase:90,raioMax:240,raioAtual:90,angulo:Math.PI/2,cone:Math.PI*.56,dreno:1.8,flick:0,flickAmp:0,pulsar:0};
 const tocha={ativa:false,duracao:0};
 const PERIODOS=['Madrugada','Manhã','Tarde','Entardecer','Noite'];
 const IPER=['🌙','☀️','🌤️','🌅','🌙'];
 
-// Gamepad
+// ══════════════════════════════════════════════════════════════
+//  GAMEPAD AVANÇADO
+// ══════════════════════════════════════════════════════════════
 let gpOk=false;
 try{if(typeof navigator.getGamepads==='function'){navigator.getGamepads();gpOk=true;}}catch(e){gpOk=false;}
-const GP={connected:false,idx:-1,axes:[0,0,0,0],buttons:new Array(20).fill(false),prev:new Array(20).fill(false),sel:0,dz:.2};
-if(gpOk){window.addEventListener('gamepadconnected',e=>{GP.connected=true;GP.idx=e.gamepad.index;toast('🎮 Controle conectado!');});window.addEventListener('gamepaddisconnected',e=>{if(e.gamepad.index===GP.idx){GP.connected=false;GP.idx=-1;}});}
-function lerGP(){if(!gpOk||!GP.connected)return;try{const ps=navigator.getGamepads();let p=null;for(let i=0;i<ps.length;i++){if(ps[i]){p=ps[i];break;}}if(!p)return;GP.prev=[...GP.buttons];GP.axes=Array.from(p.axes);GP.buttons=p.buttons.map(b=>typeof b==='object'?b.pressed:!!b);}catch(e){GP.connected=false;}}
-const gpP=b=>GP.connected&&GP.buttons[b]&&!GP.prev[b];
-const gpH=b=>GP.connected&&!!GP.buttons[b];
+const GP={
+  connected:false,idx:-1,
+  axes:[0,0,0,0],
+  buttons:new Array(20).fill(false),
+  prev:new Array(20).fill(false),
+  sel:0,dz:.18,
+  // Contextos de menu para navegação adequada
+  ctx:'jogo', // 'jogo','craft','diario','lenda'
+  craftSel:0,
+  craftItems:[],
+  rumbleSupported:false,
+};
+if(gpOk){
+  window.addEventListener('gamepadconnected',e=>{
+    GP.connected=true;GP.idx=e.gamepad.index;
+    GP.rumbleSupported=!!(e.gamepad.vibrationActuator);
+    document.getElementById('gp-hud').style.display='block';
+    toast('🎮 Controle conectado!');
+  });
+  window.addEventListener('gamepaddisconnected',e=>{
+    if(e.gamepad.index===GP.idx){GP.connected=false;GP.idx=-1;document.getElementById('gp-hud').style.display='none';}
+  });
+}
+function lerGP(){
+  if(!gpOk||!GP.connected)return;
+  try{
+    const ps=navigator.getGamepads();let p=null;
+    for(let i=0;i<ps.length;i++){if(ps[i]){p=ps[i];break;}}
+    if(!p)return;
+    GP.prev=[...GP.buttons];
+    GP.axes=Array.from(p.axes);
+    GP.buttons=p.buttons.map(b=>typeof b==='object'?b.pressed:!!b);
+  }catch(e){GP.connected=false;}
+}
+const gpP=b=>GP.connected&&!!GP.buttons[b]&&!GP.prev[b]; // pressionado agora
+const gpH=b=>GP.connected&&!!GP.buttons[b];               // mantido
 const gpA=i=>{if(!GP.connected)return 0;const v=GP.axes[i]||0;return Math.abs(v)>GP.dz?v:0;};
+function gpRumble(dur,weak,strong){
+  if(!GP.connected||!GP.rumbleSupported)return;
+  try{const p=navigator.getGamepads()[GP.idx];if(p?.vibrationActuator){p.vibrationActuator.playEffect('dual-rumble',{duration:dur,weakMagnitude:weak,strongMagnitude:strong});}}catch(e){}
+}
+// Atualizar anel de seleção no gamepad
+function atualizarGPRing(){
+  const ring=document.getElementById('gp-sel-ring');
+  if(!GP.connected){ring.style.display='none';return;}
+  const bs=document.querySelectorAll('.btn-ac');
+  bs.forEach((b,i)=>b.classList.toggle('gp-focus',i===GP.sel));
+  if(bs[GP.sel]){
+    const r=bs[GP.sel].getBoundingClientRect();
+    ring.style.display='block';ring.style.left=(r.left-2)+'px';ring.style.top=(r.top-2)+'px';ring.style.width=(r.width+4)+'px';ring.style.height=(r.height+4)+'px';
+  }else ring.style.display='none';
+}
+function processGPUI(){
+  if(!GP.connected)return;
+  const noModal=!document.getElementById('modal-lenda').classList.contains('aberto');
+  const noCraft=!document.getElementById('painel-craft').classList.contains('aberto');
+  const noDiario=!document.getElementById('painel-diario').classList.contains('aberto');
+  const noFim=!document.getElementById('tela-fim').classList.contains('aberto');
+  // Modal lenda — fechar
+  if(!noModal){if(gpP(0)||gpP(1)||gpP(9))fecharLenda();return;}
+  // Tela fim
+  if(!noFim){if(gpP(0)||gpP(9))reiniciar();return;}
+  // Crafting — navegação 2D na grade
+  if(!noCraft){
+    const items=document.querySelectorAll('.craft-item');
+    const cols=2,total=items.length;
+    if(gpP(14)||gpP(12)){GP.craftSel=Math.max(0,GP.craftSel-1);} // L / cima
+    if(gpP(15)||gpP(13)){GP.craftSel=Math.min(total-1,GP.craftSel+1);} // R / baixo
+    if(gpP(14))GP.craftSel=Math.max(0,GP.craftSel-cols); // D-left
+    if(gpP(15))GP.craftSel=Math.min(total-1,GP.craftSel+cols); // D-right
+    if(gpP(12))GP.craftSel=Math.max(0,GP.craftSel-cols);
+    if(gpP(13))GP.craftSel=Math.min(total-1,GP.craftSel+cols);
+    items.forEach((it,i)=>it.classList.toggle('gp-focus',i===GP.craftSel));
+    if(gpP(0)){if(items[GP.craftSel]&&!items[GP.craftSel].classList.contains('bloq'))items[GP.craftSel].click();}
+    if(gpP(1)||gpP(9))fecharCraft();
+    return;
+  }
+  // Diário — fechar
+  if(!noDiario){if(gpP(1)||gpP(9))fecharDiario();return;}
+  // Jogo
+  // Navegar ações com L1/R1 e D-pad E/D
+  if(gpP(4)||gpP(14))navAcoes(-1);
+  if(gpP(5)||gpP(15))navAcoes(1);
+  // Ações com botões face
+  if(gpP(0)){sfx_botao();ativarAcaoSel();}         // X/Cross — ação selecionada
+  if(gpP(2)){sfx_botao();abrirCraft();}              // Square — crafting
+  if(gpP(1)){sfx_botao();verLendas();}               // Circle — lendas
+  if(gpP(3)){sfx_botao();verInv();}                  // Triangle — inventário
+  if(gpP(8)){sfx_botao();toggleLanterna();}          // Select/Share — lanterna
+  if(gpP(9)){sfx_botao();abrirDiario();}             // Start/Options — diário
+  // Analógico direito — direção da lanterna
+  const ax=gpA(2),ay=gpA(3);
+  if(Math.abs(ax)>.3||Math.abs(ay)>.3){lanterna.angulo=Math.atan2(ay,ax);}
+  atualizarGPRing();
+}
+function navAcoes(dir){
+  const bs=document.querySelectorAll('.btn-ac');if(!bs.length)return;
+  GP.sel=(GP.sel+dir+bs.length)%bs.length;
+  sfx_botao();atualizarGPRing();
+}
+function ativarAcaoSel(){const bs=document.querySelectorAll('.btn-ac');if(bs[GP.sel])bs[GP.sel].click();}
 
 // ══════════════════════════════════════════════════════════════
 //  TELA INTRO
@@ -583,27 +433,15 @@ const gpA=i=>{if(!GP.connected)return 0;const v=GP.axes[i]||0;return Math.abs(v)
   const fill=document.getElementById('intro-bar-fill'),status=document.getElementById('intro-status'),press=document.getElementById('intro-press');
   function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
   resize();window.addEventListener('resize',resize);
-  const steps=[{label:'Carregando floresta...',delay:400},{label:'Gerando rios e fauna...',delay:350},{label:'Invocando as lendas...',delay:500},{label:'Treinando inimigos...',delay:300},{label:'Forjando ferramentas...',delay:280},{label:'A floresta desperta...',delay:400},{label:'Pronto.',delay:200}];
+  const steps=[{label:'Carregando floresta...',delay:400},{label:'Gerando rios e fauna...',delay:350},{label:'Invocando as 10 lendas...',delay:500},{label:'Treinando inimigos...',delay:300},{label:'Forjando ferramentas...',delay:280},{label:'Calibrando controles...',delay:250},{label:'A floresta desperta...',delay:400},{label:'Pronto.',delay:200}];
   const ps=[];for(let i=0;i<65;i++)ps.push({x:Math.random(),y:Math.random()+.4,sp:.0003+Math.random()*.0005,dr:(Math.random()-.5)*.00008,sz:1+Math.random()*3,op:.2+Math.random()*.7,col:Math.random()<.5?'#00ff88':'#e8c040',ph:Math.random()*Math.PI*2});
   let nebOff=0;
   function drawFrame(){nebOff+=.0003;ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#000';ctx.fillRect(0,0,cv.width,cv.height);ctx.strokeStyle='rgba(0,255,136,.015)';ctx.lineWidth=1;for(let gx=0;gx<cv.width;gx+=60){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,cv.height);ctx.stroke();}for(let gy=0;gy<cv.height;gy+=60){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(cv.width,gy);ctx.stroke();}ps.forEach(p=>{p.y-=p.sp;p.x+=p.dr;p.ph+=.002;if(p.y<-.06){p.y=1.1;p.x=Math.random();}const fade=Math.min(1,(1.05-p.y)*8)*Math.min(1,p.y*12),blink=.7+Math.sin(p.ph)*.3;ctx.save();ctx.globalAlpha=p.op*fade*blink;ctx.fillStyle=p.col;ctx.shadowColor=p.col;ctx.shadowBlur=p.sz*4;ctx.beginPath();ctx.arc(p.x*cv.width,p.y*cv.height,p.sz,0,Math.PI*2);ctx.fill();ctx.restore();});const ng=ctx.createRadialGradient(cv.width*.5+Math.sin(nebOff)*cv.width*.1,cv.height*.5+Math.cos(nebOff*.7)*cv.height*.08,0,cv.width/2,cv.height/2,cv.width*.65);ng.addColorStop(0,'rgba(4,28,8,.0)');ng.addColorStop(.3,'rgba(4,28,8,.5)');ng.addColorStop(.7,'rgba(2,14,4,.75)');ng.addColorStop(1,'rgba(0,0,0,1)');ctx.fillStyle=ng;ctx.fillRect(0,0,cv.width,cv.height);requestAnimationFrame(drawFrame);}
   requestAnimationFrame(drawFrame);
   let pct=0,stepIdx=0,ready=false;
-  function nextStep(){
-    if(stepIdx>=steps.length){fill.style.width='100%';status.textContent='';press.style.display='block';ready=true;return;}
-    const s=steps[stepIdx++],target=(stepIdx/steps.length)*100,start=pct,t0=Date.now();
-    status.textContent=s.label;
-    function animBar(){const elapsed=Date.now()-t0,prog=Math.min(elapsed/s.delay,1);pct=start+(target-start)*prog;fill.style.width=pct+'%';if(prog<1)requestAnimationFrame(animBar);else setTimeout(nextStep,80);}
-    requestAnimationFrame(animBar);
-  }
+  function nextStep(){if(stepIdx>=steps.length){fill.style.width='100%';status.textContent='';press.style.display='block';ready=true;return;}const s=steps[stepIdx++],target=(stepIdx/steps.length)*100,start=pct,t0=Date.now();status.textContent=s.label;function animBar(){const elapsed=Date.now()-t0,prog=Math.min(elapsed/s.delay,1);pct=start+(target-start)*prog;fill.style.width=pct+'%';if(prog<1)requestAnimationFrame(animBar);else setTimeout(nextStep,80);}requestAnimationFrame(animBar);}
   setTimeout(nextStep,600);
-  function entrar(){
-    if(!ready)return;initAudio();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();sfx_botao();
-    el.style.transition='opacity .6s';el.style.opacity='0';
-    setTimeout(()=>{el.style.display='none';document.getElementById('tela-titulo').style.display='flex';iniciarAnimTitulo();
-      setTimeout(()=>{if(audioCtx){[110,138,165,220,277,330].forEach((f,i)=>playTone(f,'sine',1.2,.055,.1,.8,i*.14));makeNoise(1.0,300,.04,'lowpass',.3);}},100);},650);
-    document.removeEventListener('keydown',entrar);document.removeEventListener('click',entrar);
-  }
+  function entrar(){if(!ready)return;initAudio();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();sfx_botao();el.style.transition='opacity .6s';el.style.opacity='0';setTimeout(()=>{el.style.display='none';document.getElementById('tela-titulo').style.display='flex';iniciarAnimTitulo();setTimeout(()=>{if(audioCtx){[110,138,165,220,277,330].forEach((f,i)=>playTone(f,'sine',1.2,.055,.1,.8,i*.14));makeNoise(1.0,300,.04,'lowpass',.3);}},100);},650);document.removeEventListener('keydown',entrar);document.removeEventListener('click',entrar);}
   document.addEventListener('keydown',entrar);document.addEventListener('click',entrar);
 })();
 
@@ -614,89 +452,30 @@ function gerarMapa(){
   mapa=[];
   function noise(x,y,sc=1){return Math.sin(x*sc*.18+y*.13)*Math.cos(y*sc*.2-x*.11)+Math.sin((x+y)*sc*.09)*.5;}
   function noise2(x,y,sc=1){return Math.cos(x*sc*.22-y*.15)*Math.sin(y*sc*.19+x*.08)*.5+.5;}
-  for(let y=0;y<MAPA_H;y++){
-    mapa[y]=[];
-    for(let x=0;x<MAPA_W;x++){
-      const n=noise(x,y),n2=noise(x,y,2.5),n3=noise2(x,y,1.8);
-      let tipo;
-      if(n<-.45)tipo=T.AGUA;else if(n<-.3)tipo=n3>.6?T.LIRIO:T.TERRA;
-      else if(n<-.05)tipo=n3>.7?T.PANTANO:T.CLAREIRA;
-      else if(n<.3)tipo=T.FLORESTA;else if(n<.48)tipo=n3>.6?T.BAMBU_DENSO:T.BAMBU;
-      else if(n<.65)tipo=T.FLORESTA;else tipo=n3>.6?T.PENHASCO:T.PEDRA;
-      if(n2>0.65&&tipo!==T.AGUA)tipo=T.FRUTAS;
-      if(n2<-0.68&&tipo===T.FLORESTA)tipo=T.COGUMELO;
-      if(n3>0.78&&tipo===T.PANTANO)tipo=T.PANTANO;
-      mapa[y][x]={tipo,n,n2,n3,v:Math.random(),anim:Math.random()*Math.PI*2,vis:false,armadilha:false};
-    }
-  }
-  // Rios
-  for(let r=0;r<8;r++){
-    let rx=4+Math.floor(Math.random()*(MAPA_W-8)),ry=3+Math.floor(Math.random()*(MAPA_H-6));
-    const len=14+Math.floor(Math.random()*24),h=Math.random()>.5;
-    for(let i=0;i<len;i++){
-      if(rx>=0&&rx<MAPA_W&&ry>=0&&ry<MAPA_H){mapa[ry][rx].tipo=T.AGUA;[[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy])=>{const nx2=rx+dx,ny2=ry+dy;if(nx2>=0&&nx2<MAPA_W&&ny2>=0&&ny2<MAPA_H&&mapa[ny2][nx2].tipo!==T.AGUA)mapa[ny2][nx2].tipo=T.TERRA;});}
-      if(h){rx++;if(Math.random()<.4)ry+=Math.random()>.5?1:-1;}else{ry++;if(Math.random()<.4)rx+=Math.random()>.5?1:-1;}
-    }
-  }
-  // Montanhas e pedras
+  for(let y=0;y<MAPA_H;y++){mapa[y]=[];for(let x=0;x<MAPA_W;x++){const n=noise(x,y),n2=noise(x,y,2.5),n3=noise2(x,y,1.8);let tipo;if(n<-.45)tipo=T.AGUA;else if(n<-.3)tipo=n3>.6?T.LIRIO:T.TERRA;else if(n<-.05)tipo=n3>.7?T.PANTANO:T.CLAREIRA;else if(n<.3)tipo=T.FLORESTA;else if(n<.48)tipo=n3>.6?T.BAMBU_DENSO:T.BAMBU;else if(n<.65)tipo=T.FLORESTA;else tipo=n3>.6?T.PENHASCO:T.PEDRA;if(n2>0.65&&tipo!==T.AGUA)tipo=T.FRUTAS;if(n2<-0.68&&tipo===T.FLORESTA)tipo=T.COGUMELO;mapa[y][x]={tipo,n,n2,n3,v:Math.random(),anim:Math.random()*Math.PI*2,vis:false,armadilha:false};}}
+  for(let r=0;r<8;r++){let rx=4+Math.floor(Math.random()*(MAPA_W-8)),ry=3+Math.floor(Math.random()*(MAPA_H-6));const len=14+Math.floor(Math.random()*24),h=Math.random()>.5;for(let i=0;i<len;i++){if(rx>=0&&rx<MAPA_W&&ry>=0&&ry<MAPA_H){mapa[ry][rx].tipo=T.AGUA;[[-1,0],[1,0],[0,-1],[0,1]].forEach(([dx,dy])=>{const nx2=rx+dx,ny2=ry+dy;if(nx2>=0&&nx2<MAPA_W&&ny2>=0&&ny2<MAPA_H&&mapa[ny2][nx2].tipo!==T.AGUA)mapa[ny2][nx2].tipo=T.TERRA;});}if(h){rx++;if(Math.random()<.4)ry+=Math.random()>.5?1:-1;}else{ry++;if(Math.random()<.4)rx+=Math.random()>.5?1:-1;}}}
   for(let g=0;g<14;g++){const cx=4+Math.floor(Math.random()*(MAPA_W-8)),cy=4+Math.floor(Math.random()*(MAPA_H-8)),sz=2+Math.floor(Math.random()*3),pen=Math.random()<.3;for(let dy=-sz;dy<=sz;dy++)for(let dx=-sz;dx<=sz;dx++){if(Math.random()<.5&&cx+dx>=0&&cx+dx<MAPA_W&&cy+dy>=0&&cy+dy<MAPA_H)if(mapa[cy+dy][cx+dx].tipo!==T.AGUA)mapa[cy+dy][cx+dx].tipo=pen?T.PENHASCO:T.PEDRA;}}
-  // Grutas
   for(let g=0;g<4;g++){const gx=6+Math.floor(Math.random()*(MAPA_W-12)),gy=6+Math.floor(Math.random()*(MAPA_H-12));if(mapa[gy][gx].tipo===T.PEDRA||mapa[gy][gx].tipo===T.PENHASCO)mapa[gy][gx].tipo=T.GRUTA;}
-  // Abrigos
   for(let i=0;i<8;i++){const ax=5+Math.floor(Math.random()*(MAPA_W-10)),ay=5+Math.floor(Math.random()*(MAPA_H-10));if(mapa[ay][ax].tipo!==T.AGUA&&mapa[ay][ax].tipo!==T.PEDRA&&mapa[ay][ax].tipo!==T.PENHASCO){mapa[ay][ax].tipo=T.ABRIGO;for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){if(mapa[ay+dy]?.[ax+dx]&&(mapa[ay+dy][ax+dx].tipo===T.FLORESTA||mapa[ay+dy][ax+dx].tipo===T.BAMBU))mapa[ay+dy][ax+dx].tipo=T.CLAREIRA;}}}
-  // Fogueira central
   const mx=Math.floor(MAPA_W/2),my=Math.floor(MAPA_H/2);
   for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++)if(mapa[my+dy]?.[mx+dx]&&mapa[my+dy][mx+dx].tipo!==T.AGUA)mapa[my+dy][mx+dx].tipo=T.CLAREIRA;
   mapa[my][mx].tipo=T.FOGO;
 }
-
 function gerarItens(){
   itens=[];
-  const tipos=[
-    {tipo:'fruta',emoji:'🍊',nome:'Fruta Silvestre',ef:'fome',val:28},
-    {tipo:'erva',emoji:'🌿',nome:'Erva Medicinal',ef:'vida',val:22},
-    {tipo:'pedra',emoji:'🪨',nome:'Pederneira',ef:'fogo',val:0},
-    {tipo:'cana',emoji:'🎋',nome:'Bambu',ef:'constr',val:0},
-    {tipo:'agua',emoji:'💧',nome:'Água Limpa',ef:'sede',val:38},
-    {tipo:'cogumelo',emoji:'🍄',nome:'Cogumelo Misterioso',ef:'misterio',val:0},
-    {tipo:'mel',emoji:'🍯',nome:'Mel Silvestre',ef:'fome_vida',val:20,raro:true},
-    {tipo:'raiz',emoji:'🌱',nome:'Raiz Nutritiva',ef:'fome',val:18},
-    {tipo:'peixe',emoji:'🐟',nome:'Peixe Seco',ef:'fome_sede',val:35,raro:true},
-    {tipo:'oleo',emoji:'🫙',nome:'Óleo de Babaçu',ef:'lanterna',val:40,raro:true},
-    {tipo:'banana',emoji:'🍌',nome:'Cacho de Banana',ef:'fome',val:24},
-    {tipo:'noz',emoji:'🥜',nome:'Castanha-do-Pará',ef:'fome_vida',val:16},
-    {tipo:'erva2',emoji:'🌿',nome:'Erva Medicinal',ef:'vida',val:18},
-  ];
-  for(let i=0;i<150;i++){
-    const t=tipos[Math.floor(Math.random()*tipos.length)];
-    itens.push({...t,x:2+Math.random()*(MAPA_W-4),y:2+Math.random()*(MAPA_H-4),id:i,ph:Math.random()*Math.PI*2});
-  }
+  const tipos=[{tipo:'fruta',emoji:'🍊',nome:'Fruta Silvestre',ef:'fome',val:28},{tipo:'erva',emoji:'🌿',nome:'Erva Medicinal',ef:'vida',val:22},{tipo:'pedra',emoji:'🪨',nome:'Pederneira',ef:'fogo',val:0},{tipo:'cana',emoji:'🎋',nome:'Bambu',ef:'constr',val:0},{tipo:'agua',emoji:'💧',nome:'Água Limpa',ef:'sede',val:38},{tipo:'cogumelo',emoji:'🍄',nome:'Cogumelo Misterioso',ef:'misterio',val:0},{tipo:'mel',emoji:'🍯',nome:'Mel Silvestre',ef:'fome_vida',val:20,raro:true},{tipo:'raiz',emoji:'🌱',nome:'Raiz Nutritiva',ef:'fome',val:18},{tipo:'peixe',emoji:'🐟',nome:'Peixe Seco',ef:'fome_sede',val:35,raro:true},{tipo:'oleo',emoji:'🫙',nome:'Óleo de Babaçu',ef:'lanterna',val:40,raro:true},{tipo:'banana',emoji:'🍌',nome:'Cacho de Banana',ef:'fome',val:24},{tipo:'noz',emoji:'🥜',nome:'Castanha-do-Pará',ef:'fome_vida',val:16}];
+  for(let i=0;i<150;i++){const t=tipos[Math.floor(Math.random()*tipos.length)];itens.push({...t,x:2+Math.random()*(MAPA_W-4),y:2+Math.random()*(MAPA_H-4),id:i,ph:Math.random()*Math.PI*2});}
 }
-
 function gerarEntidades(){
   entidades=[];
   LENDAS.forEach((l,i)=>{entidades.push({lenda:i,x:8+Math.random()*(MAPA_W-16),y:8+Math.random()*(MAPA_H-16),vx:(Math.random()-.5)*.022,vy:(Math.random()-.5)*.022,raio:3.8+Math.random()*1.8,fase:Math.random()*Math.PI*2,trail:[]});});
 }
-
 function gerarInimigos(){
   inimigos=[];
-  INIMIGO_DEF.forEach(def=>{
-    const n=def.tipo==='cobra'?8:def.tipo==='aranha'?6:def.tipo==='piranha'?5:3;
-    for(let i=0;i<n;i++){
-      inimigos.push({...def,x:5+Math.random()*(MAPA_W-10),y:5+Math.random()*(MAPA_H-10),vidaAtual:def.vida,vx:0,vy:0,fase:Math.random()*Math.PI*2,alertado:false,atqCD:0,morto:false});
-    }
-  });
+  INIMIGO_DEF.forEach(def=>{const n=def.tipo==='cobra'?8:def.tipo==='aranha'?6:def.tipo==='piranha'?5:3;for(let i=0;i<n;i++){inimigos.push({...def,x:5+Math.random()*(MAPA_W-10),y:5+Math.random()*(MAPA_H-10),vidaAtual:def.vida,vx:0,vy:0,fase:Math.random()*Math.PI*2,alertado:false,atqCD:0,morto:false});}});
 }
-
-function gerarVagalumes(){
-  vagalumes=[];
-  for(let i=0;i<90;i++)vagalumes.push({x:Math.random()*MAPA_W,y:Math.random()*MAPA_H,vx:(Math.random()-.5)*.004,vy:-Math.random()*.007-.001,vida:Math.random(),maxVida:.5+Math.random()*1.8,sz:1+Math.random()*2.5,ph:Math.random()*Math.PI*2,tipo:Math.random()<.65?'vaga':'esporo'});
-}
-
-function gerarChuva(){
-  chuva=[];
-  for(let i=0;i<280;i++)chuva.push({x:Math.random(),y:Math.random(),vy:.005+Math.random()*.008,op:.15+Math.random()*.4,vx:-.0015});
-}
+function gerarVagalumes(){vagalumes=[];for(let i=0;i<90;i++)vagalumes.push({x:Math.random()*MAPA_W,y:Math.random()*MAPA_H,vx:(Math.random()-.5)*.004,vy:-Math.random()*.007-.001,vida:Math.random(),maxVida:.5+Math.random()*1.8,sz:1+Math.random()*2.5,ph:Math.random()*Math.PI*2,tipo:Math.random()<.65?'vaga':'esporo'});}
+function gerarChuva(){chuva=[];for(let i=0;i<280;i++)chuva.push({x:Math.random(),y:Math.random(),vy:.005+Math.random()*.008,op:.15+Math.random()*.4,vx:-.0015});}
 
 // ══════════════════════════════════════════════════════════════
 //  INICIAR / REINICIAR
@@ -722,7 +501,7 @@ function iniciarJogo(){
   tocha.ativa=false;tocha.duracao=0;
   tempo=0;diaNum=1;perIdx=1;legendasVistas=new Set();conquistasObtidas=new Set();
   tsAnt=performance.now();clima='limpo';climaTmp=0;climaDur=80+Math.random()*120;
-  GP.sel=0;mouseX=cv.width/2;mouseY=cv.height/2;particles=[];diario=[];
+  GP.sel=0;GP.craftSel=0;mouseX=cv.width/2;mouseY=cv.height/2;particles=[];diario=[];
   document.onkeydown=e=>{
     teclas[e.code]=true;
     if(e.code==='KeyE'||e.code==='Enter'){if(document.getElementById('modal-lenda').classList.contains('aberto'))fecharLenda();else if(document.getElementById('painel-craft').classList.contains('aberto'))fecharCraft();else if(document.getElementById('painel-diario').classList.contains('aberto'))fecharDiario();else ativarAcaoSel();}
@@ -732,18 +511,16 @@ function iniciarJogo(){
     e.preventDefault();
   };
   document.onkeyup=e=>{teclas[e.code]=false;};
-  cv.onmousemove=e=>{
-    mouseX=e.clientX;mouseY=e.clientY;lanterna.angulo=Math.atan2(e.clientY-cv.height/2,e.clientX-cv.width/2);
-    const a=lanterna.angulo;if(a>-Math.PI/4&&a<Math.PI/4)E.dir='L';else if(a>=Math.PI/4&&a<3*Math.PI/4)E.dir='S';else if(a>=-3*Math.PI/4&&a<-Math.PI/4)E.dir='N';else E.dir='O';
-  };
-  atualizarAcoes();msg("Você acorda na floresta amazônica. O ar é denso, quente, e cheio de sons desconhecidos.");
+  cv.onmousemove=e=>{mouseX=e.clientX;mouseY=e.clientY;lanterna.angulo=Math.atan2(e.clientY-cv.height/2,e.clientX-cv.width/2);const a=lanterna.angulo;if(a>-Math.PI/4&&a<Math.PI/4)E.dir='L';else if(a>=Math.PI/4&&a<3*Math.PI/4)E.dir='S';else if(a>=-3*Math.PI/4&&a<-Math.PI/4)E.dir='N';else E.dir='O';};
+  atualizarAcoes();
+  msg("Você acorda na floresta amazônica. O ar é denso, quente, e cheio de sons desconhecidos.");
   addDiario("Acordei. Floresta. Não sei como cheguei aqui. O calor é abafante e ouço algo — insetos, pássaros, rios. Preciso encontrar comida, água, abrigo.");
   animID=requestAnimationFrame(loop);
 }
-function reiniciar(){document.getElementById('tela-fim').classList.remove('aberto');cancelAnimationFrame(animID);stopAmbience();setTimeout(iniciarJogo,100);}
+function reiniciar(){document.getElementById('tela-fim').classList.remove('aberto');cancelAnimationFrame(animID);stopAmbience();if(lendaBgAnim){cancelAnimationFrame(lendaBgAnim);lendaBgAnim=null;}setTimeout(iniciarJogo,100);}
 
 // ══════════════════════════════════════════════════════════════
-//  LOOP PRINCIPAL
+//  LOOP
 // ══════════════════════════════════════════════════════════════
 function loop(ts){
   const dt=Math.min((ts-tsAnt)/1000,.08);tsAnt=ts;tempo+=dt;
@@ -761,14 +538,14 @@ function loop(ts){
 }
 
 // ══════════════════════════════════════════════════════════════
-//  LANTERNA / TOCHA
+//  LANTERNA
 // ══════════════════════════════════════════════════════════════
 function toggleLanterna(){
   if(tocha.ativa){tocha.ativa=false;sfx_lanterna_off();msg("🔦 Tocha apagada.");return;}
-  if(E.inv.some(i=>i.nome==='Tocha')){tocha.ativa=!tocha.ativa;if(tocha.ativa){sfx_fogueira();msg("🔥 Tocha acesa! Iluminação quente e natural.");}else{sfx_lanterna_off();msg("🔥 Tocha apagada.");}return;}
-  if(lanterna.nivel<=0){msg("⚠ Lanterna sem combustível! Procure Óleo de Babaçu.");sfx_botao();return;}
+  if(E.inv.some(i=>i.nome==='Tocha')){tocha.ativa=!tocha.ativa;if(tocha.ativa){sfx_fogueira();msg("🔥 Tocha acesa!");}else{sfx_lanterna_off();msg("🔥 Tocha apagada.");}return;}
+  if(lanterna.nivel<=0){msg("⚠ Lanterna sem combustível!");sfx_botao();return;}
   lanterna.ativa=!lanterna.ativa;
-  if(lanterna.ativa){sfx_lanterna_on();msg("🔦 Lanterna acesa. O cone de luz corta a escuridão.");}else{sfx_lanterna_off();msg("🔦 Lanterna apagada. Conserve combustível.");}
+  if(lanterna.ativa){sfx_lanterna_on();msg("🔦 Lanterna acesa.");}else{sfx_lanterna_off();msg("🔦 Lanterna apagada.");}
 }
 function atualizarLanterna(dt){
   const noite=perIdx===0||perIdx===4;
@@ -780,7 +557,6 @@ function atualizarLanterna(dt){
   const base=E.temFogo?195:tocha.ativa?160:lanterna.raioBase;
   const alvo=lanterna.ativa&&noite?lanterna.raioMax*(1+lanterna.flickAmp*.07)*(lanterna.nivel/100*.35+.65):tocha.ativa&&noite?lanterna.raioMax*.75:base;
   lanterna.raioAtual+=(alvo-lanterna.raioAtual)*dt*5.5;
-  if(GP.connected){const ax=gpA(2),ay=gpA(3);if(Math.abs(ax)>.3||Math.abs(ay)>.3)lanterna.angulo=Math.atan2(ay,ax);}
   const eEl=document.getElementById('lant-estado'),fEl=document.getElementById('lant-fill');
   if(eEl){eEl.textContent=tocha.ativa?'TOCHA':lanterna.ativa?'LIGADA':'DESLIGADA';eEl.style.color=tocha.ativa?'#ff8800':lanterna.ativa?'#ffe066':'#555';}
   if(fEl){fEl.style.width=tocha.ativa?Math.max(0,tocha.duracao/180*100)+'%':lanterna.nivel+'%';fEl.style.background=tocha.ativa?'linear-gradient(90deg,#cc5500,#ff8800)':lanterna.nivel>50?'linear-gradient(90deg,#cc8800,#ffe066)':lanterna.nivel>20?'linear-gradient(90deg,#aa5500,#ff9900)':'linear-gradient(90deg,#880000,#ff2200)';}
@@ -794,17 +570,6 @@ function atualizarParticles(dt){particles=particles.filter(p=>{p.vida-=dt;p.x+=p
 function addParticle(wx,wy,cor,n=6){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,spd=.5+Math.random()*2;particles.push({x:wx,y:wy,vx:Math.cos(a)*spd,vy:Math.sin(a)*spd,vida:.4+Math.random()*.5,cor,sz:1.5+Math.random()*2.5});}}
 
 // ══════════════════════════════════════════════════════════════
-//  GAMEPAD UI
-// ══════════════════════════════════════════════════════════════
-function processGPUI(){
-  if(!GP.connected)return;
-  if(document.getElementById('modal-lenda').classList.contains('aberto')){if(gpP(0)||gpP(1))fecharLenda();return;}
-  if(document.getElementById('tela-fim').classList.contains('aberto')){if(gpP(0)||gpP(9))reiniciar();return;}
-  if(gpP(4)||gpP(14))navAcoes(-1);if(gpP(5)||gpP(15))navAcoes(1);
-  if(gpP(0))ativarAcaoSel();if(gpP(3))verInv();if(gpP(1))verLendas();if(gpP(2))toggleLanterna();if(gpP(9))abrirCraft();
-}
-
-// ══════════════════════════════════════════════════════════════
 //  MOVIMENTO
 // ══════════════════════════════════════════════════════════════
 function moverJogador(dt){
@@ -814,7 +579,9 @@ function moverJogador(dt){
   let dx=0,dy=0;
   if(teclas['ArrowLeft']||teclas['KeyA'])dx-=1;if(teclas['ArrowRight']||teclas['KeyD'])dx+=1;
   if(teclas['ArrowUp']||teclas['KeyW'])dy-=1;if(teclas['ArrowDown']||teclas['KeyS'])dy+=1;
-  dx+=gpA(0);dy+=gpA(1);if(gpH(12))dy-=1;if(gpH(13))dy+=1;if(gpH(14))dx-=1;if(gpH(15))dx+=1;
+  dx+=gpA(0);dy+=gpA(1);
+  // D-pad também move
+  if(gpH(12))dy-=1;if(gpH(13))dy+=1;if(gpH(14))dx-=1;if(gpH(15))dx+=1;
   E.xAnt=E.x;E.yAnt=E.y;
   if(dx!==0||dy!==0){
     const mag=Math.sqrt(dx*dx+dy*dy);dx=(dx/mag)*vel;dy=(dy/mag)*vel;
@@ -823,30 +590,23 @@ function moverJogador(dt){
     const tile=mapa[Math.floor(ny)]?.[Math.floor(nx)];
     if(tile&&tile.tipo!==T.PEDRA&&tile.tipo!==T.PENHASCO){
       const eraAgua=tile.tipo===T.AGUA||tile.tipo===T.LIRIO;
-      if(eraAgua&&!E.jangada){
-        // Atravessar agua – mais lento
-        E.x=Math.max(.6,Math.min(MAPA_W-1.6,E.x+dx*.55));E.y=Math.max(.6,Math.min(MAPA_H-1.6,E.y+dy*.55));
-        E.sede=Math.min(100,E.sede+.55);E.temperatura=Math.max(34,E.temperatura-.05);
-      }else{E.x=nx;E.y=ny;}
+      if(eraAgua&&!E.jangada){E.x=Math.max(.6,Math.min(MAPA_W-1.6,E.x+dx*.55));E.y=Math.max(.6,Math.min(MAPA_H-1.6,E.y+dy*.55));E.sede=Math.min(100,E.sede+.55);E.temperatura=Math.max(34,E.temperatura-.05);}
+      else{E.x=nx;E.y=ny;}
       E.passos++;tile.vis=true;sfxPassoT(tile);
       if(E.passos%55===0){E.fome=Math.max(0,E.fome-1.5);E.sede=Math.max(0,E.sede-2.0);E.energia=Math.max(0,E.energia-.8);}
-      if(tile.tipo===T.FRUTAS&&Math.random()<.007){E.fome=Math.min(100,E.fome+5);msg("Você encontra frutos caídos e come alguns.");}
-      if(tile.tipo===T.PANTANO){E.energia=Math.max(0,E.energia-dt*1.5);if(Math.random()<.003)msg("⚠ O pântano drena suas forças. Cheira a podridão e gases.");}
-      if(tile.tipo===T.GRUTA){E.sanidade=Math.max(0,E.sanidade-dt*.8);if(Math.random()<.006)msg("👁 Uma presença estranha observa de dentro da gruta...");}
-      // Armadilha colocada
-      if(tile.armadilha&&Math.random()<.3){tile.armadilha=false;E.inv.push({nome:'Peixe Seco',emoji:'🐟',ef:'fome_sede',val:35});sfx_coletar();toast("🪤 Armadilha capturou um animal!");addDiario("Minha armadilha deu resultado. Um pequeno animal. Comi bem hoje.");}
+      if(tile.tipo===T.FRUTAS&&Math.random()<.007){E.fome=Math.min(100,E.fome+5);}
+      if(tile.tipo===T.PANTANO){E.energia=Math.max(0,E.energia-dt*1.5);}
+      if(tile.tipo===T.GRUTA){E.sanidade=Math.max(0,E.sanidade-dt*.8);}
+      if(tile.armadilha&&Math.random()<.3){tile.armadilha=false;E.inv.push({nome:'Peixe Seco',emoji:'🐟',ef:'fome_sede',val:35});sfx_coletar();toast("🪤 Armadilha capturou um animal!");}
     }
   }
   E.vx=(E.x-E.xAnt)/Math.max(dt,.001);E.vy=(E.y-E.yAnt)/Math.max(dt,.001);
 }
 
-function navAcoes(dir){const bs=document.querySelectorAll('.btn-ac');if(!bs.length)return;GP.sel=(GP.sel+dir+bs.length)%bs.length;bs.forEach((b,i)=>b.classList.toggle('sel',i===GP.sel));sfx_botao();}
-function ativarAcaoSel(){const bs=document.querySelectorAll('.btn-ac');if(bs[GP.sel])bs[GP.sel].click();}
-
 // ══════════════════════════════════════════════════════════════
-//  ENTIDADES (lendas)
+//  ENTIDADES
 // ══════════════════════════════════════════════════════════════
-function moverEntidades(dt){entidades.forEach(e=>{e.trail.push({x:e.x,y:e.y});if(e.trail.length>14)e.trail.shift();e.x+=e.vx;e.y+=e.vy;if(e.x<2||e.x>MAPA_W-2)e.vx*=-1;if(e.y<2||e.y>MAPA_H-2)e.vy*=-1;if(Math.random()<.008){e.vx=(Math.random()-.5)*.03;e.vy=(Math.random()-.5)*.03;}e.fase=(e.fase+dt*2)%(Math.PI*2);});}
+function moverEntidades(dt){entidades.forEach(e=>{e.trail.push({x:e.x,y:e.y});if(e.trail.length>18)e.trail.shift();e.x+=e.vx;e.y+=e.vy;if(e.x<2||e.x>MAPA_W-2)e.vx*=-1;if(e.y<2||e.y>MAPA_H-2)e.vy*=-1;if(Math.random()<.008){e.vx=(Math.random()-.5)*.03;e.vy=(Math.random()-.5)*.03;}e.fase=(e.fase+dt*2)%(Math.PI*2);});}
 
 // ══════════════════════════════════════════════════════════════
 //  INIMIGOS
@@ -856,56 +616,41 @@ function moverInimigos(dt){
     if(ini.morto)return;
     const dist=Math.hypot(ini.x-E.x,ini.y-E.y);
     const tile=mapa[Math.floor(ini.y)]?.[Math.floor(ini.x)];
-    // Piranhas só na água
-    if(ini.agua){if(!tile||tile.tipo!==T.AGUA){ini.vx=(Math.random()-.5)*.02;ini.vy=(Math.random()-.5)*.02;}else if(dist<ini.raio*3){ini.alertado=true;}}
-    else if(dist<ini.raio*2.5&&!E.repelente){ini.alertado=true;}
-    else if(dist>ini.raio*8){ini.alertado=false;}
-    if(ini.alertado&&!E.repelente){
-      const ang=Math.atan2(E.y-ini.y,E.x-ini.x);ini.vx=Math.cos(ang)*ini.vel;ini.vy=Math.sin(ang)*ini.vel;
-      const av=document.getElementById('aviso-inimigo');av.textContent='⚠ '+ini.nome.toUpperCase()+' SE APROXIMA!';av.classList.add('ativo');setTimeout(()=>av.classList.remove('ativo'),2500);
-    }else{ini.vx=(Math.random()-.5)*.008;ini.vy=(Math.random()-.5)*.008;}
+    if(ini.agua){if(!tile||tile.tipo!==T.AGUA){ini.vx=(Math.random()-.5)*.02;ini.vy=(Math.random()-.5)*.02;}else if(dist<ini.raio*3)ini.alertado=true;}
+    else if(dist<ini.raio*2.5&&!E.repelente)ini.alertado=true;
+    else if(dist>ini.raio*8)ini.alertado=false;
+    if(ini.alertado&&!E.repelente){const ang=Math.atan2(E.y-ini.y,E.x-ini.x);ini.vx=Math.cos(ang)*ini.vel;ini.vy=Math.sin(ang)*ini.vel;const av=document.getElementById('aviso-inimigo');av.textContent='⚠ '+ini.nome.toUpperCase()+' SE APROXIMA!';av.classList.add('ativo');setTimeout(()=>av.classList.remove('ativo'),2500);}
+    else{ini.vx=(Math.random()-.5)*.008;ini.vy=(Math.random()-.5)*.008;}
     ini.x=Math.max(.5,Math.min(MAPA_W-.5,ini.x+ini.vx));ini.y=Math.max(.5,Math.min(MAPA_H-.5,ini.y+ini.vy));
     ini.fase=(ini.fase+dt*2)%(Math.PI*2);ini.atqCD=Math.max(0,ini.atqCD-dt);
   });
 }
-
 function verificarInimigos(dt){
   inimigos.forEach(ini=>{
     if(ini.morto)return;
     const dist=Math.hypot(ini.x-E.x,ini.y-E.y);
     if(dist<ini.dist&&ini.atqCD<=0){
-      ini.atqCD=2.2;
-      let dmg=ini.dano;
+      ini.atqCD=2.2;let dmg=ini.dano;
       if(E.arma==='arma_machado')dmg=Math.max(0,dmg-18);
       if(E.arma==='arma_faca')dmg=Math.max(0,dmg-10);
-      dano(dmg);
-      if(ini.veneno&&!E.veneno&&Math.random()<.55){E.veneno=true;msg("🐍 "+ini.nome+" te picou! VENENO! Use Antídoto rapidamente.");}
-      else msg("⚔ "+ini.nome+" te atacou! -"+dmg+" de vida.");
+      dano(dmg);gpRumble(300,.6,.8);
+      if(ini.veneno&&!E.veneno&&Math.random()<.55){E.veneno=true;msg("🐍 "+ini.nome+" te picou! VENENO!");}
+      else msg("⚔ "+ini.nome+" te atacou! -"+dmg+"HP");
       if(ini.tipo==='cobra')sfx_cobra();else if(ini.tipo==='onca')sfx_onca();else sfx_dano();
-      // Contra-ataque
       const atqDmg=E.armaDano+(E.arma!=='mãos'?15:0);
       ini.vidaAtual-=atqDmg;
-      if(ini.vidaAtual<=0){
-        ini.morto=true;E.inimigosVencidos++;sfx_combate_hit();
-        addParticle(ini.x,ini.y,'#cc2200',12);
-        toast("⚔ "+ini.nome+" derrotado!");
-        addDiario("Combate com "+ini.nome+". Sobrevivi. Feridas no corpo mas de pé.");
-        if(ini.drop){E.inv.push({...ini.drop});sfx_coletar();}
-      }
+      if(ini.vidaAtual<=0){ini.morto=true;E.inimigosVencidos++;sfx_combate_hit();gpRumble(150,.3,.5);addParticle(ini.x,ini.y,'#cc2200',12);toast("⚔ "+ini.nome+" derrotado!");if(ini.drop){E.inv.push({...ini.drop});sfx_coletar();}}
     }
   });
 }
 
 // ══════════════════════════════════════════════════════════════
-//  COLISÕES COM ITENS / LENDAS
+//  COLISÕES
 // ══════════════════════════════════════════════════════════════
 function verificarCol(){
-  for(let i=itens.length-1;i>=0;i--){
-    if(Math.hypot(itens[i].x-E.x,itens[i].y-E.y)<.85){coletarItem(itens[i]);addParticle(itens[i].x,itens[i].y,'#00ff88',8);itens.splice(i,1);}
-  }
+  for(let i=itens.length-1;i>=0;i--){if(Math.hypot(itens[i].x-E.x,itens[i].y-E.y)<.85){coletarItem(itens[i]);addParticle(itens[i].x,itens[i].y,'#00ff88',8);itens.splice(i,1);}}
   entidades.forEach(ent=>{if(Math.hypot(ent.x-E.x,ent.y-E.y)<ent.raio&&!legendasVistas.has(ent.lenda)){legendasVistas.add(ent.lenda);E.lendas.push(ent.lenda);exibirLenda(ent.lenda,false,ent);}});
 }
-
 function coletarItem(item){
   toast(item.emoji+' '+item.nome);
   if(item.ef==='sede'||item.tipo==='agua')sfx_beber();else sfx_coletar();
@@ -915,22 +660,14 @@ function coletarItem(item){
     case 'sede':E.sede=Math.min(100,E.sede+item.val);break;
     case 'fome_vida':E.fome=Math.min(100,E.fome+item.val);E.vida=Math.min(100,E.vida+item.val);break;
     case 'fome_sede':E.fome=Math.min(100,E.fome+item.val);E.sede=Math.min(100,E.sede+item.val/2);break;
-    case 'constr':E.inv.push({nome:'Bambu',emoji:'🎋',tipo:'mat'});break;
-    case 'fogo':E.inv.push({nome:'Pederneira',emoji:'🪨',tipo:'ferr'});break;
-    case 'lanterna':lanterna.nivel=Math.min(100,lanterna.nivel+item.val);sfx_lanterna_on();msg("🫙 Óleo de Babaçu! +"+item.val+"% combustível.");break;
-    case 'misterio':
-      if(Math.random()<.5){E.vida=Math.min(100,E.vida+18);sfx_coletar();msg("O cogumelo era comestível! Energia renovada.");}
-      else if(!E.temFiltro){dano(22);E.veneno=true;msg("⚠ Cogumelo venenoso! Use Antídoto.");}
-      else msg("Filtro protegeu você do cogumelo venenoso.");
-      break;
-    default:
-      // Item vai para inventário de crafting
-      const ex=E.inv.find(i=>i.nome===item.nome);
-      if(ex)ex.qtd=(ex.qtd||1)+1;else E.inv.push({...item,qtd:1});
+    case 'constr':{const ex=E.inv.find(i=>i.nome==='Bambu');if(ex)ex.qtd=(ex.qtd||1)+1;else E.inv.push({nome:'Bambu',emoji:'🎋',tipo:'mat',qtd:1});break;}
+    case 'fogo':{const ex=E.inv.find(i=>i.nome==='Pederneira');if(ex)ex.qtd=(ex.qtd||1)+1;else E.inv.push({nome:'Pederneira',emoji:'🪨',tipo:'ferr',qtd:1});break;}
+    case 'lanterna':lanterna.nivel=Math.min(100,lanterna.nivel+item.val);sfx_lanterna_on();msg("🫙 Óleo de Babaçu! +"+item.val+"%");break;
+    case 'misterio':if(Math.random()<.5){E.vida=Math.min(100,E.vida+18);sfx_coletar();}else if(!E.temFiltro){dano(22);E.veneno=true;}break;
+    default:{const ex=E.inv.find(i=>i.nome===item.nome);if(ex)ex.qtd=(ex.qtd||1)+1;else E.inv.push({...item,qtd:1});}
   }
   atualizarAcoes();
 }
-
 function dano(qtd){
   E.vida=Math.max(0,E.vida-qtd);sfx_dano();
   const fl=document.getElementById('dmg-flash');fl.style.opacity='1';setTimeout(()=>fl.style.opacity='0',200);
@@ -942,64 +679,36 @@ function dano(qtd){
 function atualizarStats(dt){
   const mult=clima==='chuva'?1.25:1;
   E.fome=Math.max(0,E.fome-dt*.32*mult);E.sede=Math.max(0,E.sede-dt*.48*mult);
-  // Temperatura
   const noite=perIdx===0||perIdx===4;
   const tilePl=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
   const naAgua=tilePl&&(tilePl.tipo===T.AGUA||tilePl.tipo===T.LIRIO);
   const alvoTemp=E.temFogo?38:noite?34.5:naAgua?34:37;
   E.temperatura+=(alvoTemp-E.temperatura)*dt*.08;
-  // Sanidade
   if(noite&&!E.temAbrigo)E.sanidade=Math.max(0,E.sanidade-dt*.3);
   if(noite&&!lanterna.ativa&&!tocha.ativa&&!E.temFogo)E.sanidade=Math.max(0,E.sanidade-dt*.5);
   if(E.sanidade>50&&perIdx===1)E.sanidade=Math.min(100,E.sanidade+dt*.8);
   if(noite&&!E.temAbrigo){E.energia=Math.max(0,E.energia-dt*.55);if(Math.random()<.003)dano(6);}
-  // Veneno
-  if(E.veneno){E.venCD-=dt;if(E.venCD<=0){E.venCD=1.5;dano(8);msg("☠ O veneno corrói sua vitalidade...");}}
-  // Repelente
+  if(E.veneno){E.venCD-=dt;if(E.venCD<=0){E.venCD=1.5;dano(8);}}
   if(E.repelente>0)E.repelente-=dt;
-  // Mortes por necessidades
-  if(E.fome<12){E.vida=Math.max(0,E.vida-dt*.65);if(Math.random()<.005)msg("⚠ Fome crítica!");}
-  if(E.sede<12){E.vida=Math.max(0,E.vida-dt*1.1);if(Math.random()<.005)msg("⚠ Desidratação grave!");}
+  if(E.fome<12){E.vida=Math.max(0,E.vida-dt*.65);}
+  if(E.sede<12){E.vida=Math.max(0,E.vida-dt*1.1);}
   if(E.temperatura<35.5){E.vida=Math.max(0,E.vida-dt*.5);document.getElementById('overlay-frio').style.opacity=String(Math.min(.7,(35.5-E.temperatura)*.25));}
   else document.getElementById('overlay-frio').style.opacity='0';
-  if(E.veneno)document.getElementById('overlay-veneno').style.opacity='0.35';else document.getElementById('overlay-veneno').style.opacity='0';
-  if(E.sanidade<40){const s=(40-E.sanidade)/40;document.getElementById('overlay-sanidade').style.opacity=String(s*.5);document.getElementById('overlay-sanidade').style.background=`radial-gradient(ellipse at center,transparent 20%,rgba(${Math.floor(60*s)},0,${Math.floor(80*s)},${s*.6}) 100%)`;
-    if(Math.random()<.003)msg("👁 Você vê formas estranhas se movendo nas sombras...");}
+  document.getElementById('overlay-veneno').style.opacity=E.veneno?'0.35':'0';
+  if(E.sanidade<40){const s=(40-E.sanidade)/40;document.getElementById('overlay-sanidade').style.opacity=String(s*.5);document.getElementById('overlay-sanidade').style.background=`radial-gradient(ellipse at center,transparent 20%,rgba(${Math.floor(60*s)},0,${Math.floor(80*s)},${s*.6}) 100%)`;if(Math.random()<.003)msg("👁 Você vê formas estranhas nas sombras...");}
   else document.getElementById('overlay-sanidade').style.opacity='0';
   document.getElementById('overlay-morte').style.opacity=E.vida<28?String((28-E.vida)/28*.9):'0';
 }
-
 function atualizarDiaClima(dt){
   const durP=65,nP=Math.floor(tempo/durP)%PERIODOS.length,nD=Math.floor(tempo/(durP*PERIODOS.length))+1;
   if(nP!==perIdx||nD!==diaNum){
     const prevP=perIdx;perIdx=nP;diaNum=nD;E.diaNum=nD;
     document.getElementById('hora-txt').textContent=IPER[nP]+' Dia '+nD+' — '+PERIODOS[nP];
-    if(nP===4||nP===0){
-      sfx_noite();msg("🌙 A noite cai. Sons que não deveriam existir começam. Acenda a lanterna!");E.temAbrigo=false;
-      addDiario("A noite chegou. Escuridão total. Acendi a lanterna com mãos trêmulas.");
-      if(prevP!==0&&prevP!==4)E.noitesSobrevividas++;
-      if(Math.random()<.7){
-        const evts=[
-          {txt:"Um rugido profundo ecoa. O Mapinguari está acordado.",sfx:sfx_rugido},
-          {txt:"Um assobio agudo rasga a noite. Matinta Perera te observa.",sfx:sfx_assobio},
-          {txt:"O rio próximo brilha azul. Iara está cantando.",sfx:sfx_iara},
-          {txt:"Um cervo branco passa. Seus olhos queimam vermelho.",sfx:sfx_anhanga},
-        ];
-        const ev=evts[Math.floor(Math.random()*evts.length)];
-        setTimeout(()=>{msg(ev.txt);ev.sfx();},4000);E.energia=Math.max(0,E.energia-8);
-      }
-    }
-    if(nP===1){sfx_dia();msg("☀️ Um novo amanhecer. A luz dourada filtra pelas copas.");addDiario("Dia "+nD+". Sobrevivi mais uma noite. A floresta amanhece com sons de pássaros. Preciso continuar.");}
+    if(nP===4||nP===0){sfx_noite();msg("🌙 A noite cai. Sons que não deveriam existir começam.");E.temAbrigo=false;addDiario("A noite chegou. Acendi a lanterna com mãos trêmulas.");if(prevP!==0&&prevP!==4)E.noitesSobrevividas++;if(Math.random()<.7){const evts=[{txt:"Um rugido profundo ecoa. O Mapinguari está acordado.",sfx:sfx_mapinguari},{txt:"Um assobio agudo rasga a noite. Matinta Perera te observa.",sfx:sfx_matinta},{txt:"O rio próximo brilha azul. Iara está cantando.",sfx:sfx_iara},{txt:"Um cervo branco passa. Seus olhos queimam vermelho.",sfx:sfx_anhanga},{txt:"Chão treme. O Minhocão se move nos abismos.",sfx:sfx_minhocao},{txt:"Alguém senta em seu peito. A Pisadeira está próxima.",sfx:sfx_pisadeira}];const ev=evts[Math.floor(Math.random()*evts.length)];setTimeout(()=>{msg(ev.txt);ev.sfx();gpRumble(600,.3,.6);},4000);E.energia=Math.max(0,E.energia-8);}}
+    if(nP===1){sfx_dia();msg("☀️ Um novo amanhecer. A luz dourada filtra pelas copas.");addDiario("Dia "+nD+". Sobrevivi mais uma noite.");}
   }
-  // Clima
   climaTmp+=dt;
-  if(climaTmp>=climaDur){
-    climaTmp=0;climaDur=60+Math.random()*120;
-    const cls=['limpo','limpo','chuva','nevoeiro','chuva'];clima=cls[Math.floor(Math.random()*cls.length)];
-    if(clima==='chuva'){msg("🌧 Chuva tropical intensa.");sfx_chuva();gerarChuva();}
-    else if(clima==='nevoeiro')msg("🌫 Névoa densa envolve tudo.");
-    else msg("☀️ O tempo abre. A floresta resfria.");
-  }
+  if(climaTmp>=climaDur){climaTmp=0;climaDur=60+Math.random()*120;const cls=['limpo','limpo','chuva','nevoeiro','chuva'];clima=cls[Math.floor(Math.random()*cls.length)];if(clima==='chuva'){msg("🌧 Chuva tropical intensa.");sfx_chuva();gerarChuva();}else if(clima==='nevoeiro')msg("🌫 Névoa densa envolve tudo.");else msg("☀️ O tempo abre.");}
   if(clima==='chuva'){chuva.forEach(g=>{g.y+=g.vy;g.x+=g.vx;if(g.y>1.05){g.y=-0.05;g.x=Math.random();}});E.sede=Math.min(100,E.sede+dt*1.3);E.temperatura=Math.max(34,E.temperatura-dt*.3);}
 }
 
@@ -1007,11 +716,11 @@ function atualizarDiaClima(dt){
 //  CRAFTING
 // ══════════════════════════════════════════════════════════════
 function abrirCraft(){
-  if(E.dormindo)return;sfx_botao();
+  if(E.dormindo)return;sfx_botao();GP.craftSel=0;
   const grid=document.getElementById('craft-grid');grid.innerHTML='';
-  RECEITAS.forEach(rec=>{
+  RECEITAS.forEach((rec,idx)=>{
     const posso=podesCraftar(rec);
-    const div=document.createElement('div');div.className='craft-item'+(posso?'':' bloq');
+    const div=document.createElement('div');div.className='craft-item'+(posso?'':' bloq')+(idx===0?' gp-focus':'');
     div.innerHTML=`<div class="craft-item-nome">${rec.nome}</div><div class="craft-item-req">${Object.entries(rec.req).map(([n,q])=>`${n} ×${q}`).join(' + ')}</div><div class="craft-item-desc">${rec.desc}</div>`;
     if(posso)div.onclick=()=>{sfx_botao();executarCraft(rec);};
     grid.appendChild(div);
@@ -1019,51 +728,31 @@ function abrirCraft(){
   document.getElementById('painel-craft').classList.add('aberto');
 }
 function fecharCraft(){document.getElementById('painel-craft').classList.remove('aberto');sfx_botao();}
-function podesCraftar(rec){
-  return Object.entries(rec.req).every(([nome,qtd])=>{
-    const total=E.inv.filter(i=>i.nome===nome).reduce((s,i)=>(s+(i.qtd||1)),0);
-    return total>=qtd;
-  });
-}
+function podesCraftar(rec){return Object.entries(rec.req).every(([nome,qtd])=>{const total=E.inv.filter(i=>i.nome===nome).reduce((s,i)=>(s+(i.qtd||1)),0);return total>=qtd;});}
 function executarCraft(rec){
   if(!podesCraftar(rec)){msg("⚒ Materiais insuficientes.");return;}
-  Object.entries(rec.req).forEach(([nome,qtd])=>{
-    let restante=qtd;
-    for(let i=E.inv.length-1;i>=0&&restante>0;i--){
-      if(E.inv[i].nome===nome){const tomar=Math.min(restante,E.inv[i].qtd||1);if((E.inv[i].qtd||1)<=tomar)E.inv.splice(i,1);else E.inv[i].qtd-=tomar;restante-=tomar;}
-    }
-  });
+  Object.entries(rec.req).forEach(([nome,qtd])=>{let restante=qtd;for(let i=E.inv.length-1;i>=0&&restante>0;i--){if(E.inv[i].nome===nome){const tomar=Math.min(restante,E.inv[i].qtd||1);if((E.inv[i].qtd||1)<=tomar)E.inv.splice(i,1);else E.inv[i].qtd-=tomar;restante-=tomar;}}});
   sfx_craft();E.craftados.push(rec.id);
   switch(rec.ef){
-    case 'arma_machado':E.arma='arma_machado';E.armaDano=28;E.armaEmoji='🪓';msg("🪓 Machado construído! Você está mais seguro agora.");E.inv.push({nome:'Machado',emoji:'🪓',tipo:'arma'});break;
-    case 'arma_faca':E.arma='arma_faca';E.armaDano=18;E.armaEmoji='🔪';msg("🔪 Faca de bambu criada! Boa para defesa e pesca.");E.inv.push({nome:'Faca de Bambu',emoji:'🔪',tipo:'arma'});break;
-    case 'tocha':tocha.ativa=true;tocha.duracao=180;E.inv.push({nome:'Tocha',emoji:'🔥',tipo:'luz'});msg("🔥 Tocha acesa! 3 períodos de luz quente.");sfx_fogueira();break;
-    case 'filtro_agua':E.temFiltro=true;msg("🫙 Filtro d'água! Agora você pode beber de qualquer rio sem risco.");break;
-    case 'antidoto':E.veneno=false;E.vida=Math.min(100,E.vida+15);sfx_remedio();E.curas++;msg("💊 Antídoto aplicado. O veneno foi neutralizado. Ufa.");addDiario("Preparei um antídoto com ervas. Funcionou. A dor sumiu.");break;
-    case 'bandagem':E.vida=Math.min(100,E.vida+35);sfx_remedio();E.curas++;msg("🩹 Bandagem aplicada. +35 de vida.");break;
-    case 'abrigo_reforcado':E.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;msg("⛺ Abrigo reforçado construído! Proteção total.");sfx_conquista();addDiario("Construí um abrigo decente. Pela primeira vez, me sinto seguro aqui.");break;
-    case 'armadilha':
-      const tx=Math.round(E.x),ty=Math.round(E.y);if(mapa[ty]?.[tx])mapa[ty][tx].armadilha=true;
-      msg("🪤 Armadilha posicionada. Volte mais tarde para ver se capturou algo.");break;
-    case 'jangada':E.jangada=true;msg("🛶 Jangada de Bambu! Você pode atravessar rios agora.");addDiario("Construí uma jangada. Finalmente consigo explorar os rios sem medo.");break;
-    case 'repelente':E.repelente=300;msg("🌿 Repelente natural aplicado. Cobras e insetos evitarão você por um dia.");break;
+    case 'arma_machado':E.arma='arma_machado';E.armaDano=28;E.armaEmoji='🪓';msg("🪓 Machado construído!");E.inv.push({nome:'Machado',emoji:'🪓',tipo:'arma'});break;
+    case 'arma_faca':E.arma='arma_faca';E.armaDano=18;E.armaEmoji='🔪';msg("🔪 Faca de bambu criada!");E.inv.push({nome:'Faca de Bambu',emoji:'🔪',tipo:'arma'});break;
+    case 'tocha':tocha.ativa=true;tocha.duracao=180;E.inv.push({nome:'Tocha',emoji:'🔥',tipo:'luz'});msg("🔥 Tocha acesa!");sfx_fogueira();break;
+    case 'filtro_agua':E.temFiltro=true;msg("🫙 Filtro d'água criado!");break;
+    case 'antidoto':E.veneno=false;E.vida=Math.min(100,E.vida+15);sfx_remedio();E.curas++;msg("💊 Antídoto aplicado!");break;
+    case 'bandagem':E.vida=Math.min(100,E.vida+35);sfx_remedio();E.curas++;msg("🩹 Bandagem aplicada. +35HP");break;
+    case 'abrigo_reforcado':E.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;msg("⛺ Abrigo reforçado!");sfx_conquista();break;
+    case 'armadilha':const tx=Math.round(E.x),ty=Math.round(E.y);if(mapa[ty]?.[tx])mapa[ty][tx].armadilha=true;msg("🪤 Armadilha posicionada.");break;
+    case 'jangada':E.jangada=true;msg("🛶 Jangada de Bambu!");break;
+    case 'repelente':E.repelente=300;msg("🌿 Repelente aplicado!");break;
   }
-  fecharCraft();atualizarAcoes();toast("⚒ "+rec.nome+" fabricado!");
+  fecharCraft();atualizarAcoes();toast("⚒ "+rec.nome+" fabricado!");gpRumble(200,.2,.4);
 }
 
 // ══════════════════════════════════════════════════════════════
 //  DIÁRIO
 // ══════════════════════════════════════════════════════════════
-function addDiario(texto){
-  diario.unshift({ts:`Dia ${diaNum} · ${PERIODOS[perIdx]}`,texto});
-  if(diario.length>30)diario.pop();
-}
-function abrirDiario(){
-  sfx_botao();
-  const corpo=document.getElementById('diario-corpo');
-  corpo.innerHTML=diario.length===0?'<div class="entrada-diario">O diário está vazio. Explore a floresta.</div>':diario.map(e=>`<div class="entrada-diario"><span class="entrada-ts">${e.ts}</span>${e.texto}</div>`).join('');
-  document.getElementById('painel-diario').classList.add('aberto');
-}
+function addDiario(texto){diario.unshift({ts:`Dia ${diaNum} · ${PERIODOS[perIdx]}`,texto});if(diario.length>30)diario.pop();}
+function abrirDiario(){sfx_botao();const corpo=document.getElementById('diario-corpo');corpo.innerHTML=diario.length===0?'<div class="entrada-diario">O diário está vazio.</div>':diario.map(e=>`<div class="entrada-diario"><span class="entrada-ts">${e.ts}</span>${e.texto}</div>`).join('');document.getElementById('painel-diario').classList.add('aberto');}
 function fecharDiario(){document.getElementById('painel-diario').classList.remove('aberto');sfx_botao();}
 
 // ══════════════════════════════════════════════════════════════
@@ -1071,14 +760,7 @@ function fecharDiario(){document.getElementById('painel-diario').classList.remov
 // ══════════════════════════════════════════════════════════════
 let conquTmr=null;
 function verificarConquistas(){
-  CONQUISTAS_DEF.forEach(c=>{
-    if(!conquistasObtidas.has(c.id)&&c.check(E)){
-      conquistasObtidas.add(c.id);sfx_conquista();
-      const notif=document.getElementById('conquista-notif');
-      document.getElementById('conq-ico').textContent=c.emoji;document.getElementById('conq-nome').textContent=c.nome;
-      notif.classList.add('vis');clearTimeout(conquTmr);conquTmr=setTimeout(()=>notif.classList.remove('vis'),4000);
-    }
-  });
+  CONQUISTAS_DEF.forEach(c=>{if(!conquistasObtidas.has(c.id)&&c.check(E)){conquistasObtidas.add(c.id);sfx_conquista();gpRumble(400,.3,.6);const notif=document.getElementById('conquista-notif');document.getElementById('conq-ico').textContent=c.emoji;document.getElementById('conq-nome').textContent=c.nome;notif.classList.add('vis');clearTimeout(conquTmr);conquTmr=setTimeout(()=>notif.classList.remove('vis'),4000);}});
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1088,61 +770,133 @@ function atualizarAcoes(){
   const div=document.getElementById('acoes-wrap');div.innerHTML='';
   const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
   const noite=perIdx===0||perIdx===4;
-  const btn=(label,fn,classe='')=>{const b=document.createElement('button');b.className='btn-ac'+( classe?' '+classe:'');b.textContent=label;b.onclick=()=>{sfx_botao();fn();};div.appendChild(b);return b;};
+  const btn=(label,fn,classe='')=>{const b=document.createElement('button');b.className='btn-ac'+(classe?' '+classe:'');b.textContent=label;b.onclick=()=>{sfx_botao();fn();};div.appendChild(b);return b;};
   if(tile?.tipo===T.AGUA||tile?.tipo===T.LIRIO)btn('💧 Beber',beberAgua);
   if(tile?.tipo===T.FRUTAS||tile?.tipo===T.COGUMELO)btn('🍊 Colher',colherFrutas);
-  if(tile?.tipo===T.LIRIO)btn('🌸 Examinar',()=>msg("🌸 Lírios d'água. O rio está limpo aqui — beba com segurança."));
+  if(tile?.tipo===T.LIRIO)btn('🌸 Examinar',()=>msg("🌸 Lírios d'água. Rio limpo aqui."));
   if(tile?.tipo===T.ABRIGO)btn('🏕 Descansar',descansar);
   if(tile?.tipo===T.FOGO)btn('🔥 Fogueira',sentarFogueira);
   if(tile?.tipo===T.BAMBU||tile?.tipo===T.BAMBU_DENSO)btn('🎋 Cortar Bambu',cortarBambu);
-  if(tile?.tipo===T.PEDRA||tile?.tipo===T.PENHASCO)btn('🪨 Extrair Pedra',()=>{E.inv.push({nome:'Pederneira',emoji:'🪨',tipo:'ferr',qtd:1});sfx_coletar();msg("🪨 Pederneira coletada.");atualizarAcoes();});
+  if(tile?.tipo===T.PEDRA||tile?.tipo===T.PENHASCO)btn('🪨 Extrair Pedra',()=>{const ex=E.inv.find(i=>i.nome==='Pederneira');if(ex)ex.qtd=(ex.qtd||1)+1;else E.inv.push({nome:'Pederneira',emoji:'🪨',tipo:'ferr',qtd:1});sfx_coletar();msg("🪨 Pederneira coletada.");atualizarAcoes();});
   if(tile?.tipo===T.CLAREIRA||tile?.tipo===T.TERRA)btn('⛺ Montar Abrigo',montarAbrigo);
   if(tile?.tipo===T.GRUTA)btn('🕯 Explorar Gruta',explorarGruta);
-  if(tile?.tipo===T.PANTANO)btn('🌿 Coletar Plantas',()=>{E.inv.push({nome:'Erva Medicinal',emoji:'🌿',ef:'vida',val:22,qtd:1});sfx_coletar();msg("🌿 Erva Medicinal coletada no pântano.");atualizarAcoes();});
-  btn(noite?(lanterna.ativa||tocha.ativa?'🔦 Apagar [F]':'🔦 Acender [F]'):'🔦 Lanterna [F]',toggleLanterna,'',noite&&!lanterna.ativa&&!tocha.ativa?'dest':'');
-  btn('⚒ Crafting [C]',abrirCraft,'craft-btn');
+  if(tile?.tipo===T.PANTANO)btn('🌿 Coletar Plantas',()=>{const ex=E.inv.find(i=>i.nome==='Erva Medicinal');if(ex)ex.qtd=(ex.qtd||1)+1;else E.inv.push({nome:'Erva Medicinal',emoji:'🌿',ef:'vida',val:22,qtd:1});sfx_coletar();msg("🌿 Erva Medicinal coletada.");atualizarAcoes();});
+  btn(noite?(lanterna.ativa||tocha.ativa?'🔦 Apagar [F]':'🔦 Acender [F]'):'🔦 Lanterna [F]',toggleLanterna,noite&&!lanterna.ativa&&!tocha.ativa?'dest':'');
+  btn('⚒ Craft [C]',abrirCraft,'craft-btn');
   btn('📖 Diário [J]',abrirDiario);
   btn('📦 Inventário',verInv);
-  btn('🗺 Lendas ('+E.lendas.length+'/6)',verLendas);
-  if(E.veneno)btn('💊 Usar Antídoto',usarAntidoto,'peri');
+  btn('🗺 Lendas ('+E.lendas.length+'/10)',verLendas);
+  if(E.veneno)btn('💊 Antídoto',usarAntidoto,'peri');
   btn('😴 Dormir',tentarDormir,'peri');
-  const bs=document.querySelectorAll('.btn-ac');if(GP.sel>=bs.length)GP.sel=0;if(GP.connected)bs.forEach((b,i)=>b.classList.toggle('sel',i===GP.sel));
+  const bs=document.querySelectorAll('.btn-ac');if(GP.sel>=bs.length)GP.sel=0;atualizarGPRing();
 }
-
-function beberAgua(){if(E.temFiltro||!Math.random()<.28){sfx_beber();E.sede=Math.min(100,E.sede+45);msg("💧 Água fresca. Hidratação restaurada.");}else{dano(14);msg("⚠ Água contaminada! Construa um Filtro d'Água no Crafting.");}}
-function colherFrutas(){const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];if(tile?.tipo===T.COGUMELO){if(Math.random()<.5){sfx_coletar();E.vida=Math.min(100,E.vida+15);msg("O cogumelo era comestível e nutritivo!");}else if(!E.temFiltro){dano(18);E.veneno=true;msg("⚠ Cogumelo venenoso! Use Antídoto.");}}else{sfx_coletar();E.fome=Math.min(100,E.fome+32);msg("🍊 Frutas maduras! A doçura tropical revigorou você.");}}
-function descansar(){sfx_dormir();E.energia=Math.min(100,E.energia+55);E.sanidade=Math.min(100,E.sanidade+20);E.temAbrigo=true;tempo+=22;lanterna.nivel=Math.min(100,lanterna.nivel+15);msg("🏕 Você descansa no abrigo. Sons da floresta se tornam lullaby.");}
-function sentarFogueira(){sfx_fogueira();E.energia=Math.min(100,E.energia+22);E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+15);E.temFogo=true;E.temperatura=Math.min(40,E.temperatura+1.5);lanterna.nivel=Math.min(100,lanterna.nivel+10);msg("🔥 O calor da fogueira afasta os espíritos. Analisando materiais...");}
-function cortarBambu(){sfx_coletar();const qtd=1+Math.floor(Math.random()*2);const ex=E.inv.find(i=>i.nome==='Bambu');if(ex)ex.qtd=(ex.qtd||1)+qtd;else E.inv.push({nome:'Bambu',emoji:'🎋',tipo:'mat',qtd});msg("🎋 Cortou "+qtd+" cana(s) de bambu.");atualizarAcoes();}
-function montarAbrigo(){const bms=contarItem('Bambu');if(bms>=2){removerItem('Bambu',2);E.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx_conquista();msg("⛺ Abrigo construído! Proteção contra a noite.");toast('⛺ Abrigo construído!');}else msg("Você precisa de pelo menos 2 canas de bambu.");atualizarAcoes();}
-function tentarDormir(){if(!E.temAbrigo&&Math.random()<.45){dano(35);msg("⚠ Você foi atacado enquanto dormia sem proteção!");return;}sfx_dormir();E.energia=Math.min(100,E.energia+85);E.sanidade=Math.min(100,E.sanidade+35);tempo+=32;addDiario("Dormi. Sonhos estranhos — sombras verde-escuras, vozes em línguas que nunca ouvi.");msg("💤 Você adormece. A floresta tece sonhos antigos ao seu redor.");}
-function usarAntidoto(){if(contarItem('Antídoto')>0||E.craftados.includes('antidoto')){E.veneno=false;sfx_remedio();E.curas++;msg("💊 Antídoto aplicado. Veneno neutralizado!");}else msg("Você não tem Antídoto. Crafting: 3 Ervas Medicinais.");}
-function explorarGruta(){sfx_botao();const r=Math.random();if(r<.25){E.inv.push({nome:'Pederneira',emoji:'🪨',tipo:'ferr',qtd:2});sfx_coletar();msg("💎 Encontrou Pederneiras raras dentro da gruta!");}else if(r<.45){dano(28);msg("⚠ Algo se esconde na gruta. Uma criatura desconhecida te atacou!");}else if(r<.6){E.sanidade=Math.max(0,E.sanidade-25);msg("👁 Visões perturbadoras dentro da gruta. Sua sanidade vacila.");}else msg("A gruta está vazia. Fria. Silenciosa. Apenas gotas d'água.");}
-function verInv(){sfx_botao();if(E.inv.length===0)msg("Seu inventário está vazio.");else msg("📦 "+E.inv.map(i=>i.emoji+' '+i.nome+(i.qtd>1?' ×'+i.qtd:'')).join('  ·  '));}
-function verLendas(){sfx_botao();if(E.lendas.length===0){msg("Você ainda não encontrou nenhuma lenda. Explore mais fundo!");return;}exibirLenda(E.lendas[Math.floor(Math.random()*E.lendas.length)],true,null);}
+function beberAgua(){if(E.temFiltro||Math.random()>.28){sfx_beber();E.sede=Math.min(100,E.sede+45);msg("💧 Água fresca!");}else{dano(14);msg("⚠ Água contaminada! Crafting: Filtro d'Água.");}}
+function colherFrutas(){const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];if(tile?.tipo===T.COGUMELO){if(Math.random()<.5){sfx_coletar();E.vida=Math.min(100,E.vida+15);}else if(!E.temFiltro){dano(18);E.veneno=true;msg("⚠ Cogumelo venenoso!");}}else{sfx_coletar();E.fome=Math.min(100,E.fome+32);msg("🍊 Frutas maduras!");}}
+function descansar(){sfx_dormir();E.energia=Math.min(100,E.energia+55);E.sanidade=Math.min(100,E.sanidade+20);E.temAbrigo=true;tempo+=22;lanterna.nivel=Math.min(100,lanterna.nivel+15);msg("🏕 Você descansa no abrigo.");}
+function sentarFogueira(){sfx_fogueira();E.energia=Math.min(100,E.energia+22);E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+15);E.temFogo=true;E.temperatura=Math.min(40,E.temperatura+1.5);lanterna.nivel=Math.min(100,lanterna.nivel+10);msg("🔥 O calor da fogueira afasta os espíritos.");}
+function cortarBambu(){sfx_coletar();const qtd=1+Math.floor(Math.random()*2);const ex=E.inv.find(i=>i.nome==='Bambu');if(ex)ex.qtd=(ex.qtd||1)+qtd;else E.inv.push({nome:'Bambu',emoji:'🎋',tipo:'mat',qtd});msg("🎋 Cortou "+qtd+" cana(s).");atualizarAcoes();}
+function montarAbrigo(){const bms=contarItem('Bambu');if(bms>=2){removerItem('Bambu',2);E.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx_conquista();msg("⛺ Abrigo construído!");}else msg("Precisa de 2 canas de bambu.");atualizarAcoes();}
+function tentarDormir(){if(!E.temAbrigo&&Math.random()<.45){dano(35);msg("⚠ Você foi atacado enquanto dormia!");gpRumble(500,.8,1.0);return;}sfx_dormir();E.energia=Math.min(100,E.energia+85);E.sanidade=Math.min(100,E.sanidade+35);tempo+=32;addDiario("Dormi. Sonhos estranhos — sombras verde-escuras, vozes antigas.");msg("💤 A floresta tece sonhos antigos ao seu redor.");}
+function usarAntidoto(){if(contarItem('Antídoto')>0||E.craftados.includes('antidoto')){E.veneno=false;sfx_remedio();E.curas++;msg("💊 Veneno neutralizado!");}else msg("Sem Antídoto. Craft: 3 Ervas Medicinais.");}
+function explorarGruta(){sfx_botao();const r=Math.random();if(r<.25){E.inv.push({nome:'Pederneira',emoji:'🪨',tipo:'ferr',qtd:2});sfx_coletar();msg("💎 Pederneiras raras na gruta!");}else if(r<.45){dano(28);msg("⚠ Criatura na gruta te atacou!");}else if(r<.6){E.sanidade=Math.max(0,E.sanidade-25);msg("👁 Visões perturbadoras...");}else msg("Gruta vazia. Fria. Silenciosa.");}
+function verInv(){sfx_botao();if(E.inv.length===0)msg("Inventário vazio.");else msg("📦 "+E.inv.map(i=>i.emoji+' '+i.nome+(i.qtd>1?' ×'+i.qtd:'')).join('  ·  '));}
+function verLendas(){sfx_botao();if(E.lendas.length===0){msg("Nenhuma lenda encontrada ainda. Explore mais fundo!");return;}exibirLenda(E.lendas[Math.floor(Math.random()*E.lendas.length)],true,null);}
 function contarItem(nome){return E.inv.filter(i=>i.nome===nome).reduce((s,i)=>s+(i.qtd||1),0);}
 function removerItem(nome,qtd){let rest=qtd;for(let i=E.inv.length-1;i>=0&&rest>0;i--){if(E.inv[i].nome===nome){const t=Math.min(rest,E.inv[i].qtd||1);if((E.inv[i].qtd||1)<=t)E.inv.splice(i,1);else E.inv[i].qtd-=t;rest-=t;}}}
 
 // ══════════════════════════════════════════════════════════════
-//  MODAL LENDA
+//  MODAL LENDA — VISUAL MELHORADO
 // ══════════════════════════════════════════════════════════════
 function exibirLenda(idx,rev=false,ent=null){
   const l=LENDAS[idx];
-  document.getElementById('m-emoji').textContent=l.emoji;document.getElementById('m-tipo').textContent=l.tipo;
-  document.getElementById('m-nome').textContent=l.nome;document.getElementById('m-texto').textContent=l.texto;
-  document.getElementById('m-dica').textContent=l.dica;document.getElementById('modal-lenda').classList.add('aberto');
-  if(!rev){sfx_lenda();setTimeout(()=>{if(l.sfx)l.sfx();},600);}
-  if(!rev&&ent){aplicarEfeitoLenda(l.efeito);addDiario("Encontrei "+l.nome+". "+l.texto.substring(0,80)+"...");}
+  // Aplicar cor da lenda via CSS variable
+  const modalInner=document.querySelector('.modal-inner');
+  modalInner.style.setProperty('--lenda-cor',l.cor);
+  document.documentElement.style.setProperty('--lenda-cor',l.cor);
+  // Gradiente de fundo único
+  const bgEl=document.querySelector('.modal-borda');
+  bgEl.style.background=`linear-gradient(160deg,${l.bgGrad[0]} 0%,${l.bgGrad[1]} 100%)`;
+  // Conteúdo
+  document.getElementById('m-emoji').textContent=l.emoji;
+  document.getElementById('m-tipo').textContent=l.tipo.toUpperCase();
+  document.getElementById('m-nome').textContent=l.nome;
+  document.getElementById('m-texto').textContent=l.texto;
+  document.getElementById('m-dica').textContent=l.dica;
+  document.getElementById('m-num').textContent=(idx+1)+'/'+LENDAS.length+' · '+l.nome.toUpperCase();
+  // Anéis orbitais únicos
+  const aneisEl=document.getElementById('m-aneis');
+  aneisEl.innerHTML='';
+  const aneisCfg=[{sz:90,dur:8},{sz:130,dur:13,rev:true},{sz:170,dur:20}];
+  aneisCfg.forEach(cfg=>{const d=document.createElement('div');d.className='m-anel';d.style.cssText=`width:${cfg.sz}px;height:${cfg.sz}px;border-color:${l.cor};opacity:.25;animation-duration:${cfg.dur}s;animation-direction:${cfg.rev?'reverse':'normal'}`;aneisEl.appendChild(d);});
+  // Partículas flutuantes no modal
+  const pEl=document.getElementById('modal-particles');pEl.innerHTML='';
+  for(let i=0;i<20;i++){const p=document.createElement('div');const sz=2+Math.random()*4;p.style.cssText=`position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:${l.cor};left:${Math.random()*100}%;top:${Math.random()*100}%;opacity:${.1+Math.random()*.4};animation:mflutu ${2+Math.random()*4}s ${Math.random()*3}s ease-in-out infinite;`;pEl.appendChild(p);}
+  // Canvas de fundo animado para cada lenda
+  iniciarLendaBgCanvas(idx,l);
+  document.getElementById('modal-lenda').classList.add('aberto');
+  if(!rev){sfx_lenda(idx);gpRumble(500,.4,.6);}
+  if(!rev&&ent){aplicarEfeitoLenda(l.efeito);addDiario("Encontrei "+l.nome+". "+l.texto.substring(0,90)+"...");}
 }
-function fecharLenda(){sfx_botao();document.getElementById('modal-lenda').classList.remove('aberto');}
+
+// Canvas de fundo animado e único para cada lenda
+function iniciarLendaBgCanvas(idx,l){
+  if(lendaBgAnim){cancelAnimationFrame(lendaBgAnim);lendaBgAnim=null;}
+  const cv=document.getElementById('lenda-canvas-bg');
+  const ctx=cv.getContext('2d');cv.width=600;cv.height=500;
+  const pts=[];for(let i=0;i<60;i++)pts.push({x:Math.random()*600,y:Math.random()*500,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6,sz:1+Math.random()*4,ph:Math.random()*Math.PI*2,spd:.02+Math.random()*.04});
+  let t=0;
+  function frame(){
+    if(!document.getElementById('modal-lenda').classList.contains('aberto')){lendaBgAnim=null;return;}
+    t+=.016;ctx.clearRect(0,0,600,500);
+    // Fundo gradiente
+    const g=ctx.createLinearGradient(0,0,600,500);g.addColorStop(0,l.bgGrad[0]);g.addColorStop(1,l.bgGrad[1]);ctx.fillStyle=g;ctx.fillRect(0,0,600,500);
+    // Efeito único por lenda
+    switch(idx){
+      case 0:// Curupira — pegadas que aparecem e somem
+        for(let i=0;i<6;i++){const px=(Math.sin(t*.5+i*1.0)*250+300),py=(Math.cos(t*.35+i*.8)*150+250);ctx.globalAlpha=Math.max(0,Math.sin(t+i)*.5);ctx.fillStyle=l.cor;ctx.font='20px serif';ctx.fillText('🦶',px,py);}break;
+      case 1:// Mapinguari — pulso de terror
+        {const r=100+Math.sin(t*3)*20;const gg=ctx.createRadialGradient(300,250,0,300,250,r);gg.addColorStop(0,'rgba(200,30,0,.25)');gg.addColorStop(1,'transparent');ctx.globalAlpha=.8;ctx.fillStyle=gg;ctx.beginPath();ctx.arc(300,250,r,0,Math.PI*2);ctx.fill();}break;
+      case 2:// Iara — ondas concêntricas
+        for(let w=0;w<5;w++){const r=50+w*30+Math.sin(t*2)*15;ctx.globalAlpha=.12-w*.02;ctx.strokeStyle='#40b0ff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(300,250,r,0,Math.PI*2);ctx.stroke();}break;
+      case 3:// Boto — espirais cor-de-rosa
+        {ctx.globalAlpha=.15;for(let a=0;a<Math.PI*4;a+=.1){const r2=a*12;const bx=300+Math.cos(a+t)*r2,by=250+Math.sin(a+t)*r2;ctx.fillStyle=l.cor;ctx.beginPath();ctx.arc(bx,by,2,0,Math.PI*2);ctx.fill();}}break;
+      case 4:// Matinta — sombra de pássaro piscando
+        {ctx.globalAlpha=.08+Math.sin(t*5)*.05;ctx.fillStyle=l.cor;ctx.font='140px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(l.emoji,300+Math.sin(t*1.5)*40,250+Math.cos(t*1.2)*30);}break;
+      case 5:// Anhangá — faíscas douradas
+        {ctx.globalAlpha=.15+Math.sin(t*2)*.1;const gg=ctx.createRadialGradient(300,250,0,300,250,200);gg.addColorStop(0,'rgba(240,200,60,.3)');gg.addColorStop(1,'transparent');ctx.fillStyle=gg;ctx.fillRect(0,0,600,500);}break;
+      case 6:// Caipora — fogo selvagem
+        for(let f=0;f<8;f++){const fx=100+Math.sin(t+f*0.8)*200,fy=300+Math.cos(t*1.3+f)*(50+f*15);ctx.globalAlpha=.08;ctx.fillStyle=l.cor;ctx.font=(30+f*4)+'px serif';ctx.fillText('🔥',fx,fy);}break;
+      case 7:// Minhocão — anéis que se expandem
+        for(let r=0;r<4;r++){const radius=60+r*40+((t*25+r*60)%200);ctx.globalAlpha=Math.max(0,.2-radius/400);ctx.strokeStyle=l.cor;ctx.lineWidth=3;ctx.beginPath();ctx.arc(300,350,radius,0,Math.PI*2);ctx.stroke();}break;
+      case 8:// Pisadeira — vinheta pulsante opressora
+        {const s=.3+Math.sin(t*1.5)*.15;const gg=ctx.createRadialGradient(300,250,0,300,250,300);gg.addColorStop(0,`rgba(80,0,20,${s})`);gg.addColorStop(1,`rgba(0,0,0,.8)`);ctx.globalAlpha=1;ctx.fillStyle=gg;ctx.fillRect(0,0,600,500);}break;
+      case 9:// Cobra-Norato — serpentinas verdes
+        {ctx.globalAlpha=.12;ctx.strokeStyle=l.cor;ctx.lineWidth=8;ctx.beginPath();for(let px=0;px<600;px+=5){const py=250+Math.sin(px*.02+t*2)*80+Math.sin(px*.04-t)*.40;if(px===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);}ctx.stroke();}break;
+    }
+    // Partículas flutuantes
+    ctx.globalAlpha=1;
+    pts.forEach(p=>{p.ph+=p.spd;p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>600)p.vx*=-1;if(p.y<0||p.y>500)p.vy*=-1;const a=.05+Math.sin(p.ph)*.05;ctx.save();ctx.globalAlpha=a;ctx.fillStyle=l.particleCor;ctx.shadowColor=l.cor;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(p.x,p.y,p.sz,0,Math.PI*2);ctx.fill();ctx.restore();});
+    lendaBgAnim=requestAnimationFrame(frame);
+  }
+  lendaBgAnim=requestAnimationFrame(frame);
+}
+
+function fecharLenda(){
+  sfx_botao();document.getElementById('modal-lenda').classList.remove('aberto');
+  if(lendaBgAnim){cancelAnimationFrame(lendaBgAnim);lendaBgAnim=null;}
+}
 function aplicarEfeitoLenda(ef){
   switch(ef){
-    case 'confusao':E.x=Math.max(1,Math.min(MAPA_W-1,E.x+(Math.random()-.5)*14));E.y=Math.max(1,Math.min(MAPA_H-1,E.y+(Math.random()-.5)*14));msg("🌀 O Curupira embaralhou sua orientação!");break;
-    case 'medo':E.energia=Math.max(0,E.energia-28);E.sanidade=Math.max(0,E.sanidade-30);dano(8);msg("😱 O terror do Mapinguari paralisa seus músculos.");break;
+    case 'confusao':E.x=Math.max(1,Math.min(MAPA_W-1,E.x+(Math.random()-.5)*14));E.y=Math.max(1,Math.min(MAPA_H-1,E.y+(Math.random()-.5)*14));msg("🌀 O Curupira embaralhou sua orientação!");gpRumble(600,.5,.7);break;
+    case 'medo':E.energia=Math.max(0,E.energia-28);E.sanidade=Math.max(0,E.sanidade-30);dano(8);msg("😱 O terror do Mapinguari paralisa seus músculos.");gpRumble(800,.7,1.0);break;
     case 'atracaoAgua':msg("🧜‍♀️ O canto de Iara ressoa nos seus ossos...");E.sanidade=Math.max(0,E.sanidade-15);break;
-    case 'sorte':E.vida=Math.min(100,E.vida+18);E.fome=Math.min(100,E.fome+18);E.sanidade=Math.min(100,E.sanidade+25);lanterna.nivel=Math.min(100,lanterna.nivel+20);msg("🐬 O Boto te abençoou! Um calor dourado percorre seu corpo.");break;
-    case 'susto':E.energia=Math.max(0,E.energia-18);E.sanidade=Math.max(0,E.sanidade-20);msg("🦉 O assobio da Matinta Perera te gela até o tutano.");break;
-    case 'aviso':msg("🦌 O Anhangá te olha fundo nos olhos — e desaparece como fumaça.");break;
+    case 'sorte':E.vida=Math.min(100,E.vida+18);E.fome=Math.min(100,E.fome+18);E.sanidade=Math.min(100,E.sanidade+25);lanterna.nivel=Math.min(100,lanterna.nivel+20);msg("🐬 O Boto te abençoou! Calor dourado percorre seu corpo.");break;
+    case 'susto':E.energia=Math.max(0,E.energia-18);E.sanidade=Math.max(0,E.sanidade-20);msg("🦉 O assobio da Matinta Perera te gela.");gpRumble(400,.4,.5);break;
+    case 'aviso':msg("🦌 O Anhangá te olha fundo nos olhos — e desaparece.");break;
+    case 'caipora':E.fome=Math.max(0,E.fome-20);msg("🐎 O Caipora cobrou tributo pela passagem na mata.");gpRumble(500,.5,.6);break;
+    case 'tremor':dano(12);E.temperatura=Math.max(34,E.temperatura-1);msg("🌊 O Minhocão passou. A terra rachou. Você perdeu o equilíbrio.");gpRumble(800,.8,1.0);break;
+    case 'pesadelo':E.energia=Math.max(0,E.energia-35);E.sanidade=Math.max(0,E.sanidade-25);msg("👣 A Pisadeira te sufocou. Você acorda exausto e sem ar.");gpRumble(600,.6,.9);break;
+    case 'cobraNorato':E.sanidade=Math.max(0,E.sanidade-20);E.sede=Math.min(100,E.sede+30);msg("🐍 Cobra-Norato te guiou pelas águas... mas cobrou sua lucidez.");break;
   }
 }
 
@@ -1153,25 +907,20 @@ function msg(txt){const el=document.getElementById('msg-atual');el.style.opacity
 function toast(txt){const el=document.getElementById('toast');el.textContent=txt;el.classList.add('vis');clearTimeout(toastTmr);toastTmr=setTimeout(()=>el.classList.remove('vis'),2000);}
 
 function atualizarHUD(){
-  [['vida','b-vida','n-vida','row-vida'],['fome','b-fome','n-fome','row-fome'],['sede','b-sede','n-sede','row-sede'],['energia','b-ener','n-ener','row-ener'],['sanidade','b-san','n-san','row-san']].forEach(([k,bid,nid,rid])=>{
-    const v=Math.round(E[k]);document.getElementById(bid).style.width=v+'%';document.getElementById(nid).textContent=v;document.getElementById(rid).classList.toggle('stat-crit',v<18);
-  });
-  // Temperatura
+  [['vida','b-vida','n-vida','row-vida'],['fome','b-fome','n-fome','row-fome'],['sede','b-sede','n-sede','row-sede'],['energia','b-ener','n-ener','row-ener'],['sanidade','b-san','n-san','row-san']].forEach(([k,bid,nid,rid])=>{const v=Math.round(E[k]);document.getElementById(bid).style.width=v+'%';document.getElementById(nid).textContent=v;document.getElementById(rid).classList.toggle('stat-crit',v<18);});
   const tp=Math.round(E.temperatura*10)/10;document.getElementById('b-temp').style.width=((E.temperatura-34)/6*100)+'%';document.getElementById('n-temp').textContent=tp+'°';document.getElementById('row-temp').classList.toggle('stat-crit',E.temperatura<35.5);
   const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
   document.getElementById('loc-txt').textContent=(BLOCOS[tile?.tipo??0]?.nm??'Floresta').toUpperCase();
   const dirs={N:'↑ Norte',S:'↓ Sul',L:'→ Leste',O:'← Oeste'};
   document.getElementById('buss-txt').innerHTML=`<span class="buss-dir">${dirs[E.dir]||'↑ Norte'}</span>`;
   const liDiv=document.getElementById('lendas-ico');
-  liDiv.innerHTML=LENDAS.map((l,i)=>`<span class="lenda-ico-wrap${E.lendas.includes(i)?' vista':''}" title="${l.nome}">${l.emoji}</span>`).join('');
-  // Status efeitos
+  liDiv.innerHTML=LENDAS.map((l,i)=>`<span class="lenda-ico-wrap${E.lendas.includes(i)?' vista':''}" title="${l.nome}" onclick="if(E.lendas.includes(${i})){sfx_botao();exibirLenda(${i},true,null);}">${l.emoji}</span>`).join('');
   const efDiv=document.getElementById('status-efeitos');efDiv.innerHTML='';
   if(E.veneno)efDiv.innerHTML+='<span class="efeit-chip" style="color:#88ff88;border-color:rgba(0,255,0,.3)">☠ Venenado</span>';
   if(E.repelente>0)efDiv.innerHTML+='<span class="efeit-chip" style="color:#aaffaa">🌿 Repelente</span>';
   if(E.jangada)efDiv.innerHTML+='<span class="efeit-chip" style="color:#88ddff">🛶 Jangada</span>';
   if(tocha.ativa)efDiv.innerHTML+='<span class="efeit-chip" style="color:#ffaa44">🔥 Tocha</span>';
   if(E.arma!=='mãos')efDiv.innerHTML+='<span class="efeit-chip" style="color:#ffddaa">'+E.armaEmoji+' Armado</span>';
-  // Inventário
   const invDiv=document.getElementById('inv-wrap');const counts={};
   E.inv.forEach(i=>{const k=i.nome;if(!counts[k])counts[k]={e:i.emoji,n:0};counts[k].n+=(i.qtd||1);});
   invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>`<span class="inv-chip">${d.e} ${nm}${d.n>1?' ×'+d.n:''}</span>`).join('');
@@ -1179,21 +928,22 @@ function atualizarHUD(){
 }
 
 // ══════════════════════════════════════════════════════════════
-//  FIM DE JOGO
+//  FIM
 // ══════════════════════════════════════════════════════════════
 function fimJogo(){
   cancelAnimationFrame(animID);sfx_morte();stopAmbience();
   let causa='A floresta reclamou o que é dela.';
-  if(E.veneno&&E.vida<=0)causa='O veneno venceu. Você não encontrou o antídoto a tempo. A floresta absorveu mais um viajante.';
-  else if(E.fome<=0)causa='A fome apagou suas forças lentamente. A floresta não alimenta quem não sabe pedir.';
-  else if(E.sede<=0)causa='A desidratação foi implacável. Iara levou sua alma para as profundezas do rio.';
-  else if(E.temperatura<35)causa='A hipotermia te consumiu nas águas frias da Amazônia.';
-  else if(E.sanidade<=0)causa='A loucura tomou conta. Você vagou pela floresta sem destino até desaparecer.';
-  else causa='As criaturas da noite encontraram você. A floresta absorveu mais um viajante.';
+  if(E.veneno&&E.vida<=0)causa='O veneno venceu. Você não encontrou o antídoto a tempo.';
+  else if(E.fome<=0)causa='A fome apagou suas forças lentamente.';
+  else if(E.sede<=0)causa='A desidratação foi implacável. Iara levou sua alma.';
+  else if(E.temperatura<35)causa='A hipotermia te consumiu nas águas frias.';
+  else if(E.sanidade<=0)causa='A loucura tomou conta. Você vagou sem destino.';
+  else causa='As criaturas da noite encontraram você.';
   document.getElementById('fim-causa').textContent=causa;
-  document.getElementById('fim-stats').innerHTML=`<span>Dias sobrevividos</span><span class="fim-stat-v">${diaNum}</span><span>Lendas descobertas</span><span class="fim-stat-v">${E.lendas.length}/6</span><span>Passos dados</span><span class="fim-stat-v">${E.passos.toLocaleString()}</span><span>Inimigos derrotados</span><span class="fim-stat-v">${E.inimigosVencidos}</span><span>Itens fabricados</span><span class="fim-stat-v">${E.craftados.length}</span><span>Noites superadas</span><span class="fim-stat-v">${E.noitesSobrevividas}</span>`;
+  document.getElementById('fim-stats').innerHTML=`<span>Dias sobrevividos</span><span class="fim-stat-v">${diaNum}</span><span>Lendas descobertas</span><span class="fim-stat-v">${E.lendas.length}/10</span><span>Passos dados</span><span class="fim-stat-v">${E.passos.toLocaleString()}</span><span>Inimigos derrotados</span><span class="fim-stat-v">${E.inimigosVencidos}</span><span>Itens fabricados</span><span class="fim-stat-v">${E.craftados.length}</span><span>Noites superadas</span><span class="fim-stat-v">${E.noitesSobrevividas}</span>`;
   const conqs=[...conquistasObtidas].map(id=>{const c=CONQUISTAS_DEF.find(x=>x.id===id);return c?`<div class="fim-c-chip" title="${c.nome}">${c.emoji}</div>`:''}).join('');
-  document.getElementById('fim-conquistas').innerHTML=conqs||'<span style="font-size:.75rem;color:rgba(180,180,170,.4)">Nenhuma conquista obtida</span>';
+  document.getElementById('fim-conquistas').innerHTML=conqs||'<span style="font-size:.75rem;color:rgba(180,180,170,.4)">Nenhuma conquista</span>';
+  gpRumble(1000,.6,1.0);
   setTimeout(()=>document.getElementById('tela-fim').classList.add('aberto'),1800);
 }
 
@@ -1210,17 +960,20 @@ function renderizar(){
   const tx0=Math.max(0,Math.floor(camX/TILE)-1),ty0=Math.max(0,Math.floor(camY/TILE)-1);
   const tx1=Math.min(MAPA_W-1,Math.ceil((camX+W)/TILE)+1),ty1=Math.min(MAPA_H-1,Math.ceil((camY+H)/TILE)+1);
   for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++)desenharTile(ctx,mapa[ty][tx],Math.round(tx*TILE-camX),Math.round(ty*TILE-camY),noite,entardecer,manha);
-  // Trilhas de entidades
+  // Trilhas de entidades com efeito de cor
   entidades.forEach(ent=>{
     if(legendasVistas.has(ent.lenda))return;
     const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-120||sx>W+120||sy<-120||sy>H+120)return;
     const l=LENDAS[ent.lenda],brilho=.45+Math.sin(ent.fase)*.35;
     ctx.save();
-    const vg=ctx.createLinearGradient(sx,sy-80,sx,sy);vg.addColorStop(0,'transparent');vg.addColorStop(.5,l.cor+'18');vg.addColorStop(1,l.cor+'40');
-    ctx.globalAlpha=brilho*.3;ctx.fillStyle=vg;ctx.fillRect(sx-10,sy-80,20,80);
-    const hg=ctx.createRadialGradient(sx,sy,0,sx,sy,60);hg.addColorStop(0,l.cor+'50');hg.addColorStop(.5,l.cor+'22');hg.addColorStop(1,'transparent');
-    ctx.globalAlpha=brilho*.35;ctx.fillStyle=hg;ctx.beginPath();ctx.arc(sx,sy,60,0,Math.PI*2);ctx.fill();
-    ent.trail.forEach((pt,i)=>{const tsx=pt.x*TILE-camX,tsy=pt.y*TILE-camY;ctx.globalAlpha=(i/ent.trail.length)*.15*brilho;ctx.fillStyle=l.cor;ctx.beginPath();ctx.arc(tsx,tsy,6*(i/ent.trail.length),0,Math.PI*2);ctx.fill();});
+    // Coluna de luz
+    const vg=ctx.createLinearGradient(sx,sy-100,sx,sy);vg.addColorStop(0,'transparent');vg.addColorStop(.5,l.cor+'18');vg.addColorStop(1,l.cor+'40');
+    ctx.globalAlpha=brilho*.35;ctx.fillStyle=vg;ctx.fillRect(sx-12,sy-100,24,100);
+    // Halo
+    const hg=ctx.createRadialGradient(sx,sy,0,sx,sy,70);hg.addColorStop(0,l.cor+'55');hg.addColorStop(.5,l.cor+'22');hg.addColorStop(1,'transparent');
+    ctx.globalAlpha=brilho*.4;ctx.fillStyle=hg;ctx.beginPath();ctx.arc(sx,sy,70,0,Math.PI*2);ctx.fill();
+    // Trail
+    ent.trail.forEach((pt,i)=>{const tsx=pt.x*TILE-camX,tsy=pt.y*TILE-camY;ctx.globalAlpha=(i/ent.trail.length)*.18*brilho;ctx.fillStyle=l.cor;ctx.beginPath();ctx.arc(tsx,tsy,5*(i/ent.trail.length),0,Math.PI*2);ctx.fill();});
     ctx.restore();
   });
   // Vagalumes
@@ -1235,12 +988,11 @@ function renderizar(){
     ctx.save();
     if(ini.alertado){const ag=ctx.createRadialGradient(sx,sy,0,sx,sy,35);ag.addColorStop(0,'rgba(200,0,0,.25)');ag.addColorStop(1,'transparent');ctx.fillStyle=ag;ctx.beginPath();ctx.arc(sx,sy,35,0,Math.PI*2);ctx.fill();}
     ctx.globalAlpha=.9+Math.sin(ini.fase)*.1;ctx.font='22px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=ini.cor;ctx.shadowBlur=ini.alertado?20:8;ctx.fillText(ini.emoji,sx,sy+Math.sin(ini.fase)*2.5);
-    // Barra de vida do inimigo
     const bw=32,bh=4,bx=sx-bw/2,by=sy-22;ctx.globalAlpha=.8;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle=ini.vidaAtual/ini.vida>.5?'#44cc44':ini.vidaAtual/ini.vida>.25?'#cccc00':'#cc2200';ctx.fillRect(bx,by,bw*(ini.vidaAtual/ini.vida),bh);ctx.restore();
   });
-  // Lendas emojis
-  entidades.forEach(ent=>{const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-70||sx>W+70||sy<-70||sy>H+70)return;const l=LENDAS[ent.lenda],bob=Math.sin(ent.fase)*5;ctx.save();ctx.globalAlpha=legendasVistas.has(ent.lenda)?.18:.8+Math.sin(ent.fase)*.1;ctx.font=(32+Math.sin(ent.fase)*3)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=l.cor;ctx.shadowBlur=22;ctx.fillText(l.emoji,sx,sy+bob);ctx.restore();});
-  // Armadilhas no mapa
+  // Lendas
+  entidades.forEach(ent=>{const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-70||sx>W+70||sy<-70||sy>H+70)return;const l=LENDAS[ent.lenda],bob=Math.sin(ent.fase)*5;ctx.save();ctx.globalAlpha=legendasVistas.has(ent.lenda)?.18:.85+Math.sin(ent.fase)*.1;ctx.font=(32+Math.sin(ent.fase)*3)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=l.cor;ctx.shadowBlur=28;ctx.fillText(l.emoji,sx,sy+bob);ctx.restore();});
+  // Armadilhas
   for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++){if(mapa[ty]?.[tx]?.armadilha){const sx=tx*TILE-camX+TILE/2,sy=ty*TILE-camY+TILE/2;ctx.save();ctx.font='12px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=.7;ctx.fillText('🪤',sx,sy);ctx.restore();}}
   desenharJogador(ctx,W/2,H/2);
   // Chuva
@@ -1248,9 +1000,7 @@ function renderizar(){
   if(clima==='nevoeiro'){ctx.save();const ft=tempo*.07,fg=ctx.createRadialGradient(W/2+Math.sin(ft)*40,H/2,0,W/2,H/2,Math.max(W,H)*.9);fg.addColorStop(0,'transparent');fg.addColorStop(.4,'rgba(140,160,130,.1)');fg.addColorStop(1,'rgba(140,160,130,.55)');ctx.fillStyle=fg;ctx.fillRect(0,0,W,H);ctx.restore();}
   if(noite)renderizarNoite(ctx,W,H,W/2,H/2);
   if(entardecer){ctx.save();ctx.fillStyle='rgba(170,70,8,.1)';ctx.fillRect(0,0,W,H);ctx.restore();}
-  if(manha){ctx.save();ctx.fillStyle='rgba(100,80,10,.06)';ctx.fillRect(0,0,W,H);ctx.restore();}
-  // Efeito de sanidade baixa — tremor visual
-  if(E.sanidade<30){const shake=(30-E.sanidade)/30*3;ctx.save();ctx.globalAlpha=(30-E.sanidade)/30*.08;ctx.fillStyle=`rgba(${Math.floor(Math.random()*60)},0,${Math.floor(Math.random()*80)},.5)`;ctx.fillRect(Math.random()*shake-shake/2,Math.random()*shake-shake/2,W+shake,H+shake);ctx.restore();}
+  if(E.sanidade<30){ctx.save();ctx.globalAlpha=(30-E.sanidade)/30*.08;ctx.fillStyle=`rgba(${Math.floor(Math.random()*60)},0,${Math.floor(Math.random()*80)},.5)`;ctx.fillRect(0,0,W,H);ctx.restore();}
   renderMiniMapa();
 }
 
@@ -1263,18 +1013,17 @@ function renderizarNoite(ctx,W,H,px,py){
   function lighten(cx,cy,r,baseAlpha){const ag=lc.createRadialGradient(cx,cy,0,cx,cy,r);ag.addColorStop(0,`rgba(0,0,0,${baseAlpha})`);ag.addColorStop(.65,`rgba(0,0,0,${baseAlpha*.5})`);ag.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.fillStyle=ag;lc.beginPath();lc.arc(cx,cy,r,0,Math.PI*2);lc.fill();}
   const ambR=lanterna.ativa||tocha.ativa?55:38;lighten(px,py,ambR,.6);
   if(E.temFogo){const flk=.92+Math.sin(tempo*9)*.08;lighten(px,py,185*flk,.9);}
-  if(tocha.ativa){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;lc.globalCompositeOperation='destination-out';const cg=lc.createRadialGradient(px,py,0,px,py,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.2,'rgba(0,0,0,.05)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();}
-  if(lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual*(1+lanterna.flickAmp*.05);const cg=lc.createRadialGradient(px,py,0,px,py,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.2,'rgba(0,0,0,.04)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();const kg=lc.createRadialGradient(px,py,0,px,py,r*.38);kg.addColorStop(0,'rgba(0,0,0,.88)');kg.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r*.38,ang-hc*.68,ang+hc*.68);lc.closePath();lc.fillStyle=kg;lc.fill();}
+  if(tocha.ativa){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;lc.globalCompositeOperation='destination-out';const cg=lc.createRadialGradient(px,py,0,px,py,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();}
+  if(lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual*(1+lanterna.flickAmp*.05);const cg=lc.createRadialGradient(px,py,0,px,py,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();const kg=lc.createRadialGradient(px,py,0,px,py,r*.38);kg.addColorStop(0,'rgba(0,0,0,.88)');kg.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r*.38,ang-hc*.68,ang+hc*.68);lc.closePath();lc.fillStyle=kg;lc.fill();}
   ctx.drawImage(lightCanvas,0,0);
   ctx.save();
-  if(E.temFogo){const wg=ctx.createRadialGradient(px,py,0,px,py,195);wg.addColorStop(0,'rgba(255,120,30,.09)');wg.addColorStop(.55,'rgba(255,70,10,.05)');wg.addColorStop(1,'transparent');ctx.fillStyle=wg;ctx.fillRect(0,0,W,H);}
-  if(tocha.ativa){const tg=ctx.createRadialGradient(px,py,0,px,py,lanterna.raioAtual);tg.addColorStop(0,'rgba(255,100,20,.12)');tg.addColorStop(.6,'rgba(255,80,0,.05)');tg.addColorStop(1,'transparent');ctx.fillStyle=tg;ctx.fillRect(0,0,W,H);}
-  if(lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;const lg=ctx.createRadialGradient(px,py,0,px,py,r*.72);lg.addColorStop(0,'rgba(255,220,130,.09)');lg.addColorStop(.55,'rgba(255,190,70,.05)');lg.addColorStop(1,'transparent');ctx.beginPath();ctx.moveTo(px,py);ctx.arc(px,py,r*.72,ang-hc,ang+hc);ctx.closePath();ctx.fillStyle=lg;ctx.fill();ctx.globalAlpha=.025+Math.sin(lanterna.pulsar)*.008;for(let ri=0;ri<3;ri++){const sa=ang+(ri-1)*(hc*.28),rl=r*.9;const vg=ctx.createLinearGradient(px,py,px+Math.cos(sa)*rl,py+Math.sin(sa)*rl);vg.addColorStop(0,'rgba(255,240,180,.85)');vg.addColorStop(1,'transparent');ctx.beginPath();ctx.moveTo(px,py);ctx.arc(px,py,rl,sa-hc*.07,sa+hc*.07);ctx.closePath();ctx.fillStyle=vg;ctx.fill();}ctx.globalAlpha=1;}
+  if(E.temFogo){const wg=ctx.createRadialGradient(px,py,0,px,py,195);wg.addColorStop(0,'rgba(255,120,30,.09)');wg.addColorStop(1,'transparent');ctx.fillStyle=wg;ctx.fillRect(0,0,W,H);}
+  if(lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;const lg=ctx.createRadialGradient(px,py,0,px,py,r*.72);lg.addColorStop(0,'rgba(255,220,130,.09)');lg.addColorStop(1,'transparent');ctx.beginPath();ctx.moveTo(px,py);ctx.arc(px,py,r*.72,ang-hc,ang+hc);ctx.closePath();ctx.fillStyle=lg;ctx.fill();}
   ctx.restore();
 }
 
 // ══════════════════════════════════════════════════════════════
-//  TILES DETALHADOS
+//  TILES
 // ══════════════════════════════════════════════════════════════
 function ajustarCor(hex,dark){if(dark<=0)return hex;const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b2=parseInt(hex.slice(5,7),16),f=1-Math.min(dark,.96);return`rgb(${Math.round(r*f)},${Math.round(g*f)},${Math.round(b2*f)})`;}
 function desenharTile(ctx,tile,sx,sy,noite,entardecer,manha){
@@ -1292,10 +1041,10 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
   switch(tile.tipo){
     case T.FLORESTA:{ctx.fillStyle='rgba(0,0,0,.15)';ctx.fillRect(sx,sy,TILE,tH);for(let i=0;i<4;i++){const cx=sx+6+((tv*55+i*16)%(TILE-12)),cy=sy+4+((tv*45+i*14)%(tH-10)),rad=7+(i%3)*2;const gs=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);gs.addColorStop(0,'#2a7a2a');gs.addColorStop(.6,'#1e5e1e');gs.addColorStop(1,'#143c14');ctx.fillStyle=gs;ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(120,220,80,.15)';ctx.beginPath();ctx.arc(cx-2,cy-2,rad*.45,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#4a2e10';ctx.fillRect(sx+TILE/2-4,sy+tH-10,8,10);ctx.fillStyle='#6a4418';ctx.fillRect(sx+TILE/2-4,sy+tH-12,4,4);break;}
     case T.BAMBU:case T.BAMBU_DENSO:{const nc=tile.tipo===T.BAMBU_DENSO?9:6;ctx.fillStyle='rgba(0,0,0,.08)';ctx.fillRect(sx,sy,TILE,tH);for(let i=0;i<nc;i++){const bx=sx+1+i*(TILE/nc),clr=i%2?'#1e6420':'#2a8028';ctx.fillStyle=clr;ctx.fillRect(bx,sy,3,tH);ctx.fillStyle='#0e4010';for(let n=1;n<4;n++)ctx.fillRect(bx-1,sy+(tH/4)*n,5,2);ctx.fillStyle='rgba(100,200,80,.2)';ctx.fillRect(bx,sy,2,tH);}break;}
-    case T.AGUA:{ctx.fillStyle='rgba(20,90,160,.4)';ctx.fillRect(sx,sy,TILE,tH);const wave=Math.sin(tempo*1.6+ta)*2.5;const rg=ctx.createLinearGradient(sx,sy,sx,sy+tH);rg.addColorStop(0,'rgba(80,170,255,.2)');rg.addColorStop(.5,'rgba(40,120,200,.1)');rg.addColorStop(1,'rgba(10,60,130,.05)');ctx.fillStyle=rg;ctx.fillRect(sx,sy,TILE,tH);ctx.strokeStyle='rgba(140,210,255,.3)';ctx.lineWidth=1;for(let w=0;w<3;w++){ctx.beginPath();ctx.moveTo(sx+2,sy+(tH/3)*(w+.5)+wave);ctx.bezierCurveTo(sx+TILE*.28,sy+(tH/3)*(w+.5)-3+wave,sx+TILE*.68,sy+(tH/3)*(w+.5)+3-wave,sx+TILE-2,sy+(tH/3)*(w+.5)+wave*.8);ctx.stroke();}break;}
+    case T.AGUA:{ctx.fillStyle='rgba(20,90,160,.4)';ctx.fillRect(sx,sy,TILE,tH);const wave=Math.sin(tempo*1.6+ta)*2.5;const rg=ctx.createLinearGradient(sx,sy,sx,sy+tH);rg.addColorStop(0,'rgba(80,170,255,.2)');rg.addColorStop(1,'rgba(10,60,130,.05)');ctx.fillStyle=rg;ctx.fillRect(sx,sy,TILE,tH);ctx.strokeStyle='rgba(140,210,255,.3)';ctx.lineWidth=1;for(let w=0;w<3;w++){ctx.beginPath();ctx.moveTo(sx+2,sy+(tH/3)*(w+.5)+wave);ctx.bezierCurveTo(sx+TILE*.28,sy+(tH/3)*(w+.5)-3+wave,sx+TILE*.68,sy+(tH/3)*(w+.5)+3-wave,sx+TILE-2,sy+(tH/3)*(w+.5)+wave*.8);ctx.stroke();}break;}
     case T.LIRIO:{ctx.fillStyle='rgba(15,70,140,.45)';ctx.fillRect(sx,sy,TILE,tH);const wv=Math.sin(tempo*1.4+ta)*2;ctx.strokeStyle='rgba(140,210,255,.25)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx+2,sy+tH/2+wv);ctx.bezierCurveTo(sx+TILE*.3,sy+tH/2-3+wv,sx+TILE*.7,sy+tH/2+3-wv,sx+TILE-2,sy+tH/2+wv*.7);ctx.stroke();for(let f=0;f<2;f++){const fx=sx+10+f*25,fy=sy+tH*.35+f*12+wv*(f?-1:1);ctx.fillStyle='#26a070';ctx.beginPath();ctx.ellipse(fx,fy,10,6,f*.3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff8888';ctx.beginPath();ctx.arc(fx,fy,3,0,Math.PI*2);ctx.fill();}break;}
     case T.PANTANO:{ctx.fillStyle='rgba(10,30,5,.5)';ctx.fillRect(sx,sy,TILE,tH);const bubbles=Math.sin(tempo*.8+ta);ctx.fillStyle='rgba(20,60,10,.6)';for(let i=0;i<3;i++){const bx=sx+8+i*12,by=sy+tH*.4+Math.sin(tempo*1.2+i)*3;ctx.beginPath();ctx.arc(bx,by+bubbles,4,0,Math.PI*2);ctx.fill();}ctx.strokeStyle='rgba(60,100,30,.3)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx,sy+tH*.6);ctx.bezierCurveTo(sx+15,sy+tH*.5,sx+35,sy+tH*.7,sx+TILE,sy+tH*.6);ctx.stroke();break;}
-    case T.GRUTA:{ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(sx,sy,TILE,tH);const gd=ctx.createRadialGradient(sx+TILE/2,sy+tH/2,0,sx+TILE/2,sy+tH/2,TILE*.7);gd.addColorStop(0,'rgba(40,30,60,.8)');gd.addColorStop(.7,'rgba(10,5,20,.9)');gd.addColorStop(1,'rgba(0,0,0,.95)');ctx.fillStyle=gd;ctx.fillRect(sx,sy,TILE,tH);ctx.font='10px serif';ctx.fillText('🕯',sx+TILE/2-5,sy+tH/2);break;}
+    case T.GRUTA:{ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(sx,sy,TILE,tH);const gd=ctx.createRadialGradient(sx+TILE/2,sy+tH/2,0,sx+TILE/2,sy+tH/2,TILE*.7);gd.addColorStop(0,'rgba(40,30,60,.8)');gd.addColorStop(1,'rgba(0,0,0,.95)');ctx.fillStyle=gd;ctx.fillRect(sx,sy,TILE,tH);ctx.font='10px serif';ctx.fillText('🕯',sx+TILE/2-5,sy+tH/2);break;}
     case T.CLAREIRA:{const gg=ctx.createLinearGradient(sx,sy,sx,sy+tH);gg.addColorStop(0,'rgba(120,200,70,.15)');gg.addColorStop(1,'rgba(80,150,40,.08)');ctx.fillStyle=gg;ctx.fillRect(sx,sy,TILE,tH);for(let g=0;g<8;g++){const gx=sx+3+((tv*65+g*9)%(TILE-6));ctx.fillStyle=g%2?'#4aaa28':'#3a9420';ctx.fillRect(gx,sy+tH-6,2,6);ctx.fillRect(gx+3,sy+tH-4,2,4);}if(tv>.7){ctx.fillStyle='#ffee44';ctx.beginPath();ctx.arc(sx+12,sy+tH-14,3,0,Math.PI*2);ctx.fill();}break;}
     case T.PEDRA:case T.PENHASCO:{ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(sx+4,sy+4,TILE-8,tH-8);ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sx+8,sy+5);ctx.lineTo(sx+4,sy+tH/2);ctx.lineTo(sx+14,sy+tH-5);ctx.stroke();if(tv>.5){ctx.fillStyle='rgba(40,100,40,.35)';ctx.fillRect(sx+4,sy+4,TILE-8,5);}break;}
     case T.FRUTAS:{ctx.font='13px serif';ctx.textAlign='center';ctx.textBaseline='middle';const sh=Math.sin(tempo*1.8+ta)*1.8;ctx.fillText('🍃',sx+TILE/2,sy+8+sh);ctx.fillText('🍊',sx+TILE*.28,sy+tH-11);ctx.fillText('🍊',sx+TILE*.72,sy+tH-13);ctx.fillText('🍋',sx+TILE/2,sy+tH-8+sh);break;}
@@ -1308,7 +1057,7 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
 }
 
 // ══════════════════════════════════════════════════════════════
-//  JOGADOR (pixel art detalhado)
+//  JOGADOR
 // ══════════════════════════════════════════════════════════════
 function desenharJogador(ctx,px,py){
   const mov=Math.sqrt(E.vx*E.vx+E.vy*E.vy),bob=mov>0.5?Math.sin(tempo*11)*2.5:Math.sin(tempo*1.5)*.5,by=py+bob;
@@ -1316,25 +1065,28 @@ function desenharJogador(ctx,px,py){
   ctx.save();
   ctx.globalAlpha=.07+Math.sin(tempo*2.2)*.025;
   const hg=ctx.createRadialGradient(px,by,0,px,by,30);hg.addColorStop(0,'rgba(0,255,136,.6)');hg.addColorStop(1,'transparent');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(px,by,30,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-  // Sombra
   const shadLen=mov>0.5?14:10;ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(px+2,py+18,shadLen,4,0,0,Math.PI*2);ctx.fill();
-  // Lanterna/tocha na mão
   if(noite&&(lanterna.ativa||tocha.ativa)){const la=lanterna.angulo,lx=px+Math.cos(la)*15,ly=by+Math.sin(la)*15;ctx.save();ctx.translate(lx,ly);ctx.rotate(la);if(tocha.ativa){ctx.fillStyle='#5a3010';ctx.fillRect(-3,-2,14,4);ctx.fillStyle='#ff6600';ctx.shadowColor='#ff8800';ctx.shadowBlur=12;ctx.beginPath();ctx.arc(11,0,4,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;}else{ctx.fillStyle='#786040';ctx.fillRect(-4,-2,13,4);ctx.fillStyle='#ffe066';ctx.beginPath();ctx.arc(9,0,3.8,0,Math.PI*2);ctx.fill();}ctx.restore();}
-  // Arma na mão
   if(E.arma!=='mãos'&&!noite){ctx.save();ctx.translate(px+12,by);ctx.font='14px serif';ctx.fillText(E.armaEmoji,0,0);ctx.restore();}
-  // Pernas
-  const legS=mov>0.5?Math.sin(tempo*11)*4.5:0;ctx.fillStyle='#221408';ctx.fillRect(px-7,by+10,6,9+legS*.15);ctx.fillRect(px+1,by+10,6,9-legS*.15);ctx.fillStyle='#3a2c18';ctx.fillRect(px-6,by+8,12,4);ctx.fillStyle='#4a3820';ctx.fillRect(px-8,by+16,7,4);ctx.fillRect(px+1,by+16,7,4);
-  // Corpo
-  ctx.fillStyle='#2a5e28';ctx.fillRect(px-9,by-4,18,14);ctx.fillStyle='#1e4a1e';ctx.fillRect(px-4,by-3,8,11);ctx.fillStyle='rgba(120,200,80,.12)';ctx.fillRect(px-8,by-4,4,14);
-  // Detalhes roupa
-  ctx.fillStyle='#c8a020';ctx.fillRect(px-2,by,4,2);ctx.fillRect(px-2,by+4,4,2);ctx.fillStyle='#3a2810';ctx.fillRect(px-3,by-4,2,12);ctx.fillRect(px+1,by-4,2,12);
-  // Braços
-  const armS=mov>0.5?Math.sin(tempo*11+Math.PI)*5:0;ctx.fillStyle='#e0b878';ctx.fillRect(px-13,by-3-armS*.25,5,10);ctx.fillRect(px+8,by-3+armS*.25,5,10);ctx.fillStyle='#2a5e28';ctx.fillRect(px-12,by-4,5,5);ctx.fillRect(px+7,by-4,5,5);
-  // Cabeça
-  ctx.fillStyle='#e0b878';ctx.fillRect(px-8,by-18,16,14);ctx.fillStyle='#c89858';ctx.fillRect(px+2,by-11,3,2);ctx.fillStyle='#7a4020';ctx.fillRect(px-3,by-8,6,1.5);
-  // Chapéu
-  ctx.fillStyle='#3a2010';ctx.fillRect(px-11,by-21,22,5);ctx.fillStyle='#4a3018';ctx.fillRect(px-7,by-26,14,6);ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(px-11,by-21,22,2);ctx.fillStyle='#8a6030';ctx.fillRect(px-7,by-22,14,2);
-  // Olhos
+  const legS=mov>0.5?Math.sin(tempo*11)*4.5:0;
+  ctx.fillStyle='#221408';ctx.fillRect(px-7,by+10,6,9+legS*.15);ctx.fillRect(px+1,by+10,6,9-legS*.15);
+  ctx.fillStyle='#3a2c18';ctx.fillRect(px-6,by+8,12,4);
+  ctx.fillStyle='#4a3820';ctx.fillRect(px-8,by+16,7,4);ctx.fillRect(px+1,by+16,7,4);
+  ctx.fillStyle='#2a5e28';ctx.fillRect(px-9,by-4,18,14);
+  ctx.fillStyle='#1e4a1e';ctx.fillRect(px-4,by-3,8,11);
+  ctx.fillStyle='rgba(120,200,80,.12)';ctx.fillRect(px-8,by-4,4,14);
+  ctx.fillStyle='#c8a020';ctx.fillRect(px-2,by,4,2);ctx.fillRect(px-2,by+4,4,2);
+  ctx.fillStyle='#3a2810';ctx.fillRect(px-3,by-4,2,12);ctx.fillRect(px+1,by-4,2,12);
+  const armS=mov>0.5?Math.sin(tempo*11+Math.PI)*5:0;
+  ctx.fillStyle='#e0b878';ctx.fillRect(px-13,by-3-armS*.25,5,10);ctx.fillRect(px+8,by-3+armS*.25,5,10);
+  ctx.fillStyle='#2a5e28';ctx.fillRect(px-12,by-4,5,5);ctx.fillRect(px+7,by-4,5,5);
+  ctx.fillStyle='#e0b878';ctx.fillRect(px-8,by-18,16,14);
+  ctx.fillStyle='#c89858';ctx.fillRect(px+2,by-11,3,2);
+  ctx.fillStyle='#7a4020';ctx.fillRect(px-3,by-8,6,1.5);
+  ctx.fillStyle='#3a2010';ctx.fillRect(px-11,by-21,22,5);
+  ctx.fillStyle='#4a3018';ctx.fillRect(px-7,by-26,14,6);
+  ctx.fillStyle='rgba(255,255,255,.06)';ctx.fillRect(px-11,by-21,22,2);
+  ctx.fillStyle='#8a6030';ctx.fillRect(px-7,by-22,14,2);
   ctx.fillStyle='#180c00';
   if(E.dir==='L')ctx.fillRect(px+2,by-14,3,3);
   else if(E.dir==='O')ctx.fillRect(px-5,by-14,3,3);
@@ -1343,7 +1095,6 @@ function desenharJogador(ctx,px,py){
   if(E.dir==='L')ctx.fillRect(px+2,by-14,1,1);
   else if(E.dir==='O')ctx.fillRect(px-5,by-14,1,1);
   else{ctx.fillRect(px-5,by-14,1,1);ctx.fillRect(px+2,by-14,1,1);}
-  // Efeito de veneno
   if(E.veneno){ctx.globalAlpha=.2+Math.sin(tempo*4)*.1;ctx.fillStyle='#44ff44';ctx.beginPath();ctx.arc(px,by-5,18,0,Math.PI*2);ctx.fill();}
   ctx.restore();
 }
@@ -1356,12 +1107,10 @@ function renderMiniMapa(){
   const ctx=c.getContext('2d'),sc=135/MAPA_W;
   ctx.fillStyle='#010601';ctx.fillRect(0,0,135,135);
   for(let y=0;y<MAPA_H;y++)for(let x=0;x<MAPA_W;x++){const tile=mapa[y][x];ctx.fillStyle=tile.vis?MINI_COR[tile.tipo??0]:'#050c05';ctx.fillRect(x*sc,y*sc,sc+.5,sc+.5);}
-  // Inimigos no minimapa
   inimigos.forEach(ini=>{if(ini.morto)return;ctx.globalAlpha=.5;ctx.fillStyle=ini.alertado?'#ff2200':'#cc6600';ctx.beginPath();ctx.arc(ini.x*sc,ini.y*sc,2,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;});
-  // Lendas no minimapa
   entidades.forEach(e=>{if(!legendasVistas.has(e.lenda)){ctx.globalAlpha=.5+Math.sin(tempo*3+e.fase)*.35;ctx.fillStyle=LENDAS[e.lenda].cor;ctx.beginPath();ctx.arc(e.x*sc,e.y*sc,2.4,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}});
-  // Jogador
-  ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,3,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(0,255,136,.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,5.5,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,3,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(0,255,136,.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,5.5,0,Math.PI*2);ctx.stroke();
   if(lanterna.ativa&&(perIdx===0||perIdx===4)){ctx.save();ctx.globalAlpha=.55;ctx.strokeStyle='#ffe066';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(E.x*sc,E.y*sc);ctx.lineTo(E.x*sc+Math.cos(lanterna.angulo)*9,E.y*sc+Math.sin(lanterna.angulo)*9);ctx.stroke();ctx.restore();}
   ctx.strokeStyle='rgba(0,255,127,.12)';ctx.lineWidth=1;ctx.strokeRect(1,1,133,133);
 }
@@ -1375,23 +1124,16 @@ function iniciarAnimTitulo(){
   resize();window.addEventListener('resize',resize);
   for(let i=0;i<55;i++)ps.push({x:Math.random(),y:.8+Math.random()*.4,sz:1.2+Math.random()*3.5,sp:.0002+Math.random()*.0005,dr:(Math.random()-.5)*.00008,op:.2+Math.random()*.8,col:Math.random()<.55?'#00ff88':'#f0c840',ph:Math.random()*Math.PI*2});
   let nebOff=0,prev=0;
-  function frame(ts){
-    if(document.getElementById('tela-titulo').style.display==='none')return;
-    const dt=ts-prev;prev=ts;ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#000';ctx.fillRect(0,0,cv.width,cv.height);
-    ctx.strokeStyle='rgba(0,255,136,.018)';ctx.lineWidth=1;for(let gx=0;gx<cv.width;gx+=60){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,cv.height);ctx.stroke();}for(let gy=0;gy<cv.height;gy+=60){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(cv.width,gy);ctx.stroke();}
-    nebOff+=.0003;ps.forEach(p=>{p.y-=p.sp*dt;p.x+=p.dr;p.ph+=dt*.003;if(p.y<-.08){p.y=1.05;p.x=Math.random();}const fade=Math.min(1,(1.05-p.y)*8)*Math.min(1,p.y*15),blink=.7+Math.sin(p.ph)*.3;ctx.save();ctx.globalAlpha=p.op*fade*blink;ctx.fillStyle=p.col;ctx.shadowColor=p.col;ctx.shadowBlur=p.sz*4;ctx.beginPath();ctx.arc(p.x*cv.width,p.y*cv.height,p.sz,0,Math.PI*2);ctx.fill();ctx.restore();});
-    const ng=ctx.createRadialGradient(cv.width*.5+Math.sin(nebOff)*cv.width*.12,cv.height*.55+Math.cos(nebOff*.7)*cv.height*.08,0,cv.width/2,cv.height/2,cv.width*.65);ng.addColorStop(0,'rgba(4,28,8,.0)');ng.addColorStop(.3,'rgba(4,28,8,.5)');ng.addColorStop(.7,'rgba(2,14,4,.75)');ng.addColorStop(1,'rgba(0,0,0,1)');ctx.fillStyle=ng;ctx.fillRect(0,0,cv.width,cv.height);
-    requestAnimationFrame(frame);
-  }
+  function frame(ts){if(document.getElementById('tela-titulo').style.display==='none')return;const dt=ts-prev;prev=ts;ctx.clearRect(0,0,cv.width,cv.height);ctx.fillStyle='#000';ctx.fillRect(0,0,cv.width,cv.height);ctx.strokeStyle='rgba(0,255,136,.018)';ctx.lineWidth=1;for(let gx=0;gx<cv.width;gx+=60){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,cv.height);ctx.stroke();}for(let gy=0;gy<cv.height;gy+=60){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(cv.width,gy);ctx.stroke();}nebOff+=.0003;ps.forEach(p=>{p.y-=p.sp*dt;p.x+=p.dr;p.ph+=dt*.003;if(p.y<-.08){p.y=1.05;p.x=Math.random();}const fade=Math.min(1,(1.05-p.y)*8)*Math.min(1,p.y*15),blink=.7+Math.sin(p.ph)*.3;ctx.save();ctx.globalAlpha=p.op*fade*blink;ctx.fillStyle=p.col;ctx.shadowColor=p.col;ctx.shadowBlur=p.sz*4;ctx.beginPath();ctx.arc(p.x*cv.width,p.y*cv.height,p.sz,0,Math.PI*2);ctx.fill();ctx.restore();});const ng=ctx.createRadialGradient(cv.width*.5+Math.sin(nebOff)*cv.width*.12,cv.height*.55+Math.cos(nebOff*.7)*cv.height*.08,0,cv.width/2,cv.height/2,cv.width*.65);ng.addColorStop(0,'rgba(4,28,8,.0)');ng.addColorStop(.3,'rgba(4,28,8,.5)');ng.addColorStop(.7,'rgba(2,14,4,.75)');ng.addColorStop(1,'rgba(0,0,0,1)');ctx.fillStyle=ng;ctx.fillRect(0,0,cv.width,cv.height);requestAnimationFrame(frame);}
   requestAnimationFrame(frame);
 }
-
 window.addEventListener('resize',()=>{const c=document.getElementById('canvas-mundo');if(c&&document.getElementById('jogo').style.display!=='none'){c.width=window.innerWidth;c.height=window.innerHeight;if(lightCanvas){lightCanvas.width=c.width;lightCanvas.height=c.height;}}});
 </script>
 </body>
 </html>
-ENDOFHTML
-echo "Resultado: $(wc -c < /mnt/user-data/outputs/amazonia.html) bytes, $(wc -l < /mnt/user-data/outputs/amazonia.html) linhas"
+ENDJS
+wc -c /tmp/amazonia_part3.js
 Saída
 
-Command argument is 126_960 bytes, exceeding the 100_000-byte per-argument limit. For large content, pipe via stdin or use a file-write API instead of embedding the content inline in the command. Argument preview: 'cat > /mnt/user-data/outputs/amazonia.html << \'ENDOFHTML\'\n<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<titl'
+Command argument is 109_269 bytes, exceeding the 100_000-byte per-argument limit. For large content, pipe via stdin or use a file-write API instead of embedding the content inline in the command. Argument preview: "cat > /tmp/amazonia_part3.js << 'ENDJS'\n<script>\n'use strict';\n\n// ══════════════════════════════════════════════════════════════\n//  AUDIO ENGINE MELHORADO\n// ════════════════════════════════════════"
+Concluído
