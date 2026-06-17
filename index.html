@@ -1,4 +1,3 @@
-cat > /home/claude/amazonia.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -828,7 +827,7 @@ function gerarItens(){
     {tipo:'pedra',emoji:'🪨',nome:'Pederneira',ef:'fogo',val:0},
     {tipo:'cana',emoji:'🎋',nome:'Bambu',ef:'constr',val:0},
     {tipo:'agua',emoji:'💧',nome:'Água Limpa',ef:'sede',val:38},
-    {tipo:'cogumelo',emoji:'🍄',nome:'Cogumelo',nome:'Cogumelo Misterioso',ef:'misterio',val:0},
+    {tipo:'cogumelo',emoji:'🍄',nome:'Cogumelo Misterioso',ef:'misterio',val:0},
     {tipo:'mel',emoji:'🍯',nome:'Mel Silvestre',ef:'fome_vida',val:20,raro:true},
     {tipo:'raiz',emoji:'🌱',nome:'Raiz Nutritiva',ef:'fome',val:18},
     {tipo:'peixe',emoji:'🐟',nome:'Peixe Seco',ef:'fome_sede',val:35,raro:true},
@@ -1529,9 +1528,3 @@ window.addEventListener('resize',()=>{const c=document.getElementById('canvas-mu
 </script>
 </body>
 </html>
-HTMLEOF
-echo "Tamanho: $(wc -c < /home/claude/amazonia.html) bytes, $(wc -l < /home/claude/amazonia.html) linhas"
-Saída
-
-Command argument is 135_196 bytes, exceeding the 100_000-byte per-argument limit. For large content, pipe via stdin or use a file-write API instead of embedding the content inline in the command. Argument preview: 'cat > /home/claude/amazonia.html << \'HTMLEOF\'\n<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>AMAZÔNIA —'
-Concluído
