@@ -1,3 +1,4 @@
+cat > /mnt/user-data/outputs/amazonia.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -179,125 +180,38 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 #aviso-inimigo.ativo{opacity:1;animation:apulsar .9s ease-in-out infinite;}
 @keyframes apulsar{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ══════════════════════════════════════
-   MODAL LENDA — TOTALMENTE REDESENHADO
-   ══════════════════════════════════════ */
-#modal-lenda{
-  display:none;position:fixed;inset:0;z-index:500;
-  align-items:center;justify-content:center;
-  background:rgba(0,0,0,0);
-}
-#modal-lenda.aberto{
-  display:flex;
-  animation:modalFadeIn .6s ease-out forwards;
-}
+/* ── MODAL LENDA ── */
+#modal-lenda{display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;background:rgba(0,0,0,0);}
+#modal-lenda.aberto{display:flex;animation:modalFadeIn .6s ease-out forwards;}
 @keyframes modalFadeIn{to{background:rgba(0,0,0,.97)}}
-.modal-scene{
-  position:relative;width:680px;max-width:96vw;
-  animation:modalSlide .5s cubic-bezier(.23,1,.32,1);
-}
+.modal-scene{position:relative;width:680px;max-width:96vw;animation:modalSlide .5s cubic-bezier(.23,1,.32,1);}
 @keyframes modalSlide{from{opacity:0;transform:translateY(40px) scale(.92)}to{opacity:1;transform:none}}
-.modal-scene-canvas{
-  position:absolute;inset:0;border-radius:4px;
-  pointer-events:none;
-}
-.modal-frame{
-  position:relative;z-index:2;
-  border-radius:4px;overflow:hidden;
-}
+.modal-scene-canvas{position:absolute;inset:0;border-radius:4px;pointer-events:none;}
+.modal-frame{position:relative;z-index:2;border-radius:4px;overflow:hidden;}
 .modal-top-bar{height:3px;position:relative;overflow:hidden;}
 .modal-top-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.4) 50%,transparent 100%);animation:shimmer 2s ease-in-out infinite;}
 @keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
-.modal-body{
-  padding:2.8rem 2.5rem 2.2rem;
-  text-align:center;
-  background:linear-gradient(170deg,rgba(4,14,4,.96),rgba(10,24,12,.96),rgba(4,14,4,.96));
-  backdrop-filter:blur(6px);
-  border:1px solid rgba(255,255,255,.05);
-  border-top:none;
-  border-radius:0 0 4px 4px;
-}
-/* Orbe central da lenda */
-.m-orbe{
-  width:110px;height:110px;
-  border-radius:50%;
-  margin:0 auto 1.4rem;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;
-}
-.m-orbe::before{
-  content:'';position:absolute;inset:-12px;border-radius:50%;
-  border:1px solid;
-  animation:orbeRing1 3s ease-in-out infinite;
-}
-.m-orbe::after{
-  content:'';position:absolute;inset:-24px;border-radius:50%;
-  border:1px solid;
-  opacity:.4;
-  animation:orbeRing2 4s ease-in-out infinite reverse;
-}
+.modal-body{padding:2.8rem 2.5rem 2.2rem;text-align:center;background:linear-gradient(170deg,rgba(4,14,4,.96),rgba(10,24,12,.96),rgba(4,14,4,.96));backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.05);border-top:none;border-radius:0 0 4px 4px;}
+.m-orbe{width:110px;height:110px;border-radius:50%;margin:0 auto 1.4rem;display:flex;align-items:center;justify-content:center;position:relative;}
+.m-orbe::before{content:'';position:absolute;inset:-12px;border-radius:50%;border:1px solid;animation:orbeRing1 3s ease-in-out infinite;}
+.m-orbe::after{content:'';position:absolute;inset:-24px;border-radius:50%;border:1px solid;opacity:.4;animation:orbeRing2 4s ease-in-out infinite reverse;}
 @keyframes orbeRing1{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.06);opacity:1}}
 @keyframes orbeRing2{0%,100%{transform:scale(1) rotate(0deg)}100%{transform:scale(1.12) rotate(360deg)}}
-.m-orbe-inner{
-  width:80px;height:80px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;z-index:1;
-}
-.m-emoji{
-  font-size:3.6rem;
-  display:block;
-  position:relative;z-index:2;
-  animation:mflutu 3.5s ease-in-out infinite;
-  filter:drop-shadow(0 0 12px currentColor);
-}
+.m-orbe-inner{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;}
+.m-emoji{font-size:3.6rem;display:block;position:relative;z-index:2;animation:mflutu 3.5s ease-in-out infinite;filter:drop-shadow(0 0 12px currentColor);}
 @keyframes mflutu{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.05)}}
 .m-tipo{font-family:'Share Tech Mono',monospace;font-size:.52rem;letter-spacing:.5em;margin-bottom:.3rem;text-transform:uppercase;opacity:.7;}
 .m-nome{font-family:'Cinzel Decorative',serif;font-size:1.7rem;font-weight:700;margin-bottom:.3rem;text-shadow:0 0 40px currentColor;}
-.m-separador{
-  display:flex;align-items:center;gap:12px;
-  margin:1rem auto 1.2rem;width:80%;max-width:360px;
-}
+.m-separador{display:flex;align-items:center;gap:12px;margin:1rem auto 1.2rem;width:80%;max-width:360px;}
 .m-sep-linha{flex:1;height:1px;}
 .m-sep-ico{font-size:.9rem;opacity:.8;}
-.m-texto{
-  font-size:1rem;line-height:2.1;
-  color:rgba(220,236,212,.92);
-  margin-bottom:1.3rem;
-  font-family:'Cormorant Garamond',serif;
-  font-style:italic;
-  text-shadow:0 1px 8px rgba(0,0,0,.8);
-}
-.m-dica{
-  border-left:3px solid;
-  padding:.9rem 1.1rem;
-  text-align:left;
-  margin-bottom:1.4rem;
-  border-radius:0 3px 3px 0;
-}
-.m-dica-label{
-  font-family:'Share Tech Mono',monospace;
-  font-size:.5rem;letter-spacing:2px;
-  margin-bottom:.35rem;text-transform:uppercase;opacity:.8;
-}
-.m-dica-txt{
-  font-size:.9rem;font-style:italic;
-  color:rgba(200,220,190,.85);
-  font-family:'Cormorant Garamond',serif;line-height:1.7;
-}
-.m-efeito{
-  display:inline-block;
-  font-family:'Share Tech Mono',monospace;
-  font-size:.48rem;letter-spacing:.2em;
-  padding:3px 12px;border-radius:20px;
-  border:1px solid;margin-bottom:1.4rem;
-  text-transform:uppercase;
-}
+.m-texto{font-size:1rem;line-height:2.1;color:rgba(220,236,212,.92);margin-bottom:1.3rem;font-family:'Cormorant Garamond',serif;font-style:italic;text-shadow:0 1px 8px rgba(0,0,0,.8);}
+.m-dica{border-left:3px solid;padding:.9rem 1.1rem;text-align:left;margin-bottom:1.4rem;border-radius:0 3px 3px 0;}
+.m-dica-label{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:2px;margin-bottom:.35rem;text-transform:uppercase;opacity:.8;}
+.m-dica-txt{font-size:.9rem;font-style:italic;color:rgba(200,220,190,.85);font-family:'Cormorant Garamond',serif;line-height:1.7;}
+.m-efeito{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:.48rem;letter-spacing:.2em;padding:3px 12px;border-radius:20px;border:1px solid;margin-bottom:1.4rem;text-transform:uppercase;}
 .m-btns{display:flex;gap:10px;justify-content:center;}
-.btn-fechar{
-  font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3em;
-  padding:10px 32px;background:transparent;border:1px solid;
-  cursor:pointer;transition:all .3s;text-transform:uppercase;border-radius:2px;
-}
+.btn-fechar{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3em;padding:10px 32px;background:transparent;border:1px solid;cursor:pointer;transition:all .3s;text-transform:uppercase;border-radius:2px;}
 .btn-fechar.primario:hover{color:#000;}
 .btn-fechar.secundario{opacity:.5;}
 .btn-fechar.secundario:hover{opacity:1;}
@@ -312,17 +226,47 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 #overlay-veneno{position:fixed;inset:0;z-index:156;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,transparent 30%,rgba(0,80,30,.7) 100%);transition:opacity 1s;}
 #overlay-sanidade{position:fixed;inset:0;z-index:157;pointer-events:none;opacity:0;transition:opacity 1s;}
 
+/* ── PAUSA ── */
+#tela-pausa{display:none;position:fixed;inset:0;z-index:600;align-items:center;justify-content:center;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);}
+#tela-pausa.aberto{display:flex;}
+.pausa-box{background:linear-gradient(160deg,rgba(4,18,4,.99),rgba(8,28,8,.99));border:1px solid rgba(0,255,127,.2);padding:2.5rem 3rem;border-radius:3px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1.2rem;min-width:320px;box-shadow:0 20px 80px rgba(0,0,0,.9);}
+.pausa-titulo{font-family:'Cinzel Decorative',serif;font-size:1.5rem;color:var(--vn);letter-spacing:.2em;}
+.pausa-subtitulo{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(0,255,127,.5);letter-spacing:.3em;text-transform:uppercase;}
+.pausa-separator{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,127,.3),transparent);}
+.pausa-info{font-family:'Share Tech Mono',monospace;font-size:.6rem;color:rgba(180,200,170,.6);display:flex;flex-direction:column;gap:.4rem;width:100%;}
+.pausa-info-row{display:flex;justify-content:space-between;}
+.pausa-info-val{color:var(--vn);}
+.pausa-btns{display:flex;flex-direction:column;gap:.6rem;width:100%;}
+.pausa-btn{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.2em;padding:10px 20px;background:transparent;border:1px solid rgba(0,255,127,.25);color:rgba(220,236,212,.8);cursor:pointer;transition:all .2s;text-transform:uppercase;border-radius:2px;}
+.pausa-btn:hover{border-color:var(--vn);color:var(--vn);background:rgba(0,255,127,.06);}
+.pausa-btn.danger{border-color:rgba(180,24,0,.4);color:rgba(255,100,80,.8);}
+.pausa-btn.danger:hover{border-color:var(--verv);color:#fff;background:rgba(180,0,0,.15);}
+
 /* ── TELA FIM ── */
 #tela-fim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.97);z-index:700;align-items:center;justify-content:center;flex-direction:column;gap:1.5rem;backdrop-filter:blur(10px);}
 #tela-fim.aberto{display:flex;}
 .fim-titulo{font-family:'Cinzel Decorative',serif;font-size:clamp(1.8rem,5vw,3.5rem);font-weight:900;background:linear-gradient(180deg,#ff6644,#bb1800);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(200,30,0,.6));}
+.fim-titulo.vitoria{background:linear-gradient(180deg,#ffe868,#00ff7f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(0,255,127,.6));}
 .fim-linha{width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--verm),transparent);opacity:.6;}
+.fim-linha.vitoria{background:linear-gradient(90deg,transparent,var(--vn),transparent);}
 .fim-stats{display:grid;grid-template-columns:repeat(2,auto);gap:.5rem 2rem;font-family:'Share Tech Mono',monospace;font-size:.7rem;color:rgba(180,200,170,.6);text-align:center;}
 .fim-stat-v{color:var(--dob);font-size:.95rem;}
 .fim-causa{font-size:1rem;font-style:italic;color:rgba(220,236,212,.65);max-width:420px;text-align:center;line-height:1.9;font-family:'Cormorant Garamond',serif;}
 .fim-conquistas{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;max-width:380px;}
 .fim-c-chip{font-size:.85rem;padding:4px 8px;background:rgba(200,144,16,.1);border:1px solid rgba(200,144,16,.2);border-radius:2px;}
 @keyframes mentrada{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+
+/* ── TOOLTIP ── */
+.tooltip-wrap{position:relative;}
+.tooltip-wrap:hover .tooltip-pop{display:block;}
+.tooltip-pop{display:none;position:absolute;bottom:110%;left:50%;transform:translateX(-50%);background:rgba(2,8,2,.96);border:1px solid rgba(0,255,127,.2);padding:6px 10px;border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(220,236,212,.8);white-space:nowrap;z-index:999;pointer-events:none;}
+
+/* ── NOTIFICAÇÃO DE DIA ── */
+#notif-dia{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);z-index:500;display:none;pointer-events:none;text-align:center;}
+#notif-dia.vis{display:block;animation:diaNotif 3.5s ease forwards;}
+@keyframes diaNotif{0%{opacity:0;transform:translate(-50%,-50%) scale(.9)}15%{opacity:1;transform:translate(-50%,-50%) scale(1)}70%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)}}
+.notif-dia-txt{font-family:'Cinzel Decorative',serif;font-size:clamp(1.2rem,3vw,2rem);color:var(--dob);text-shadow:0 0 40px rgba(232,200,64,.7);letter-spacing:.2em;}
+.notif-dia-sub{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(0,255,127,.7);letter-spacing:.4em;margin-top:.4rem;}
 </style>
 </head>
 <body>
@@ -356,6 +300,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
         <div class="ctrl-row"><span class="k">F</span> lanterna</div>
         <div class="ctrl-row"><span class="k">C</span> crafting</div>
         <div class="ctrl-row"><span class="k">J</span> diário</div>
+        <div class="ctrl-row"><span class="k">ESC</span> pausa</div>
       </div>
       <div class="ctrl-col">
         <div class="ctrl-head">🎮 Controle</div>
@@ -375,11 +320,12 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
         <div class="ctrl-row">Sistema de clima</div>
         <div class="ctrl-row">Diário de bordo</div>
         <div class="ctrl-row">Conquistas</div>
+        <div class="ctrl-row">Tela de pausa</div>
       </div>
     </div>
     <button class="btn-start" onclick="iniciarJogo()">Entrar na Floresta</button>
   </div>
-  <div class="v-badge">v7.0 · AMAZÔNIA Ultimate</div>
+  <div class="v-badge">v8.0 · AMAZÔNIA Ultimate</div>
 </div>
 
 <!-- HUD -->
@@ -434,6 +380,12 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 </div>
 <div id="bussola"><div class="buss-inner" id="buss-txt"><span class="buss-dir">↑ Norte</span></div></div>
 
+<!-- NOTIFICAÇÃO DE DIA -->
+<div id="notif-dia">
+  <div class="notif-dia-txt" id="notif-dia-txt">Dia 2</div>
+  <div class="notif-dia-sub" id="notif-dia-sub">AMANHECER</div>
+</div>
+
 <!-- CRAFTING -->
 <div id="painel-craft">
   <div class="craft-header">
@@ -461,7 +413,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
   </div>
 </div>
 
-<!-- MODAL LENDA — NOVA ARQUITETURA -->
+<!-- MODAL LENDA -->
 <div id="modal-lenda">
   <div class="modal-scene" id="modal-scene">
     <canvas class="modal-scene-canvas" id="modal-canvas"></canvas>
@@ -494,6 +446,23 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
   </div>
 </div>
 
+<!-- PAUSA -->
+<div id="tela-pausa">
+  <div class="pausa-box">
+    <div class="pausa-titulo">PAUSA</div>
+    <div class="pausa-subtitulo">A floresta espera...</div>
+    <div class="pausa-separator"></div>
+    <div class="pausa-info" id="pausa-info"></div>
+    <div class="pausa-separator"></div>
+    <div class="pausa-btns">
+      <button class="pausa-btn" onclick="fecharPausa()">▶ Continuar [ESC]</button>
+      <button class="pausa-btn" onclick="abrirCraftFromPausa()">⚒ Crafting [C]</button>
+      <button class="pausa-btn" onclick="abrirDiarioFromPausa()">📖 Diário [J]</button>
+      <button class="pausa-btn danger" onclick="voltarMenuFromPausa()">🏠 Menu Principal</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 <div id="aviso-inimigo"></div>
 <div id="dmg-flash"></div>
@@ -505,17 +474,15 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 
 <div id="tela-fim">
   <div class="fim-titulo" id="fim-titulo">A Floresta Venceu</div>
-  <div class="fim-linha"></div>
+  <div class="fim-linha" id="fim-linha"></div>
   <div class="fim-stats" id="fim-stats"></div>
   <div class="fim-causa" id="fim-causa"></div>
   <div class="fim-conquistas" id="fim-conquistas"></div>
-  
-  <div style="display:flex; gap:12px; margin-top:1rem; flex-wrap:wrap; justify-content:center;">
-    <button class="btn-start" onclick="reiniciar()" style="padding:16px 40px; font-size:0.85rem;">🔄 Tentar Novamente</button>
-    <button class="btn-start" onclick="voltarMenu()" style="padding:16px 32px; font-size:0.75rem; border-color:#c89010; color:#c89010;">🏠 Voltar ao Menu</button>
+  <div style="display:flex;gap:12px;margin-top:1rem;flex-wrap:wrap;justify-content:center;">
+    <button class="btn-start" onclick="reiniciar()" style="padding:16px 40px;font-size:0.85rem;">🔄 Tentar Novamente</button>
+    <button class="btn-start" onclick="voltarMenu()" style="padding:16px 32px;font-size:0.75rem;border-color:#c89010;color:#c89010;">🏠 Voltar ao Menu</button>
   </div>
-  
-  <div style="margin-top:0.8rem; font-size:0.6rem; color:rgba(220,236,212,.4); font-family:'Share Tech Mono',monospace;">
+  <div style="margin-top:0.8rem;font-size:0.6rem;color:rgba(220,236,212,.4);font-family:'Share Tech Mono',monospace;">
     Pressione <span class="k">ENTER</span> ou <span class="k">R</span> para reiniciar
   </div>
 </div>
@@ -539,8 +506,8 @@ const sfx={
   fogueira:()=>{makeNoise(.15,2500,.12,'highpass');makeNoise(.4,600,.08,'lowpass',.1);playTone(120,'sawtooth',.3,.07,.01,.2,.05);},
   lenda:()=>{[220,261,311,370,440,523,622].forEach((f,i)=>playTone(f,'sine',.6,.06,.02,.4,i*.07));playTone(55,'sine',.8,.1,.1,.5);makeNoise(.5,200,.05,'lowpass',.1);},
   assobio:()=>{if(!audioCtx)return;const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type='sine';o.frequency.setValueAtTime(1400,t);o.frequency.linearRampToValueAtTime(1800,t+.3);o.frequency.linearRampToValueAtTime(1200,t+.7);o.frequency.linearRampToValueAtTime(1600,t+1.0);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.18,t+.1);g.gain.exponentialRampToValueAtTime(.001,t+1.2);o.start(t);o.stop(t+1.3);},
-  rugido:()=>{[40,55,65].forEach((f,i)=>{const t=audioCtx.currentTime+i*.03,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type='sawtooth';o.frequency.setValueAtTime(f,t);o.frequency.linearRampToValueAtTime(f*.7,t+.8);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.1);g.gain.exponentialRampToValueAtTime(.001,t+1.0);o.start(t);o.stop(t+1.2);});makeNoise(.8,100,.06,'lowpass',.05);},
-  iara:()=>{[523,659,784,1047,784,698,659,523].forEach((f,i)=>{const t=audioCtx.currentTime+i*.22,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.07,t+.05);g.gain.exponentialRampToValueAtTime(.001,t+.5);o.start(t);o.stop(t+.6);});},
+  rugido:()=>{if(!audioCtx)return;[40,55,65].forEach((f,i)=>{const t=audioCtx.currentTime+i*.03,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type='sawtooth';o.frequency.setValueAtTime(f,t);o.frequency.linearRampToValueAtTime(f*.7,t+.8);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.1);g.gain.exponentialRampToValueAtTime(.001,t+1.0);o.start(t);o.stop(t+1.2);});makeNoise(.8,100,.06,'lowpass',.05);},
+  iara:()=>{if(!audioCtx)return;[523,659,784,1047,784,698,659,523].forEach((f,i)=>{const t=audioCtx.currentTime+i*.22,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.07,t+.05);g.gain.exponentialRampToValueAtTime(.001,t+.5);o.start(t);o.stop(t+.6);});},
   boto:()=>{[880,1100,1320,1100,880,1320,1760].forEach((f,i)=>playTone(f,'sine',.2,.06,.01,.15,i*.08));},
   curupira:()=>{[520,560,580,540,510,570,590,610].forEach((f,i)=>{playTone(f,'triangle',.12,.05,.01,.08,i*.12);if(i%2===0)makeNoise(.08,1800,.02,'bandpass',i*.12);});},
   anhanga:()=>{[110,138,165].forEach((f,i)=>playTone(f,'sine',1.2-.2*i,.1-.02*i,.2+.05*i,.5,i*.1));makeNoise(.6,300,.04,'lowpass',.3);},
@@ -551,14 +518,15 @@ const sfx={
   craft:()=>{[260,330,440,550].forEach((f,i)=>playTone(f,'sine',.22,.07,.01,.15,i*.07));makeNoise(.15,800,.03,'bandpass',.1);},
   combate:()=>{playTone(200,'sawtooth',.18,.15,.003,.12);makeNoise(.12,1500,.06,'highpass',.01);},
   cobra:()=>{makeNoise(.3,2800,.08,'bandpass');playTone(900,'sine',.2,.06,.01,.15,.05);},
-  onca:()=>{[50,65,80].forEach((f,i)=>playTone(f,'sawtooth',.6,.12,.02,.3,i*.04));makeNoise(.5,150,.07,'lowpass',.1);},
+  onca:()=>{if(!audioCtx)return;[50,65,80].forEach((f,i)=>playTone(f,'sawtooth',.6,.12,.02,.3,i*.04));makeNoise(.5,150,.07,'lowpass',.1);},
   chuva:()=>{makeNoise(.8,3000,.06,'highpass');makeNoise(.6,800,.04,'bandpass',.2);},
   remedio:()=>{[440,554,660].forEach((f,i)=>playTone(f,'sine',.25,.07,.01,.18,i*.08));makeNoise(.2,600,.03,'bandpass',.1);},
-  // Lendas novas
   pirarucu:()=>{[200,250,300,180,220].forEach((f,i)=>makeNoise(.2,f,.06,'lowpass',i*.15));playTone(120,'sine',.8,.08,.1,.5,.2);},
   boitatá:()=>{[300,400,500,600].forEach((f,i)=>playTone(f,'sawtooth',.4,.1,.02,.3,i*.1));makeNoise(.5,2000,.08,'highpass');},
   sacis:()=>{[800,700,900,600,850].forEach((f,i)=>playTone(f,'triangle',.1,.06,.005,.06,i*.06));makeNoise(.3,1200,.04,'bandpass');},
-  uiara:()=>{[660,784,880,1047,880,784,660,523,440].forEach((f,i)=>{const t=audioCtx.currentTime+i*.18;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.08,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.start(t);o.stop(t+.5);});},
+  uiara:()=>{if(!audioCtx)return;[660,784,880,1047,880,784,660,523,440].forEach((f,i)=>{const t=audioCtx.currentTime+i*.18,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.08,t+.04);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.start(t);o.stop(t+.5);});},
+  pausa:()=>{playTone(330,'sine',.1,.04,.01,.07);playTone(440,'sine',.1,.03,.01,.07,.05);},
+  vitoria:()=>{[440,554,659,880,1047,1319].forEach((f,i)=>playTone(f,'sine',.6,.1,.02,.4,i*.12));[220,277,330,440].forEach((f,i)=>playTone(f,'triangle',.8,.06,.05,.5,i*.15+.1));},
 };
 let passosTimer=0;
 function sfxPasso(tile){const now=Date.now();if(now-passosTimer>320){passosTimer=now;sfx.passos(tile?.tipo??0);}}
@@ -605,96 +573,16 @@ const MINI_COR=['#1a4a1a','#0a3a60','#3a6a18','#484848','#1a4e1a','#266018','#5a
 //  10 LENDAS DA AMAZÔNIA
 // ══════════════════════════════════════════════════════════
 const LENDAS=[
-  {
-    nome:"Curupira",tipo:"Guardião da Floresta",emoji:"🦶",
-    cor:"#00ff88",corBg:"rgba(0,255,136,.08)",corOrbe:"rgba(0,200,100,.3)",
-    sepIco:"🌿",efeitoNome:"CONFUSÃO ESPACIAL",
-    texto:"O Curupira protege a mata com seus pés virados para trás, deixando rastros que conduzem caçadores em círculos. Você ouve risadas infantis ecoando de todas as direções ao mesmo tempo. Os sons chegam sem ponto de origem.",
-    dica:"Observe o musgo nas árvores — cresce no lado norte. Quando sentir que está circulando, pare completamente. Respire. O Curupira confunde quem tem pressa.",
-    efeito:"confusao",sfx:sfx.curupira,
-    renderCanvas:(cv,t)=>{lendaCanvasFloresta(cv,t,'#00ff88');}
-  },
-  {
-    nome:"Mapinguari",tipo:"Besta Ancestral",emoji:"🦁",
-    cor:"#cc2200",corBg:"rgba(200,30,0,.1)",corOrbe:"rgba(180,0,0,.35)",
-    sepIco:"💀",efeitoNome:"TERROR — DANO",
-    texto:"Colossal como uma árvore centenária, coberto de pelagem espessa e com um segundo olho rosado na barriga. É o espírito punitivo de um xamã que desafiou os deuses. O cheiro de podridão precede o silêncio absoluto.",
-    dica:"Jamais corra. O Mapinguari detecta movimento e vibração. Agache entre raízes altas, respire devagar. Deixe-o passar como uma tempestade.",
-    efeito:"medo",sfx:sfx.rugido,
-    renderCanvas:(cv,t)=>{lendaCanvasChamas(cv,t,'#cc2200');}
-  },
-  {
-    nome:"Iara",tipo:"Sereia dos Rios",emoji:"🧜‍♀️",
-    cor:"#2196f3",corBg:"rgba(33,150,243,.08)",corOrbe:"rgba(0,80,200,.3)",
-    sepIco:"🌊",efeitoNome:"ATRAÇÃO — SANIDADE",
-    texto:"Metade mulher, metade peixe. Ao luar senta nas pedras e canta. Sua voz dissolve a vontade dos homens — quem ouve deseja apenas afundar, ser envolvido pelas águas escuras, nunca mais voltar.",
-    dica:"Tampe os ouvidos com barro antes de cruzar rios à noite. Água que emite luz própria nunca deve ser bebida.",
-    efeito:"atracaoAgua",sfx:sfx.iara,
-    renderCanvas:(cv,t)=>{lendaCanvasAgua(cv,t,'#2196f3');}
-  },
-  {
-    nome:"Boto Cor-de-Rosa",tipo:"Encantado dos Rios",emoji:"🐬",
-    cor:"#f48fb1",corBg:"rgba(244,143,177,.08)",corOrbe:"rgba(200,80,120,.25)",
-    sepIco:"🌸",efeitoNome:"BÊNÇÃO — SORTE",
-    texto:"Nas noites de festa, sai das águas como um jovem elegante de roupa branca — para esconder o espiráculo. Seduz e leva para o Encante, o mundo subaquático dos espíritos.",
-    dica:"Ver o boto saltar ao amanhecer traz boa sorte e protege pescadores. Mas jamais o toque, jamais o siga além das margens.",
-    efeito:"sorte",sfx:sfx.boto,
-    renderCanvas:(cv,t)=>{lendaCanvasOnda(cv,t,'#f48fb1');}
-  },
-  {
-    nome:"Matinta Perera",tipo:"Feiticeira Noturna",emoji:"🦉",
-    cor:"#7e57c2",corBg:"rgba(126,87,194,.1)",corOrbe:"rgba(100,50,180,.3)",
-    sepIco:"🌙",efeitoNome:"SUSTO — ENERGIA",
-    texto:"Um assobio agudo cortando a noite. Uma sombra de ave que te segue entre as copas. Uma velha feiticeira que assume forma de pássaro para aterrorizar viajantes solitários.",
-    dica:"Se ouvir o assobio: não responda, não olhe para trás, não acelere o passo. Caminhe firme em linha reta até um abrigo.",
-    efeito:"susto",sfx:sfx.assobio,
-    renderCanvas:(cv,t)=>{lendaCanvasVoar(cv,t,'#7e57c2');}
-  },
-  {
-    nome:"Anhangá",tipo:"Espírito dos Animais",emoji:"🦌",
-    cor:"#f0c94a",corBg:"rgba(240,200,74,.07)",corOrbe:"rgba(200,160,0,.25)",
-    sepIco:"✧",efeitoNome:"AVISO SAGRADO",
-    texto:"Um cervo de pelagem branca como neve, olhos que queimam como brasa. Ele vê cada animal que você caçou, cada vida tirada sem necessidade. Caçadores que matam por esporte desaparecem.",
-    dica:"A floresta sustenta quem a respeita. Cace apenas o essencial. O Anhangá não pune quem mata para sobreviver.",
-    efeito:"aviso",sfx:sfx.anhanga,
-    renderCanvas:(cv,t)=>{lendaCanvasEstrelado(cv,t,'#f0c94a');}
-  },
-  {
-    nome:"Boitatá",tipo:"Serpente de Fogo",emoji:"🔥",
-    cor:"#ff6600",corBg:"rgba(255,100,0,.1)",corOrbe:"rgba(220,80,0,.3)",
-    sepIco:"⚡",efeitoNome:"QUEIMADURA — DANO",
-    texto:"Uma serpente colossal que guarda os campos e florestas à noite — seus olhos são duas chamas vivas que cegam quem olha diretamente. Ela persegue quem coloca fogo na mata.",
-    dica:"Nunca acenda fogueiras na beira de rios ou campos abertos à noite. O Boitatá confunde o fogo com ameaça ao seu território.",
-    efeito:"fogo_danoso",sfx:sfx.boitatá,
-    renderCanvas:(cv,t)=>{lendaCanvasSerpente(cv,t,'#ff6600');}
-  },
-  {
-    nome:"Saci-Pererê",tipo:"Travesso das Matas",emoji:"🌪",
-    cor:"#aa44ff",corBg:"rgba(170,68,255,.09)",corOrbe:"rgba(130,30,220,.3)",
-    sepIco:"💨",efeitoNome:"CAOS — INVENTÁRIO",
-    texto:"Um menino negro de uma perna só, usando touca vermelha, fumando cachimbo. Surge nos redemoinhos de vento e prega peças — perde seus pertences, desamarra as redes, azeda o leite.",
-    dica:"Para aprisionar o Saci, jogue uma peneira no redemoinho — ele fica preso tentando contar os buracos. Uma garrafa com tampa também funciona.",
-    efeito:"caos",sfx:sfx.sacis,
-    renderCanvas:(cv,t)=>{lendaCanvasTornado(cv,t,'#aa44ff');}
-  },
-  {
-    nome:"Uiara",tipo:"Deusa das Águas Profundas",emoji:"🌊",
-    cor:"#00bcd4",corBg:"rgba(0,188,212,.08)",corOrbe:"rgba(0,130,180,.3)",
-    sepIco:"🐚",efeitoNome:"HIPNOSE — AFOGAMENTO",
-    texto:"Diferente de Iara, a Uiara vive nas profundezas do Amazonas e comanda cardumes. Ela não canta — ela sussurra através das águas, e os peixes trazem a mensagem até a superfície.",
-    dica:"Se peixes começarem a circular seus pés na água, saia imediatamente. Significa que a Uiara notou sua presença.",
-    efeito:"profundeza",sfx:sfx.uiara,
-    renderCanvas:(cv,t)=>{lendaCanvasAbisso(cv,t,'#00bcd4');}
-  },
-  {
-    nome:"Peixe-Boi Encantado",tipo:"Guardião dos Lagos",emoji:"🦭",
-    cor:"#66bb6a",corBg:"rgba(102,187,106,.08)",corOrbe:"rgba(40,140,60,.3)",
-    sepIco:"🌱",efeitoNome:"BÊNÇÃO AQUÁTICA",
-    texto:"O Peixe-Boi Encantado é o espírito de um pajé transformado. Visto raramente, traz abundância de peixe a quem o respeita. Porém, poluir as águas onde habita traz maldição.",
-    dica:"Se vir um peixe-boi emerge três vezes, é sinal de boa pesca. Nunca jogue lixo em rios — a maldição pode persistir por dias.",
-    efeito:"bencaoAqua",sfx:sfx.pirarucu,
-    renderCanvas:(cv,t)=>{lendaCanvasLago(cv,t,'#66bb6a');}
-  },
+  {nome:"Curupira",tipo:"Guardião da Floresta",emoji:"🦶",cor:"#00ff88",corBg:"rgba(0,255,136,.08)",corOrbe:"rgba(0,200,100,.3)",sepIco:"🌿",efeitoNome:"CONFUSÃO ESPACIAL",texto:"O Curupira protege a mata com seus pés virados para trás, deixando rastros que conduzem caçadores em círculos. Você ouve risadas infantis ecoando de todas as direções ao mesmo tempo. Os sons chegam sem ponto de origem.",dica:"Observe o musgo nas árvores — cresce no lado norte. Quando sentir que está circulando, pare completamente. Respire. O Curupira confunde quem tem pressa.",efeito:"confusao",sfx:sfx.curupira,renderCanvas:(cv,t)=>{lendaCanvasFloresta(cv,t,'#00ff88');}},
+  {nome:"Mapinguari",tipo:"Besta Ancestral",emoji:"🦁",cor:"#cc2200",corBg:"rgba(200,30,0,.1)",corOrbe:"rgba(180,0,0,.35)",sepIco:"💀",efeitoNome:"TERROR — DANO",texto:"Colossal como uma árvore centenária, coberto de pelagem espessa e com um segundo olho rosado na barriga. É o espírito punitivo de um xamã que desafiou os deuses. O cheiro de podridão precede o silêncio absoluto.",dica:"Jamais corra. O Mapinguari detecta movimento e vibração. Agache entre raízes altas, respire devagar. Deixe-o passar como uma tempestade.",efeito:"medo",sfx:sfx.rugido,renderCanvas:(cv,t)=>{lendaCanvasChamas(cv,t,'#cc2200');}},
+  {nome:"Iara",tipo:"Sereia dos Rios",emoji:"🧜‍♀️",cor:"#2196f3",corBg:"rgba(33,150,243,.08)",corOrbe:"rgba(0,80,200,.3)",sepIco:"🌊",efeitoNome:"ATRAÇÃO — SANIDADE",texto:"Metade mulher, metade peixe. Ao luar senta nas pedras e canta. Sua voz dissolve a vontade dos homens — quem ouve deseja apenas afundar, ser envolvido pelas águas escuras, nunca mais voltar.",dica:"Tampe os ouvidos com barro antes de cruzar rios à noite. Água que emite luz própria nunca deve ser bebida.",efeito:"atracaoAgua",sfx:sfx.iara,renderCanvas:(cv,t)=>{lendaCanvasAgua(cv,t,'#2196f3');}},
+  {nome:"Boto Cor-de-Rosa",tipo:"Encantado dos Rios",emoji:"🐬",cor:"#f48fb1",corBg:"rgba(244,143,177,.08)",corOrbe:"rgba(200,80,120,.25)",sepIco:"🌸",efeitoNome:"BÊNÇÃO — SORTE",texto:"Nas noites de festa, sai das águas como um jovem elegante de roupa branca — para esconder o espiráculo. Seduz e leva para o Encante, o mundo subaquático dos espíritos.",dica:"Ver o boto saltar ao amanhecer traz boa sorte e protege pescadores. Mas jamais o toque, jamais o siga além das margens.",efeito:"sorte",sfx:sfx.boto,renderCanvas:(cv,t)=>{lendaCanvasOnda(cv,t,'#f48fb1');}},
+  {nome:"Matinta Perera",tipo:"Feiticeira Noturna",emoji:"🦉",cor:"#7e57c2",corBg:"rgba(126,87,194,.1)",corOrbe:"rgba(100,50,180,.3)",sepIco:"🌙",efeitoNome:"SUSTO — ENERGIA",texto:"Um assobio agudo cortando a noite. Uma sombra de ave que te segue entre as copas. Uma velha feiticeira que assume forma de pássaro para aterrorizar viajantes solitários.",dica:"Se ouvir o assobio: não responda, não olhe para trás, não acelere o passo. Caminhe firme em linha reta até um abrigo.",efeito:"susto",sfx:sfx.assobio,renderCanvas:(cv,t)=>{lendaCanvasVoar(cv,t,'#7e57c2');}},
+  {nome:"Anhangá",tipo:"Espírito dos Animais",emoji:"🦌",cor:"#f0c94a",corBg:"rgba(240,200,74,.07)",corOrbe:"rgba(200,160,0,.25)",sepIco:"✧",efeitoNome:"AVISO SAGRADO",texto:"Um cervo de pelagem branca como neve, olhos que queimam como brasa. Ele vê cada animal que você caçou, cada vida tirada sem necessidade. Caçadores que matam por esporte desaparecem.",dica:"A floresta sustenta quem a respeita. Cace apenas o essencial. O Anhangá não pune quem mata para sobreviver.",efeito:"aviso",sfx:sfx.anhanga,renderCanvas:(cv,t)=>{lendaCanvasEstrelado(cv,t,'#f0c94a');}},
+  {nome:"Boitatá",tipo:"Serpente de Fogo",emoji:"🔥",cor:"#ff6600",corBg:"rgba(255,100,0,.1)",corOrbe:"rgba(220,80,0,.3)",sepIco:"⚡",efeitoNome:"QUEIMADURA — DANO",texto:"Uma serpente colossal que guarda os campos e florestas à noite — seus olhos são duas chamas vivas que cegam quem olha diretamente. Ela persegue quem coloca fogo na mata.",dica:"Nunca acenda fogueiras na beira de rios ou campos abertos à noite. O Boitatá confunde o fogo com ameaça ao seu território.",efeito:"fogo_danoso",sfx:sfx.boitatá,renderCanvas:(cv,t)=>{lendaCanvasSerpente(cv,t,'#ff6600');}},
+  {nome:"Saci-Pererê",tipo:"Travesso das Matas",emoji:"🌪",cor:"#aa44ff",corBg:"rgba(170,68,255,.09)",corOrbe:"rgba(130,30,220,.3)",sepIco:"💨",efeitoNome:"CAOS — INVENTÁRIO",texto:"Um menino negro de uma perna só, usando touca vermelha, fumando cachimbo. Surge nos redemoinhos de vento e prega peças — perde seus pertences, desamarra as redes, azeda o leite.",dica:"Para aprisionar o Saci, jogue uma peneira no redemoinho — ele fica preso tentando contar os buracos. Uma garrafa com tampa também funciona.",efeito:"caos",sfx:sfx.sacis,renderCanvas:(cv,t)=>{lendaCanvasTornado(cv,t,'#aa44ff');}},
+  {nome:"Uiara",tipo:"Deusa das Águas Profundas",emoji:"🌊",cor:"#00bcd4",corBg:"rgba(0,188,212,.08)",corOrbe:"rgba(0,130,180,.3)",sepIco:"🐚",efeitoNome:"HIPNOSE — AFOGAMENTO",texto:"Diferente de Iara, a Uiara vive nas profundezas do Amazonas e comanda cardumes. Ela não canta — ela sussurra através das águas, e os peixes trazem a mensagem até a superfície.",dica:"Se peixes começarem a circular seus pés na água, saia imediatamente. Significa que a Uiara notou sua presença.",efeito:"profundeza",sfx:sfx.uiara,renderCanvas:(cv,t)=>{lendaCanvasAbisso(cv,t,'#00bcd4');}},
+  {nome:"Peixe-Boi Encantado",tipo:"Guardião dos Lagos",emoji:"🦭",cor:"#66bb6a",corBg:"rgba(102,187,106,.08)",corOrbe:"rgba(40,140,60,.3)",sepIco:"🌱",efeitoNome:"BÊNÇÃO AQUÁTICA",texto:"O Peixe-Boi Encantado é o espírito de um pajé transformado. Visto raramente, traz abundância de peixe a quem o respeita. Porém, poluir as águas onde habita traz maldição.",dica:"Se vir um peixe-boi emerge três vezes, é sinal de boa pesca. Nunca jogue lixo em rios — a maldição pode persistir por dias.",efeito:"bencaoAqua",sfx:sfx.pirarucu,renderCanvas:(cv,t)=>{lendaCanvasLago(cv,t,'#66bb6a');}},
 ];
 
 // ══════════════════════════════════════════════════════════
@@ -747,14 +635,15 @@ const CONQUISTAS_DEF=[
 //  ESTADO
 // ══════════════════════════════════════════════════════════
 let E={},mapa=[],itens=[],entidades=[],inimigos=[],chuva=[],vagalumes=[],particles=[];
-let teclas={},animID=null,toastTmr=null,conquTmr=null;
+let teclas={},animID=null,toastTmr=null,conquTmr=null,notifDiaTmr=null;
 let tempo=0,diaNum=1,perIdx=1,tsAnt=0;
 let legendasVistas=new Set(),conquistasObtidas=new Set();
 let clima='limpo',climaTmp=0,climaDur=120;
 let mouseX=0,mouseY=0;
 let lightCanvas=null,lightCtx=null;
 let diario=[];
-let modalAnimID=null,modalAnimT=0;
+let modalRaf=null,modalT=0;
+let pausado=false;
 
 const lanterna={ativa:false,nivel:100,raioBase:90,raioMax:240,raioAtual:90,angulo:Math.PI/2,cone:Math.PI*.56,dreno:1.8,flick:0,flickAmp:0,pulsar:0};
 const tocha={ativa:false,duracao:0};
@@ -776,6 +665,38 @@ function lerGP(){
 const gpP=b=>GP.connected&&!!GP.buttons[b]&&!GP.prev[b];
 const gpH=b=>GP.connected&&!!GP.buttons[b];
 const gpA=i=>{if(!GP.connected)return 0;const v=GP.axes[i]||0;return Math.abs(v)>GP.dz?v:0;};
+
+// ══════════════════════════════════════════════════════════
+//  TELA DE PAUSA
+// ══════════════════════════════════════════════════════════
+function abrirPausa(){
+  if(document.getElementById('tela-fim').classList.contains('aberto'))return;
+  if(document.getElementById('modal-lenda').classList.contains('aberto'))return;
+  pausado=true;sfx.pausa();
+  const info=document.getElementById('pausa-info');
+  info.innerHTML=`
+    <div class="pausa-info-row"><span>Dia atual</span><span class="pausa-info-val">${diaNum}</span></div>
+    <div class="pausa-info-row"><span>Período</span><span class="pausa-info-val">${PERIODOS[perIdx]}</span></div>
+    <div class="pausa-info-row"><span>Lendas descobertas</span><span class="pausa-info-val">${E.lendas.length}/10</span></div>
+    <div class="pausa-info-row"><span>Inimigos derrotados</span><span class="pausa-info-val">${E.inimigosVencidos}</span></div>
+    <div class="pausa-info-row"><span>Passos dados</span><span class="pausa-info-val">${E.passos.toLocaleString()}</span></div>
+    <div class="pausa-info-row"><span>Conquistas</span><span class="pausa-info-val">${conquistasObtidas.size}/${CONQUISTAS_DEF.length}</span></div>
+  `;
+  document.getElementById('tela-pausa').classList.add('aberto');
+}
+function fecharPausa(){
+  pausado=false;sfx.pausa();
+  document.getElementById('tela-pausa').classList.remove('aberto');
+  tsAnt=performance.now();
+  animID=requestAnimationFrame(loop);
+}
+function abrirCraftFromPausa(){fecharPausa();abrirCraft();}
+function abrirDiarioFromPausa(){fecharPausa();abrirDiario();}
+function voltarMenuFromPausa(){
+  pausado=false;
+  document.getElementById('tela-pausa').classList.remove('aberto');
+  voltarMenu();
+}
 
 // ══════════════════════════════════════════════════════════
 //  INTRO LOADING
@@ -879,25 +800,33 @@ function iniciarJogo(){
   tempo=0;diaNum=1;perIdx=1;tsAnt=performance.now();
   legendasVistas=new Set();conquistasObtidas=new Set();
   clima='limpo';climaTmp=0;climaDur=80+Math.random()*120;
+  pausado=false;
   GP.acaoSel=0;GP.craftSel=0;
   mouseX=window.innerWidth/2;mouseY=window.innerHeight/2;
   particles=[];diario=[];
   document.onkeydown=e=>{
     teclas[e.code]=true;
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
-    
+
+    // Pausa
+    if(e.code==='Escape'){
+      if(document.getElementById('painel-craft').classList.contains('aberto')){fecharCraft();return;}
+      if(document.getElementById('painel-diario').classList.contains('aberto')){fecharDiario();return;}
+      if(document.getElementById('modal-lenda').classList.contains('aberto')){fecharLenda();return;}
+      if(document.getElementById('tela-pausa').classList.contains('aberto')){fecharPausa();return;}
+      if(!pausado)abrirPausa();else fecharPausa();
+      return;
+    }
+    if(pausado)return;
+
     // Reiniciar no final do jogo
     if(document.getElementById('tela-fim').classList.contains('aberto')){
-      if(e.code==='Enter' || e.code==='KeyR' || e.code==='KeyN'){
-        reiniciar();
-        return;
-      }
+      if(e.code==='Enter'||e.code==='KeyR'||e.code==='KeyN'){reiniciar();return;}
     }
-    
+
     if(e.code==='KeyE'||e.code==='Enter'){if(document.getElementById('modal-lenda').classList.contains('aberto'))fecharLenda();else if(document.getElementById('painel-craft').classList.contains('aberto'))fecharCraft();else if(document.getElementById('painel-diario').classList.contains('aberto'))fecharDiario();else ativarAcaoSel();}
     if(e.code==='KeyQ')navAcoes(-1);if(e.code==='KeyR')navAcoes(1);
     if(e.code==='KeyF')toggleLanterna();if(e.code==='KeyC')abrirCraft();if(e.code==='KeyJ')abrirDiario();
-    if(e.code==='Escape'){fecharCraft();fecharDiario();fecharLenda();}
   };
   document.onkeyup=e=>teclas[e.code]=false;
   const cv2=document.getElementById('canvas-mundo');
@@ -905,33 +834,29 @@ function iniciarJogo(){
   atualizarAcoes();
   msg("Você acorda na floresta amazônica. O ar é denso, quente, e cheio de sons desconhecidos.");
   addDiario("Acordei. Floresta. Não sei como cheguei aqui. O calor abafa e os sons não param. Preciso encontrar comida, água, abrigo.");
+  if(animID)cancelAnimationFrame(animID);
   animID=requestAnimationFrame(loop);
 }
-function reiniciar(){document.getElementById('tela-fim').classList.remove('aberto');cancelAnimationFrame(animID);stopAmbience();setTimeout(iniciarJogo,100);}
-
+function reiniciar(){
+  document.getElementById('tela-fim').classList.remove('aberto');
+  document.getElementById('tela-pausa').classList.remove('aberto');
+  cancelAnimationFrame(animID);stopAmbience();pausado=false;
+  setTimeout(iniciarJogo,100);
+}
 function voltarMenu(){
   document.getElementById('tela-fim').classList.remove('aberto');
-  cancelAnimationFrame(animID);
-  stopAmbience();
-  // Volta para a tela de título
-  setTimeout(() => {
-    document.getElementById('jogo').style.display = 'none';
-    document.getElementById('hud').style.display = 'none';
-    document.getElementById('log-area').style.display = 'none';
-    document.getElementById('mini-mapa').style.display = 'none';
-    document.getElementById('bussola').style.display = 'none';
-    document.getElementById('lanterna-hud').style.display = 'none';
-    document.getElementById('gp-indicator').style.display = 'none';
-    const tt = document.getElementById('tela-titulo');
-    tt.style.display = 'flex';
-    tt.style.opacity = '1';
-  }, 100);
+  cancelAnimationFrame(animID);stopAmbience();pausado=false;
+  setTimeout(()=>{
+    ['jogo','hud','log-area','mini-mapa','bussola','lanterna-hud','gp-indicator'].forEach(id=>{document.getElementById(id).style.display='none';});
+    const tt=document.getElementById('tela-titulo');tt.style.display='flex';tt.style.opacity='1';
+  },100);
 }
 
 // ══════════════════════════════════════════════════════════
 //  LOOP
 // ══════════════════════════════════════════════════════════
 function loop(ts){
+  if(pausado)return; // Não agendar novo frame se pausado
   const dt=Math.min((ts-tsAnt)/1000,.08);tsAnt=ts;tempo+=dt;
   lerGP();processGP(dt);
   if(!E.dormindo){
@@ -947,37 +872,35 @@ function loop(ts){
 }
 
 // ══════════════════════════════════════════════════════════
-//  GAMEPAD INPUT — MELHORADO
+//  GAMEPAD INPUT
 // ══════════════════════════════════════════════════════════
 function processGP(dt){
   if(!GP.connected)return;
-  // R-Stick controla lanterna
   const rx=gpA(2),ry=gpA(3);
   if(Math.abs(rx)>.3||Math.abs(ry)>.3)lanterna.angulo=Math.atan2(ry,rx);
-  // Botões de ação
+  if(gpP(9)){if(pausado)fecharPausa();else abrirPausa();return;}
+  if(pausado)return;
   if(document.getElementById('modal-lenda').classList.contains('aberto')){if(gpP(0)||gpP(1))fecharLenda();return;}
   if(document.getElementById('painel-craft').classList.contains('aberto')){
     document.getElementById('gp-craft-sel').style.display='block';
     const items=document.querySelectorAll('.craft-item:not(.bloq)');
-    if(gpP(12)){GP.craftSel=Math.max(0,GP.craftSel-1);}
-    if(gpP(13)){GP.craftSel=Math.min(items.length-1,GP.craftSel+1);}
+    if(gpP(12))GP.craftSel=Math.max(0,GP.craftSel-1);
+    if(gpP(13))GP.craftSel=Math.min(items.length-1,GP.craftSel+1);
     items.forEach((it,i)=>it.classList.toggle('gp-sel',i===GP.craftSel));
     if(gpP(0)){if(items[GP.craftSel])items[GP.craftSel].click();}
-    if(gpP(1)){fecharCraft();}
+    if(gpP(1))fecharCraft();
     return;
   }
   document.getElementById('gp-craft-sel').style.display='none';
   if(document.getElementById('tela-fim').classList.contains('aberto')){if(gpP(0)||gpP(9))reiniciar();return;}
-  // LB/RB navegar ações
   if(gpP(4)||gpP(14))navAcoes(-1);
   if(gpP(5)||gpP(15))navAcoes(1);
-  if(gpP(0))ativarAcaoSel();         // A
-  if(gpP(2))toggleLanterna();         // X
-  if(gpP(3))abrirCraft();             // Y
-  if(gpP(1)){fecharCraft();fecharDiario();}  // B
-  if(gpP(8))abrirDiario();            // Select/Back
-  if(gpP(9))msg("Dia "+diaNum+" | "+PERIODOS[perIdx]+" | Lendas: "+E.lendas.length+"/10");// Start
-  // D-pad ações extras
+  if(gpP(0))ativarAcaoSel();
+  if(gpP(2))toggleLanterna();
+  if(gpP(3))abrirCraft();
+  if(gpP(1)){fecharCraft();fecharDiario();}
+  if(gpP(8))abrirDiario();
+  if(gpP(9))msg("Dia "+diaNum+" | "+PERIODOS[perIdx]+" | Lendas: "+E.lendas.length+"/10");
   if(gpP(12)&&!teclas['KeyW'])navAcoes(-1);
   if(gpP(13)&&!teclas['KeyS'])navAcoes(1);
 }
@@ -1011,6 +934,7 @@ function atualizarLanterna(dt){
 //  FÍSICA / MOVIMENTO
 // ══════════════════════════════════════════════════════════
 function moverJogador(dt){
+  if(pausado)return;
   const velBase=E.energia<=5?1.5:E.veneno?3.5:5.2,velMult=clima==='chuva'?.72:1,vel=velBase*dt*velMult;
   let dx=0,dy=0;
   if(teclas['ArrowLeft']||teclas['KeyA'])dx-=1;if(teclas['ArrowRight']||teclas['KeyD'])dx+=1;
@@ -1100,7 +1024,7 @@ function atualizarStats(dt){
   const mult=clima==='chuva'?1.25:1;
   E.fome=Math.max(0,E.fome-dt*.32*mult);E.sede=Math.max(0,E.sede-dt*.48*mult);
   const noite=perIdx===0||perIdx===4,tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)],naAgua=tile&&(tile.tipo===T.AGUA||tile.tipo===T.LIRIO);
-  E.temperatura+=(( E.temFogo?38:noite?34.5:naAgua?34:37 )-E.temperatura)*dt*.08;
+  E.temperatura+=((E.temFogo?38:noite?34.5:naAgua?34:37)-E.temperatura)*dt*.08;
   if(noite&&!E.temAbrigo)E.sanidade=Math.max(0,E.sanidade-dt*.3);
   if(noite&&!lanterna.ativa&&!tocha.ativa&&!E.temFogo)E.sanidade=Math.max(0,E.sanidade-dt*.5);
   if(E.sanidade>50&&perIdx===1)E.sanidade=Math.min(100,E.sanidade+dt*.8);
@@ -1116,13 +1040,36 @@ function atualizarStats(dt){
   else document.getElementById('overlay-sanidade').style.opacity='0';
   document.getElementById('overlay-morte').style.opacity=E.vida<28?String((28-E.vida)/28*.9):'0';
 }
+
+function mostrarNotifDia(dN, perN){
+  clearTimeout(notifDiaTmr);
+  const el=document.getElementById('notif-dia');
+  const txt=document.getElementById('notif-dia-txt');
+  const sub=document.getElementById('notif-dia-sub');
+  txt.textContent='Dia '+dN;
+  sub.textContent=perN.toUpperCase();
+  el.classList.remove('vis');
+  void el.offsetWidth; // force reflow
+  el.classList.add('vis');
+  notifDiaTmr=setTimeout(()=>el.classList.remove('vis'),3800);
+}
+
 function atualizarDiaClima(dt){
   const durP=65,nP=Math.floor(tempo/durP)%PERIODOS.length,nD=Math.floor(tempo/(durP*PERIODOS.length))+1;
-  if(nP!==perIdx||nD!==diaNum){const prevP=perIdx;perIdx=nP;diaNum=nD;E.diaNum=nD;
-  document.getElementById('hora-txt').textContent=IPER[nP]+' Dia '+nD+' — '+PERIODOS[nP];
-  if(nP===4||nP===0){msg("🌙 A noite cai. Acenda a lanterna!");addDiario("A noite chegou. Mãos trêmulas na lanterna.");if(prevP!==0&&prevP!==4)E.noitesSobrevividas++;
-  if(Math.random()<.7){const evts=[{txt:"Um rugido profundo ecoa. O Mapinguari está acordado.",sfx:sfx.rugido},{txt:"Um assobio agudo rasga a noite. Matinta Perera te observa.",sfx:sfx.assobio},{txt:"O rio brilha azul. Iara está cantando.",sfx:sfx.iara},{txt:"Um cervo branco passa. Olhos vermelhos como brasa.",sfx:sfx.anhanga},{txt:"Uma serpente de fogo cruza o campo. O Boitatá patrulha.",sfx:sfx.boitatá}];const ev=evts[Math.floor(Math.random()*evts.length)];setTimeout(()=>{msg(ev.txt);ev.sfx();},4000);E.energia=Math.max(0,E.energia-8);}}}
-  if(nP===1){addDiario("Dia "+nD+". Sobrevivi mais uma noite.");msg("☀️ Um novo amanhecer. A luz dourada filtra pelas copas.");}
+  if(nP!==perIdx||nD!==diaNum){
+    const prevP=perIdx;perIdx=nP;diaNum=nD;E.diaNum=nD;
+    document.getElementById('hora-txt').textContent=IPER[nP]+' Dia '+nD+' — '+PERIODOS[nP];
+    if(nP===4||nP===0){
+      msg("🌙 A noite cai. Acenda a lanterna!");addDiario("A noite chegou. Mãos trêmulas na lanterna.");
+      if(prevP!==0&&prevP!==4)E.noitesSobrevividas++;
+      if(Math.random()<.7){const evts=[{txt:"Um rugido profundo ecoa. O Mapinguari está acordado.",sfx:sfx.rugido},{txt:"Um assobio agudo rasga a noite. Matinta Perera te observa.",sfx:sfx.assobio},{txt:"O rio brilha azul. Iara está cantando.",sfx:sfx.iara},{txt:"Um cervo branco passa. Olhos vermelhos como brasa.",sfx:sfx.anhanga},{txt:"Uma serpente de fogo cruza o campo. O Boitatá patrulha.",sfx:sfx.boitatá}];const ev=evts[Math.floor(Math.random()*evts.length)];setTimeout(()=>{msg(ev.txt);ev.sfx();},4000);E.energia=Math.max(0,E.energia-8);}
+    }
+    if(nP===1){
+      addDiario("Dia "+nD+". Sobrevivi mais uma noite.");
+      msg("☀️ Um novo amanhecer. A luz dourada filtra pelas copas.");
+      mostrarNotifDia(nD, PERIODOS[nP]);
+    }
+  }
   climaTmp+=dt;
   if(climaTmp>=climaDur){climaTmp=0;climaDur=60+Math.random()*120;const cls=['limpo','limpo','chuva','nevoeiro','chuva'];clima=cls[Math.floor(Math.random()*cls.length)];if(clima==='chuva'){msg("🌧 Chuva tropical intensa.");sfx.chuva();gerarChuva();}else if(clima==='nevoeiro')msg("🌫 Névoa densa.");else msg("☀️ O tempo abre.");}
   if(clima==='chuva'){chuva.forEach(g=>{g.y+=g.vy;g.x+=g.vx;if(g.y>1.05){g.y=-0.05;g.x=Math.random();}});E.sede=Math.min(100,E.sede+dt*1.3);E.temperatura=Math.max(34,E.temperatura-dt*.3);}
@@ -1205,6 +1152,7 @@ function atualizarAcoes(){
   btn('🗺 Lendas ('+E.lendas.length+'/10)',verLendas);
   if(E.veneno)btn('💊 Antídoto',usarAntidoto,'peri');
   btn('😴 Dormir',tentarDormir,'peri');
+  btn('⏸ Pausa [ESC]',abrirPausa);
   const bs=document.querySelectorAll('.btn-ac');if(GP.acaoSel>=bs.length)GP.acaoSel=0;if(GP.connected)bs.forEach((b,i)=>b.classList.toggle('sel',i===GP.acaoSel));
 }
 function beberAgua(){if(E.temFiltro||Math.random()>.28){sfx.beber();E.sede=Math.min(100,E.sede+45);msg("💧 Água fresca. Hidratação restaurada.");}else{dano(14);msg("⚠ Água contaminada! Construa um Filtro d'Água.");}}
@@ -1222,107 +1170,70 @@ function contarItem(nome){return E.inv.filter(i=>i.nome===nome).reduce((s,i)=>s+
 function removerItem(nome,qtd){let rest=qtd;for(let i=E.inv.length-1;i>=0&&rest>0;i--){if(E.inv[i].nome===nome){const t=Math.min(rest,E.inv[i].qtd||1);if((E.inv[i].qtd||1)<=t)E.inv.splice(i,1);else E.inv[i].qtd-=t;rest-=t;}}}
 
 // ══════════════════════════════════════════════════════════
-//  MODAL LENDA — CANVAS PROCEDURAL POR LENDA
+//  CANVAS PROCEDURAL LENDAS
 // ══════════════════════════════════════════════════════════
-let modalRaf=null,modalT=0;
-
-// Helpers para canvas procedural
 function lendaCanvasFloresta(cv,t,cor){
-  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
-  ctx.clearRect(0,0,W,H);
-  // Gradiente de fundo
-  const bg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H));
-  bg.addColorStop(0,'rgba(0,40,10,.6)');bg.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
-  // Raízes ondulando
-  for(let i=0;i<12;i++){const x=W/2+(Math.sin(i*1.1+t*.4)*W*.4),y=H/2+(Math.cos(i*.9+t*.3)*H*.38);
-  const g=ctx.createRadialGradient(x,y,0,x,y,60);g.addColorStop(0,cor+'40');g.addColorStop(1,'transparent');
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,60,0,Math.PI*2);ctx.fill();}
-  // Esporos
-  for(let i=0;i<20;i++){const sx=(W*.1+((i*173+t*25)%(W*.8))),sy=H*(.9-(((i*97+t*30)%(H*.7))/H));
-  ctx.globalAlpha=.3+Math.sin(t*3+i)*.2;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(sx,sy,1.5+Math.sin(t*2+i)*.5,0,Math.PI*2);ctx.fill();}
-  ctx.globalAlpha=1;
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
+  const bg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H));bg.addColorStop(0,'rgba(0,40,10,.6)');bg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  for(let i=0;i<12;i++){const x=W/2+(Math.sin(i*1.1+t*.4)*W*.4),y=H/2+(Math.cos(i*.9+t*.3)*H*.38);const g=ctx.createRadialGradient(x,y,0,x,y,60);g.addColorStop(0,cor+'40');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,60,0,Math.PI*2);ctx.fill();}
+  for(let i=0;i<20;i++){const sx=(W*.1+((i*173+t*25)%(W*.8))),sy=H*(.9-(((i*97+t*30)%(H*.7))/H));ctx.globalAlpha=.3+Math.sin(t*3+i)*.2;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(sx,sy,1.5+Math.sin(t*2+i)*.5,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
 }
 function lendaCanvasChamas(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
-  for(let i=0;i<8;i++){const x=W/2+(Math.sin(t*.7+i*2.1)*W*.35),y=H/2+(Math.cos(t*.5+i*1.8)*H*.32),r=40+Math.sin(t*3+i)*15;
-  const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,cor+'60');g.addColorStop(.5,cor+'20');g.addColorStop(1,'transparent');
-  ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
-  for(let i=0;i<15;i++){const fx=W/2+(Math.sin(t+i)*(W*.4)),fy=H-(Math.abs(Math.sin(t*2+i*1.3))*H*.5);
-  ctx.globalAlpha=.25+Math.sin(t*4+i)*.15;ctx.fillStyle='#ff6600';ctx.beginPath();ctx.arc(fx,fy,2,0,Math.PI*2);ctx.fill();}
-  ctx.globalAlpha=1;
+  for(let i=0;i<8;i++){const x=W/2+(Math.sin(t*.7+i*2.1)*W*.35),y=H/2+(Math.cos(t*.5+i*1.8)*H*.32),r=40+Math.sin(t*3+i)*15;const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,cor+'60');g.addColorStop(.5,cor+'20');g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();}
+  for(let i=0;i<15;i++){const fx=W/2+(Math.sin(t+i)*(W*.4)),fy=H-(Math.abs(Math.sin(t*2+i*1.3))*H*.5);ctx.globalAlpha=.25+Math.sin(t*4+i)*.15;ctx.fillStyle='#ff6600';ctx.beginPath();ctx.arc(fx,fy,2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
 }
 function lendaCanvasAgua(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
-  for(let r=1;r<6;r++){const a=(t*.4+r)%(Math.PI*2),x=W/2+Math.cos(a)*r*30,y=H/2+Math.sin(a)*r*20;
-  ctx.globalAlpha=.12;ctx.strokeStyle=cor;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,r*25+Math.sin(t*2)*5,0,Math.PI*2);ctx.stroke();}
-  for(let i=0;i<6;i++){const wx=W*.1+i*(W*.16),wy=H*.4+Math.sin(t*.8+i*.7)*30;
-  const g=ctx.createRadialGradient(wx,wy,0,wx,wy,50);g.addColorStop(0,cor+'30');g.addColorStop(1,'transparent');
-  ctx.globalAlpha=.5;ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(wx,wy,50,12,0,0,Math.PI*2);ctx.fill();}
-  ctx.globalAlpha=1;
+  for(let r=1;r<6;r++){const a=(t*.4+r)%(Math.PI*2),x=W/2+Math.cos(a)*r*30,y=H/2+Math.sin(a)*r*20;ctx.globalAlpha=.12;ctx.strokeStyle=cor;ctx.lineWidth=1.5;ctx.beginPath();ctx.arc(x,y,r*25+Math.sin(t*2)*5,0,Math.PI*2);ctx.stroke();}
+  for(let i=0;i<6;i++){const wx=W*.1+i*(W*.16),wy=H*.4+Math.sin(t*.8+i*.7)*30;const g=ctx.createRadialGradient(wx,wy,0,wx,wy,50);g.addColorStop(0,cor+'30');g.addColorStop(1,'transparent');ctx.globalAlpha=.5;ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(wx,wy,50,12,0,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
 }
 function lendaCanvasOnda(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
   for(let w=0;w<5;w++){ctx.globalAlpha=.12-w*.02;ctx.strokeStyle=cor;ctx.lineWidth=2;ctx.beginPath();for(let x=0;x<W;x+=3){ctx.lineTo(x,H/2+Math.sin(x*.02+t+w*.5)*(H*.1+w*12));}ctx.stroke();}
-  for(let i=0;i<8;i++){const bx=((i*W/7+t*30)%W),by=H/2+Math.sin(t+i)*40;ctx.globalAlpha=.3;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(bx,by,4,0,Math.PI*2);ctx.fill();}
-  ctx.globalAlpha=1;
+  for(let i=0;i<8;i++){const bx=((i*W/7+t*30)%W),by=H/2+Math.sin(t+i)*40;ctx.globalAlpha=.3;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(bx,by,4,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
 }
 function lendaCanvasVoar(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
-  for(let i=0;i<12;i++){const a=i*(Math.PI*2/12)+t*.5,r=80+Math.sin(t*2+i)*20,x=W/2+Math.cos(a)*r,y=H/2+Math.sin(a)*r*.5;
-  ctx.globalAlpha=.2+Math.sin(t*3+i)*.1;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();}
-  const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,100);g.addColorStop(0,cor+'20');g.addColorStop(1,'transparent');
-  ctx.globalAlpha=.4+Math.sin(t)*.1;ctx.fillStyle=g;ctx.beginPath();ctx.arc(W/2,H/2,100,0,Math.PI*2);ctx.fill();
-  ctx.globalAlpha=1;
+  for(let i=0;i<12;i++){const a=i*(Math.PI*2/12)+t*.5,r=80+Math.sin(t*2+i)*20,x=W/2+Math.cos(a)*r,y=H/2+Math.sin(a)*r*.5;ctx.globalAlpha=.2+Math.sin(t*3+i)*.1;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill();}
+  const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,100);g.addColorStop(0,cor+'20');g.addColorStop(1,'transparent');ctx.globalAlpha=.4+Math.sin(t)*.1;ctx.fillStyle=g;ctx.beginPath();ctx.arc(W/2,H/2,100,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
 }
 function lendaCanvasEstrelado(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
-  for(let i=0;i<30;i++){const x=(i*W/29+Math.sin(t+i)*.02*W+W)%W,y=((i*H/31+Math.cos(t*.7+i)*.015*H+H)%H);
-  ctx.globalAlpha=.2+Math.sin(t*2+i)*.15;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();}
-  for(let r=0;r<3;r++){ctx.globalAlpha=.07+r*.03;ctx.strokeStyle=cor;ctx.lineWidth=1;ctx.beginPath();ctx.arc(W/2,H/2,(r+1)*60,0,Math.PI*2);ctx.stroke();}
-  ctx.globalAlpha=1;
+  for(let i=0;i<30;i++){const x=(i*W/29+Math.sin(t+i)*.02*W+W)%W,y=((i*H/31+Math.cos(t*.7+i)*.015*H+H)%H);ctx.globalAlpha=.2+Math.sin(t*2+i)*.15;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();}
+  for(let r=0;r<3;r++){ctx.globalAlpha=.07+r*.03;ctx.strokeStyle=cor;ctx.lineWidth=1;ctx.beginPath();ctx.arc(W/2,H/2,(r+1)*60,0,Math.PI*2);ctx.stroke();}ctx.globalAlpha=1;
 }
 function lendaCanvasSerpente(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
   ctx.strokeStyle=cor;ctx.lineWidth=6;ctx.globalAlpha=.3;ctx.beginPath();
   for(let i=0;i<100;i++){const x=W/2+Math.cos(i*.18+t*.6)*W*.4,y=H/2+Math.sin(i*.12+t*.4)*H*.35;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
-  const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,80);g.addColorStop(0,cor+'50');g.addColorStop(1,'transparent');ctx.globalAlpha=.5+Math.sin(t*3)*.2;ctx.fillStyle=g;ctx.beginPath();ctx.arc(W/2,H/2,80,0,Math.PI*2);ctx.fill();
-  ctx.globalAlpha=1;
+  const g=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,80);g.addColorStop(0,cor+'50');g.addColorStop(1,'transparent');ctx.globalAlpha=.5+Math.sin(t*3)*.2;ctx.fillStyle=g;ctx.beginPath();ctx.arc(W/2,H/2,80,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
 }
 function lendaCanvasTornado(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
-  for(let i=0;i<30;i++){const a=i*(Math.PI*2/30)+t*2,r=20+i*4,x=W/2+Math.cos(a)*r,y=H/2+Math.sin(a)*r*.5;
-  ctx.globalAlpha=.15+Math.sin(t*4+i)*.08;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(x,y,2+Math.sin(t+i),0,Math.PI*2);ctx.fill();}
-  ctx.globalAlpha=1;
+  for(let i=0;i<30;i++){const a=i*(Math.PI*2/30)+t*2,r=20+i*4,x=W/2+Math.cos(a)*r,y=H/2+Math.sin(a)*r*.5;ctx.globalAlpha=.15+Math.sin(t*4+i)*.08;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(x,y,2+Math.sin(t+i),0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
 }
 function lendaCanvasAbisso(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
   for(let r=0;r<6;r++){const radius=(r+1)*55+Math.sin(t+r)*.2*20;const g=ctx.createRadialGradient(W/2,H/2,radius*.7,W/2,H/2,radius);g.addColorStop(0,'transparent');g.addColorStop(1,cor+'18');ctx.fillStyle=g;ctx.beginPath();ctx.arc(W/2,H/2,radius,0,Math.PI*2);ctx.fill();}
-  for(let i=0;i<12;i++){const a=i*(Math.PI/6)+t*.3,r=30+Math.sin(t*1.5+i)*15;const bx=W/2+Math.cos(a)*r,by=H/2+Math.sin(a)*r*.6;ctx.globalAlpha=.25;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(bx,by,3,0,Math.PI*2);ctx.fill();}
-  ctx.globalAlpha=1;
+  for(let i=0;i<12;i++){const a=i*(Math.PI/6)+t*.3,r=30+Math.sin(t*1.5+i)*15;const bx=W/2+Math.cos(a)*r,by=H/2+Math.sin(a)*r*.6;ctx.globalAlpha=.25;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(bx,by,3,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
 }
 function lendaCanvasLago(cv,t,cor){
   const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;ctx.clearRect(0,0,W,H);
   for(let w=0;w<4;w++){ctx.globalAlpha=.1;ctx.strokeStyle=cor;ctx.lineWidth=2;ctx.beginPath();for(let x=0;x<W;x+=4){ctx.lineTo(x,H*.6+Math.sin(x*.03+t*.6+w*.4)*(15+w*8));}ctx.stroke();}
-  for(let b=0;b<5;b++){const bx=(b*W/4+t*15)%W,by=H*.55+Math.sin(t+b)*10;ctx.globalAlpha=.2;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(bx,by,5+b*2,0,Math.PI*2);ctx.fill();}
-  ctx.globalAlpha=1;
+  for(let b=0;b<5;b++){const bx=(b*W/4+t*15)%W,by=H*.55+Math.sin(t+b)*10;ctx.globalAlpha=.2;ctx.fillStyle=cor;ctx.beginPath();ctx.arc(bx,by,5+b*2,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=1;
 }
 
+// ══════════════════════════════════════════════════════════
+//  MODAL LENDA
+// ══════════════════════════════════════════════════════════
 function exibirLenda(idx,rev=false,ent=null){
   const l=LENDAS[idx];
-  // Aplicar tema visual
   document.getElementById('m-topbar').style.background=`linear-gradient(90deg,transparent,${l.cor},transparent)`;
   document.getElementById('m-orbe').style.borderColor=l.cor+'80';
   const orbeInner=document.getElementById('m-orbe-inner');
   orbeInner.style.background=`radial-gradient(circle,${l.corOrbe},transparent)`;
   orbeInner.style.boxShadow=`0 0 30px ${l.cor}40`;
-  document.getElementById('m-orbe').style.setProperty('--orbe-cor',l.cor);
-  // Anéis do orbe
-  const style=document.getElementById('m-orbe').style;
-  // via CSS pseudo: setamos cor indiretamente
-  const orbeEl=document.getElementById('m-orbe');
-  orbeEl.style.outline=`none`;
-  // Textos
   document.getElementById('m-emoji').textContent=l.emoji;
   document.getElementById('m-tipo').textContent=l.tipo;
   document.getElementById('m-tipo').style.color=l.cor;
@@ -1336,7 +1247,7 @@ function exibirLenda(idx,rev=false,ent=null){
   document.getElementById('m-texto').textContent=l.texto;
   const dicaBox=document.getElementById('m-dica-box');
   dicaBox.style.borderColor=l.cor;
-  dicaBox.style.background=`${l.corBg}`;
+  dicaBox.style.background=l.corBg;
   document.getElementById('m-dica-label').style.color=l.cor;
   document.getElementById('m-dica').textContent=l.dica;
   const efTag=document.getElementById('m-efeito-tag');
@@ -1346,19 +1257,12 @@ function exibirLenda(idx,rev=false,ent=null){
   btnF.style.color=l.cor;btnF.style.borderColor=l.cor+'80';
   btnF.onmouseover=()=>{btnF.style.background=l.cor;btnF.style.color='#000';};
   btnF.onmouseout=()=>{btnF.style.background='transparent';btnF.style.color=l.cor;};
-  // Body backdrop
   document.querySelector('.modal-body').style.background=`linear-gradient(170deg,rgba(4,12,4,.97),rgba(8,${l.cor==='#cc2200'?'4':'20'},8,.97),rgba(4,12,4,.97))`;
-  // Canvas animado por lenda
   const cv=document.getElementById('modal-canvas');
   cv.width=cv.parentElement.offsetWidth||680;cv.height=cv.parentElement.offsetHeight||500;
   if(modalRaf)cancelAnimationFrame(modalRaf);
   modalT=0;
-  function animModal(ts){
-    if(!document.getElementById('modal-lenda').classList.contains('aberto')){cancelAnimationFrame(modalRaf);return;}
-    modalT+=0.016;
-    l.renderCanvas(cv,modalT);
-    modalRaf=requestAnimationFrame(animModal);
-  }
+  function animModal(){if(!document.getElementById('modal-lenda').classList.contains('aberto')){cancelAnimationFrame(modalRaf);return;}modalT+=0.016;l.renderCanvas(cv,modalT);modalRaf=requestAnimationFrame(animModal);}
   modalRaf=requestAnimationFrame(animModal);
   document.getElementById('modal-lenda').classList.add('aberto');
   if(!rev){sfx.lenda();setTimeout(()=>l.sfx&&l.sfx(),600);}
@@ -1374,7 +1278,7 @@ function aplicarEfeitoLenda(ef){
     case 'susto':E.energia=Math.max(0,E.energia-18);E.sanidade=Math.max(0,E.sanidade-20);msg("🦉 O assobio da Matinta te gela.");break;
     case 'aviso':msg("🦌 O Anhangá te olha fundo nos olhos — e desaparece.");break;
     case 'fogo_danoso':dano(20);E.temperatura=Math.max(34,E.temperatura-1);msg("🔥 O Boitatá te queimou! Afaste-se da água!");break;
-    case 'caos':const n=E.inv.length;if(n>0){const ri=Math.floor(Math.random()*n);E.inv.splice(ri,1);msg("🌪 O Saci roubou um item do seu inventário! "+E.inv.length+" itens restam.");}else msg("🌪 O Saci tentou roubar seus itens mas você não tinha nada.");E.sanidade=Math.max(0,E.sanidade-10);break;
+    case 'caos':const n=E.inv.length;if(n>0){const ri=Math.floor(Math.random()*n);E.inv.splice(ri,1);msg("🌪 O Saci roubou um item do seu inventário!");}else msg("🌪 O Saci tentou roubar seus itens mas você não tinha nada.");E.sanidade=Math.max(0,E.sanidade-10);break;
     case 'profundeza':E.sanidade=Math.max(0,E.sanidade-20);if(mapa[Math.floor(E.y)]?.[Math.floor(E.x)]?.tipo===T.AGUA){dano(25);msg("🌊 A Uiara puxou você para as profundezas!");}else msg("🌊 A Uiara sussurrou — fique longe das águas profundas.");break;
     case 'bencaoAqua':E.sede=Math.min(100,E.sede+30);E.fome=Math.min(100,E.fome+15);msg("🦭 O Peixe-Boi Encantado abençoou as águas ao seu redor.");break;
   }
@@ -1411,28 +1315,24 @@ function atualizarHUD(){
 //  FIM DE JOGO
 // ══════════════════════════════════════════════════════════
 function fimJogo(){
-  cancelAnimationFrame(animID);sfx.morte();stopAmbience();
-  
-  const todasLendas = E.lendas.length >= 10;
-  const sobrevivente = diaNum >= 7;
-  
-  let titulo = 'A Floresta Venceu';
-  let causa = 'A floresta reclamou o que é dela.';
-  
-  if(todasLendas && sobrevivente){
-    // Final especial de vitória
-    titulo = '🌿 Guardião da Amazônia';
-    causa = 'Você descobriu todas as lendas e sobreviveu tempo suficiente. A floresta agora te respeita.';
-    document.getElementById('fim-titulo').style.background = 'linear-gradient(180deg,#00ff88,#236023)';
+  cancelAnimationFrame(animID);stopAmbience();
+  const todasLendas=E.lendas.length>=10,sobrevivente=diaNum>=7;
+  let titulo='A Floresta Venceu',causa='A floresta reclamou o que é dela.';
+  const tituloEl=document.getElementById('fim-titulo');
+  const linhaEl=document.getElementById('fim-linha');
+  if(todasLendas&&sobrevivente){
+    titulo='🌿 Guardião da Amazônia';causa='Você descobriu todas as lendas e sobreviveu tempo suficiente. A floresta agora te respeita.';
+    tituloEl.className='fim-titulo vitoria';linhaEl.className='fim-linha vitoria';
+    sfx.vitoria();
   } else {
+    tituloEl.className='fim-titulo';linhaEl.className='fim-linha';sfx.morte();
     if(E.veneno)causa='O veneno venceu. Você não encontrou o antídoto a tempo.';
     else if(E.fome<=0)causa='A fome apagou suas forças. A floresta não alimenta quem não sabe pedir.';
     else if(E.sede<=0)causa='A desidratação foi implacável. Iara levou sua alma.';
     else if(E.temperatura<35)causa='A hipotermia te consumiu nas águas frias da Amazônia.';
     else if(E.sanidade<=0)causa='A loucura tomou conta. Você vagou pela floresta até desaparecer.';
   }
-  
-  document.getElementById('fim-titulo').textContent = titulo;
+  tituloEl.textContent=titulo;
   document.getElementById('fim-causa').textContent=causa;
   document.getElementById('fim-stats').innerHTML=`<span>Dias sobrevividos</span><span class="fim-stat-v">${diaNum}</span><span>Lendas descobertas</span><span class="fim-stat-v">${E.lendas.length}/10</span><span>Passos dados</span><span class="fim-stat-v">${E.passos.toLocaleString()}</span><span>Inimigos derrotados</span><span class="fim-stat-v">${E.inimigosVencidos}</span><span>Itens fabricados</span><span class="fim-stat-v">${E.craftados.length}</span><span>Noites superadas</span><span class="fim-stat-v">${E.noitesSobrevividas}</span>`;
   const conqs=[...conquistasObtidas].map(id=>{const c=CONQUISTAS_DEF.find(x=>x.id===id);return c?`<div class="fim-c-chip" title="${c.nome}">${c.emoji}</div>`:''}).join('');
@@ -1462,7 +1362,7 @@ function renderizar(){
   // Inimigos
   inimigos.forEach(ini=>{if(ini.morto)return;const sx=ini.x*TILE-camX,sy=ini.y*TILE-camY;if(sx<-60||sx>W+60||sy<-60||sy>H+60)return;ctx.save();if(ini.alertado){const ag=ctx.createRadialGradient(sx,sy,0,sx,sy,35);ag.addColorStop(0,'rgba(200,0,0,.25)');ag.addColorStop(1,'transparent');ctx.fillStyle=ag;ctx.beginPath();ctx.arc(sx,sy,35,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=.9+Math.sin(ini.fase)*.1;ctx.font='22px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=ini.cor;ctx.shadowBlur=ini.alertado?20:8;ctx.fillText(ini.emoji,sx,sy+Math.sin(ini.fase)*2.5);const bw=32,bh=4,bx=sx-bw/2,by=sy-22;ctx.globalAlpha=.8;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle=ini.vidaAtual/ini.vida>.5?'#44cc44':ini.vidaAtual/ini.vida>.25?'#cccc00':'#cc2200';ctx.fillRect(bx,by,bw*(ini.vidaAtual/ini.vida),bh);ctx.restore();});
   // Lendas
-  entidades.forEach(ent=>{const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-70||sx>W+70||sy<-70||sy>H+70)return;const l=LENDAS[ent.lenda],bob=Math.sin(ent.fase)*4;ctx.save();const dist = Math.hypot(ent.x - E.x, ent.y - E.y);const alpha = legendasVistas.has(ent.lenda) ? .12 : Math.max(0.3, 0.85 - dist*0.08);ctx.globalAlpha=alpha;ctx.font=(dist < 8 ? 28 : 20)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=l.cor;ctx.shadowBlur= dist < 6 ? 18 : 8;ctx.fillText(l.emoji,sx,sy+bob);ctx.restore();});
+  entidades.forEach(ent=>{const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-70||sx>W+70||sy<-70||sy>H+70)return;const l=LENDAS[ent.lenda],bob=Math.sin(ent.fase)*4;ctx.save();const dist=Math.hypot(ent.x-E.x,ent.y-E.y);const alpha=legendasVistas.has(ent.lenda)?.12:Math.max(0.3,0.85-dist*0.08);ctx.globalAlpha=alpha;ctx.font=(dist<8?28:20)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=l.cor;ctx.shadowBlur=dist<6?18:8;ctx.fillText(l.emoji,sx,sy+bob);ctx.restore();});
   // Armadilhas
   for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++){if(mapa[ty]?.[tx]?.armadilha){const sx=tx*TILE-camX+TILE/2,sy=ty*TILE-camY+TILE/2;ctx.save();ctx.font='12px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=.7;ctx.fillText('🪤',sx,sy);ctx.restore();}}
   desenharJogador(ctx,W/2,H/2);
@@ -1492,7 +1392,7 @@ function renderizarNoite(ctx,W,H,px,py){
   ctx.restore();
 }
 
-// ── TILES DETALHADOS ──
+// ── TILES ──
 function ajustarCor(hex,dark){if(dark<=0)return hex;const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b2=parseInt(hex.slice(5,7),16),f=1-Math.min(dark,.96);return`rgb(${Math.round(r*f)},${Math.round(g*f)},${Math.round(b2*f)})`;}
 function desenharTile(ctx,tile,sx,sy,noite,entardecer,manha){
   const b=BLOCOS[tile.tipo]??BLOCOS[0],bh=b.bh||12,tH=TILE-bh,dark=tile.vis?0:.5;
@@ -1514,29 +1414,13 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
     case T.GRUTA:{ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(sx,sy,TILE,tH);ctx.font='10px serif';ctx.fillText('🕯',sx+TILE/2-5,sy+tH/2);break;}
     case T.CLAREIRA:{const gg=ctx.createLinearGradient(sx,sy,sx,sy+tH);gg.addColorStop(0,'rgba(120,200,70,.15)');gg.addColorStop(1,'rgba(80,150,40,.08)');ctx.fillStyle=gg;ctx.fillRect(sx,sy,TILE,tH);for(let g=0;g<8;g++){const gx=sx+3+((tv*65+g*9)%(TILE-6));ctx.fillStyle=g%2?'#4aaa28':'#3a9420';ctx.fillRect(gx,sy+tH-6,2,6);}break;}
     case T.PEDRA:case T.PENHASCO:{
-  // Rochas com camadas e rachaduras
-  ctx.fillStyle='#585858';
-  ctx.fillRect(sx+2,sy+2,TILE-4,tH-4);
-  ctx.fillStyle='#484848';
-  ctx.fillRect(sx+4,sy+6,TILE-8,tH-10);
-  // Rachaduras
-  ctx.strokeStyle='rgba(0,0,0,.5)';
-  ctx.lineWidth=1;
-  for(let r=0;r<3;r++){
-    const rx=sx+5+((tv*40+r*23)%(TILE-10));
-    ctx.beginPath();
-    ctx.moveTo(rx,sy+4);
-    ctx.lineTo(rx+ (r%2?4:-3),sy+tH-6);
-    ctx.stroke();
-  }
-  // Musgo nas pedras
-  ctx.fillStyle='#2a5a2a';
-  for(let m=0;m<4;m++){
-    const mx=sx+3+((tv*37+m*19)%(TILE-6));
-    ctx.fillRect(mx,sy+tH-8,4,3);
-  }
-  break;
-}
+      ctx.fillStyle='#585858';ctx.fillRect(sx+2,sy+2,TILE-4,tH-4);
+      ctx.fillStyle='#484848';ctx.fillRect(sx+4,sy+6,TILE-8,tH-10);
+      ctx.strokeStyle='rgba(0,0,0,.5)';ctx.lineWidth=1;
+      for(let r=0;r<3;r++){const rx=sx+5+((tv*40+r*23)%(TILE-10));ctx.beginPath();ctx.moveTo(rx,sy+4);ctx.lineTo(rx+(r%2?4:-3),sy+tH-6);ctx.stroke();}
+      ctx.fillStyle='#2a5a2a';
+      for(let m=0;m<4;m++){const mx=sx+3+((tv*37+m*19)%(TILE-6));ctx.fillRect(mx,sy+tH-8,4,3);}
+      break;}
     case T.FRUTAS:{ctx.font='13px serif';ctx.textAlign='center';ctx.textBaseline='middle';const sh=Math.sin(tempo*1.8+ta)*1.8;ctx.fillText('🍊',sx+TILE*.28,sy+tH-11);ctx.fillText('🍊',sx+TILE*.72,sy+tH-13);ctx.fillText('🍋',sx+TILE/2,sy+tH-8+sh);break;}
     case T.COGUMELO:{ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';const mb=Math.sin(tempo*1.2+ta)*1.5;ctx.fillText('🍄',sx+TILE/2,sy+tH/2-4+mb);break;}
     case T.ABRIGO:{const tg=ctx.createLinearGradient(sx,sy,sx,sy+tH*.7);tg.addColorStop(0,'#8b6832');tg.addColorStop(1,'#5a4020');ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(sx+TILE/2,sy+4);ctx.lineTo(sx+TILE-3,sy+tH-6);ctx.lineTo(sx+3,sy+tH-6);ctx.closePath();ctx.fill();ctx.fillStyle='#2e1a08';ctx.fillRect(sx+TILE/2-5,sy+tH-14,10,14);break;}
@@ -1602,3 +1486,8 @@ window.addEventListener('resize',()=>{const c=document.getElementById('canvas-mu
 </script>
 </body>
 </html>
+HTMLEOF
+echo "Arquivo criado com sucesso: $(wc -c < /mnt/user-data/outputs/amazonia.html) bytes"
+Saída
+
+Command argument is 143_944 bytes, exceeding the 100_000-byte per-argument limit. For large content, pipe via stdin or use a file-write API instead of embedding the content inline in the command. Argument preview: 'cat > /mnt/user-data/outputs/amazonia.html << \'HTMLEOF\'\n<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>'
