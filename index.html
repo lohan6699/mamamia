@@ -509,7 +509,15 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
   <div class="fim-stats" id="fim-stats"></div>
   <div class="fim-causa" id="fim-causa"></div>
   <div class="fim-conquistas" id="fim-conquistas"></div>
-  <button class="btn-start" style="margin-top:.5rem" onclick="reiniciar()">Tentar Novamente</button>
+  
+  <div style="display:flex; gap:12px; margin-top:1rem; flex-wrap:wrap; justify-content:center;">
+    <button class="btn-start" onclick="reiniciar()" style="padding:16px 40px; font-size:0.85rem;">🔄 Tentar Novamente</button>
+    <button class="btn-start" onclick="voltarMenu()" style="padding:16px 32px; font-size:0.75rem; border-color:#c89010; color:#c89010;">🏠 Voltar ao Menu</button>
+  </div>
+  
+  <div style="margin-top:0.8rem; font-size:0.6rem; color:rgba(220,236,212,.4); font-family:'Share Tech Mono',monospace;">
+    Pressione <span class="k">ENTER</span> ou <span class="k">R</span> para reiniciar
+  </div>
 </div>
 
 <script>
@@ -877,6 +885,15 @@ function iniciarJogo(){
   document.onkeydown=e=>{
     teclas[e.code]=true;
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();
+    
+    // Reiniciar no final do jogo
+    if(document.getElementById('tela-fim').classList.contains('aberto')){
+      if(e.code==='Enter' || e.code==='KeyR' || e.code==='KeyN'){
+        reiniciar();
+        return;
+      }
+    }
+    
     if(e.code==='KeyE'||e.code==='Enter'){if(document.getElementById('modal-lenda').classList.contains('aberto'))fecharLenda();else if(document.getElementById('painel-craft').classList.contains('aberto'))fecharCraft();else if(document.getElementById('painel-diario').classList.contains('aberto'))fecharDiario();else ativarAcaoSel();}
     if(e.code==='KeyQ')navAcoes(-1);if(e.code==='KeyR')navAcoes(1);
     if(e.code==='KeyF')toggleLanterna();if(e.code==='KeyC')abrirCraft();if(e.code==='KeyJ')abrirDiario();
@@ -891,6 +908,25 @@ function iniciarJogo(){
   animID=requestAnimationFrame(loop);
 }
 function reiniciar(){document.getElementById('tela-fim').classList.remove('aberto');cancelAnimationFrame(animID);stopAmbience();setTimeout(iniciarJogo,100);}
+
+function voltarMenu(){
+  document.getElementById('tela-fim').classList.remove('aberto');
+  cancelAnimationFrame(animID);
+  stopAmbience();
+  // Volta para a tela de título
+  setTimeout(() => {
+    document.getElementById('jogo').style.display = 'none';
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('log-area').style.display = 'none';
+    document.getElementById('mini-mapa').style.display = 'none';
+    document.getElementById('bussola').style.display = 'none';
+    document.getElementById('lanterna-hud').style.display = 'none';
+    document.getElementById('gp-indicator').style.display = 'none';
+    const tt = document.getElementById('tela-titulo');
+    tt.style.display = 'flex';
+    tt.style.opacity = '1';
+  }, 100);
+}
 
 // ══════════════════════════════════════════════════════════
 //  LOOP
@@ -1376,12 +1412,27 @@ function atualizarHUD(){
 // ══════════════════════════════════════════════════════════
 function fimJogo(){
   cancelAnimationFrame(animID);sfx.morte();stopAmbience();
-  let causa='A floresta reclamou o que é dela.';
-  if(E.veneno)causa='O veneno venceu. Você não encontrou o antídoto a tempo.';
-  else if(E.fome<=0)causa='A fome apagou suas forças. A floresta não alimenta quem não sabe pedir.';
-  else if(E.sede<=0)causa='A desidratação foi implacável. Iara levou sua alma.';
-  else if(E.temperatura<35)causa='A hipotermia te consumiu nas águas frias da Amazônia.';
-  else if(E.sanidade<=0)causa='A loucura tomou conta. Você vagou pela floresta até desaparecer.';
+  
+  const todasLendas = E.lendas.length >= 10;
+  const sobrevivente = diaNum >= 7;
+  
+  let titulo = 'A Floresta Venceu';
+  let causa = 'A floresta reclamou o que é dela.';
+  
+  if(todasLendas && sobrevivente){
+    // Final especial de vitória
+    titulo = '🌿 Guardião da Amazônia';
+    causa = 'Você descobriu todas as lendas e sobreviveu tempo suficiente. A floresta agora te respeita.';
+    document.getElementById('fim-titulo').style.background = 'linear-gradient(180deg,#00ff88,#236023)';
+  } else {
+    if(E.veneno)causa='O veneno venceu. Você não encontrou o antídoto a tempo.';
+    else if(E.fome<=0)causa='A fome apagou suas forças. A floresta não alimenta quem não sabe pedir.';
+    else if(E.sede<=0)causa='A desidratação foi implacável. Iara levou sua alma.';
+    else if(E.temperatura<35)causa='A hipotermia te consumiu nas águas frias da Amazônia.';
+    else if(E.sanidade<=0)causa='A loucura tomou conta. Você vagou pela floresta até desaparecer.';
+  }
+  
+  document.getElementById('fim-titulo').textContent = titulo;
   document.getElementById('fim-causa').textContent=causa;
   document.getElementById('fim-stats').innerHTML=`<span>Dias sobrevividos</span><span class="fim-stat-v">${diaNum}</span><span>Lendas descobertas</span><span class="fim-stat-v">${E.lendas.length}/10</span><span>Passos dados</span><span class="fim-stat-v">${E.passos.toLocaleString()}</span><span>Inimigos derrotados</span><span class="fim-stat-v">${E.inimigosVencidos}</span><span>Itens fabricados</span><span class="fim-stat-v">${E.craftados.length}</span><span>Noites superadas</span><span class="fim-stat-v">${E.noitesSobrevividas}</span>`;
   const conqs=[...conquistasObtidas].map(id=>{const c=CONQUISTAS_DEF.find(x=>x.id===id);return c?`<div class="fim-c-chip" title="${c.nome}">${c.emoji}</div>`:''}).join('');
@@ -1401,7 +1452,7 @@ function renderizar(){
   const tx1=Math.min(MW-1,Math.ceil((camX+W)/TILE)+1),ty1=Math.min(MH-1,Math.ceil((camY+H)/TILE)+1);
   for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++)desenharTile(ctx,mapa[ty][tx],Math.round(tx*TILE-camX),Math.round(ty*TILE-camY),noite,entardecer,manha);
   // Trilhas de entidades
-  entidades.forEach(ent=>{if(legendasVistas.has(ent.lenda))return;const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-120||sx>W+120||sy<-120||sy>H+120)return;const l=LENDAS[ent.lenda],brilho=.45+Math.sin(ent.fase)*.35;ctx.save();ent.trail.forEach((pt,i)=>{const tsx=pt.x*TILE-camX,tsy=pt.y*TILE-camY;ctx.globalAlpha=(i/ent.trail.length)*.12*brilho;ctx.fillStyle=l.cor;ctx.beginPath();ctx.arc(tsx,tsy,5*(i/ent.trail.length),0,Math.PI*2);ctx.fill();});const hg=ctx.createRadialGradient(sx,sy,0,sx,sy,55);hg.addColorStop(0,l.cor+'55');hg.addColorStop(1,'transparent');ctx.globalAlpha=brilho*.3;ctx.fillStyle=hg;ctx.beginPath();ctx.arc(sx,sy,55,0,Math.PI*2);ctx.fill();ctx.restore();});
+  entidades.forEach(ent=>{if(legendasVistas.has(ent.lenda))return;const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-120||sx>W+120||sy<-120||sy>H+120)return;const l=LENDAS[ent.lenda],brilho=.35+Math.sin(ent.fase)*.25;ctx.save();ent.trail.forEach((pt,i)=>{const tsx=pt.x*TILE-camX,tsy=pt.y*TILE-camY;ctx.globalAlpha=(i/ent.trail.length)*.08*brilho;ctx.fillStyle=l.cor;ctx.beginPath();ctx.arc(tsx,tsy,3*(i/ent.trail.length),0,Math.PI*2);ctx.fill();});const hg=ctx.createRadialGradient(sx,sy,0,sx,sy,35);hg.addColorStop(0,l.cor+'40');hg.addColorStop(1,'transparent');ctx.globalAlpha=brilho*.2;ctx.fillStyle=hg;ctx.beginPath();ctx.arc(sx,sy,35,0,Math.PI*2);ctx.fill();ctx.restore();});
   // Vagalumes
   if(noite||entardecer){vagalumes.forEach(v=>{const sx=v.x*TILE-camX,sy=v.y*TILE-camY;if(sx<-20||sx>W+20||sy<-20||sy>H+20)return;const prog=v.vida/v.maxVida,alpha=Math.max(0,prog<.12?prog/.12:prog>.8?(1-prog)/.2:1);ctx.save();if(v.tipo==='vaga'){const br=.55+Math.sin(v.ph)*.45;ctx.globalAlpha=alpha*.75*br;ctx.fillStyle='#99ff44';ctx.shadowColor='#66ff00';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(sx,sy,v.sz,0,Math.PI*2);ctx.fill();}else{ctx.globalAlpha=alpha*.4;ctx.fillStyle='rgba(200,255,200,.5)';ctx.beginPath();ctx.arc(sx,sy,v.sz*.65,0,Math.PI*2);ctx.fill();}ctx.restore();});}
   // Partículas
@@ -1411,7 +1462,7 @@ function renderizar(){
   // Inimigos
   inimigos.forEach(ini=>{if(ini.morto)return;const sx=ini.x*TILE-camX,sy=ini.y*TILE-camY;if(sx<-60||sx>W+60||sy<-60||sy>H+60)return;ctx.save();if(ini.alertado){const ag=ctx.createRadialGradient(sx,sy,0,sx,sy,35);ag.addColorStop(0,'rgba(200,0,0,.25)');ag.addColorStop(1,'transparent');ctx.fillStyle=ag;ctx.beginPath();ctx.arc(sx,sy,35,0,Math.PI*2);ctx.fill();}ctx.globalAlpha=.9+Math.sin(ini.fase)*.1;ctx.font='22px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=ini.cor;ctx.shadowBlur=ini.alertado?20:8;ctx.fillText(ini.emoji,sx,sy+Math.sin(ini.fase)*2.5);const bw=32,bh=4,bx=sx-bw/2,by=sy-22;ctx.globalAlpha=.8;ctx.fillStyle='rgba(0,0,0,.6)';ctx.fillRect(bx,by,bw,bh);ctx.fillStyle=ini.vidaAtual/ini.vida>.5?'#44cc44':ini.vidaAtual/ini.vida>.25?'#cccc00':'#cc2200';ctx.fillRect(bx,by,bw*(ini.vidaAtual/ini.vida),bh);ctx.restore();});
   // Lendas
-  entidades.forEach(ent=>{const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-70||sx>W+70||sy<-70||sy>H+70)return;const l=LENDAS[ent.lenda],bob=Math.sin(ent.fase)*5;ctx.save();ctx.globalAlpha=legendasVistas.has(ent.lenda)?.15:.8+Math.sin(ent.fase)*.1;ctx.font=(32+Math.sin(ent.fase)*3)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=l.cor;ctx.shadowBlur=22;ctx.fillText(l.emoji,sx,sy+bob);ctx.restore();});
+  entidades.forEach(ent=>{const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-70||sx>W+70||sy<-70||sy>H+70)return;const l=LENDAS[ent.lenda],bob=Math.sin(ent.fase)*4;ctx.save();const dist = Math.hypot(ent.x - E.x, ent.y - E.y);const alpha = legendasVistas.has(ent.lenda) ? .12 : Math.max(0.3, 0.85 - dist*0.08);ctx.globalAlpha=alpha;ctx.font=(dist < 8 ? 28 : 20)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=l.cor;ctx.shadowBlur= dist < 6 ? 18 : 8;ctx.fillText(l.emoji,sx,sy+bob);ctx.restore();});
   // Armadilhas
   for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++){if(mapa[ty]?.[tx]?.armadilha){const sx=tx*TILE-camX+TILE/2,sy=ty*TILE-camY+TILE/2;ctx.save();ctx.font='12px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=.7;ctx.fillText('🪤',sx,sy);ctx.restore();}}
   desenharJogador(ctx,W/2,H/2);
@@ -1462,7 +1513,30 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
     case T.PANTANO:{ctx.fillStyle='rgba(10,30,5,.5)';ctx.fillRect(sx,sy,TILE,tH);break;}
     case T.GRUTA:{ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(sx,sy,TILE,tH);ctx.font='10px serif';ctx.fillText('🕯',sx+TILE/2-5,sy+tH/2);break;}
     case T.CLAREIRA:{const gg=ctx.createLinearGradient(sx,sy,sx,sy+tH);gg.addColorStop(0,'rgba(120,200,70,.15)');gg.addColorStop(1,'rgba(80,150,40,.08)');ctx.fillStyle=gg;ctx.fillRect(sx,sy,TILE,tH);for(let g=0;g<8;g++){const gx=sx+3+((tv*65+g*9)%(TILE-6));ctx.fillStyle=g%2?'#4aaa28':'#3a9420';ctx.fillRect(gx,sy+tH-6,2,6);}break;}
-    case T.PEDRA:case T.PENHASCO:{ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(sx+4,sy+4,TILE-8,tH-8);break;}
+    case T.PEDRA:case T.PENHASCO:{
+  // Rochas com camadas e rachaduras
+  ctx.fillStyle='#585858';
+  ctx.fillRect(sx+2,sy+2,TILE-4,tH-4);
+  ctx.fillStyle='#484848';
+  ctx.fillRect(sx+4,sy+6,TILE-8,tH-10);
+  // Rachaduras
+  ctx.strokeStyle='rgba(0,0,0,.5)';
+  ctx.lineWidth=1;
+  for(let r=0;r<3;r++){
+    const rx=sx+5+((tv*40+r*23)%(TILE-10));
+    ctx.beginPath();
+    ctx.moveTo(rx,sy+4);
+    ctx.lineTo(rx+ (r%2?4:-3),sy+tH-6);
+    ctx.stroke();
+  }
+  // Musgo nas pedras
+  ctx.fillStyle='#2a5a2a';
+  for(let m=0;m<4;m++){
+    const mx=sx+3+((tv*37+m*19)%(TILE-6));
+    ctx.fillRect(mx,sy+tH-8,4,3);
+  }
+  break;
+}
     case T.FRUTAS:{ctx.font='13px serif';ctx.textAlign='center';ctx.textBaseline='middle';const sh=Math.sin(tempo*1.8+ta)*1.8;ctx.fillText('🍊',sx+TILE*.28,sy+tH-11);ctx.fillText('🍊',sx+TILE*.72,sy+tH-13);ctx.fillText('🍋',sx+TILE/2,sy+tH-8+sh);break;}
     case T.COGUMELO:{ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';const mb=Math.sin(tempo*1.2+ta)*1.5;ctx.fillText('🍄',sx+TILE/2,sy+tH/2-4+mb);break;}
     case T.ABRIGO:{const tg=ctx.createLinearGradient(sx,sy,sx,sy+tH*.7);tg.addColorStop(0,'#8b6832');tg.addColorStop(1,'#5a4020');ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(sx+TILE/2,sy+4);ctx.lineTo(sx+TILE-3,sy+tH-6);ctx.lineTo(sx+3,sy+tH-6);ctx.closePath();ctx.fill();ctx.fillStyle='#2e1a08';ctx.fillRect(sx+TILE/2-5,sy+tH-14,10,14);break;}
