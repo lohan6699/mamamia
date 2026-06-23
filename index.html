@@ -1,4 +1,3 @@
-cat > /mnt/user-data/outputs/amazonia.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -22,8 +21,9 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 #intro-canvas{position:absolute;inset:0;}
 .intro-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:1.2rem;opacity:0;animation:fadeUp 1.2s ease-out .5s forwards;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-.intro-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(4rem,14vw,11rem);font-weight:900;line-height:.85;background:linear-gradient(170deg,#ffe868 0%,#c89010 30%,#00ff7f 60%,#236023 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:logoPulse 3s ease-in-out infinite;}
+.intro-logo{font-family:'Cinzel Decorative',serif;font-size:clamp(4rem,14vw,11rem);font-weight:900;line-height:.85;background:linear-gradient(170deg,#ffe868 0%,#c89010 30%,#00ff7f 60%,#236023 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:logoPulse 3s ease-in-out infinite, logoShimmer 4s linear infinite;}
 @keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 60px rgba(0,255,127,.5))}50%{filter:drop-shadow(0 0 110px rgba(0,255,127,.9)) drop-shadow(0 0 160px rgba(200,144,16,.4))}}
+@keyframes logoShimmer{0%{background-position:0% 50%}50%{background-position:200% 50%}100%{background-position:0% 50%}}
 .intro-sub{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.7em;color:rgba(0,255,127,.6);text-transform:uppercase;}
 .intro-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(.9rem,2vw,1.15rem);color:rgba(220,236,212,.7);text-align:center;max-width:420px;line-height:2;}
 .intro-bar{width:280px;height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
@@ -53,7 +53,9 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .btn-start::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--vf),var(--vc));transform:translateX(-100%);transition:transform .5s cubic-bezier(.23,1,.32,1);z-index:-1;}
 .btn-start:hover{color:#000;border-color:var(--vc);box-shadow:0 0 40px rgba(0,255,127,.5);}
 .btn-start:hover::after{transform:translateX(0);}
-.v-badge{position:absolute;bottom:1.2rem;right:1.5rem;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(255,255,255,.18);letter-spacing:2px;}
+.v-badge{position:absolute;bottom:1.2rem;right:1.5rem;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(255,255,255,.18);letter-spacing:2px;animation: badgePop .6s ease;}
+@keyframes badgePop{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}
+.v-badge::after{content:' • v8.2 VISUAL+SHAKE+2P EXP';font-size:.42rem;opacity:.8;color:#ffaa00;}
 
 /* ── HUD ── */
 #hud{display:none;position:fixed;top:0;left:0;right:0;z-index:200;pointer-events:none;}
@@ -644,6 +646,8 @@ let lightCanvas=null,lightCtx=null;
 let diario=[];
 let modalRaf=null,modalT=0;
 let pausado=false;
+let modo2P=false;
+let E2=null;
 
 const lanterna={ativa:false,nivel:100,raioBase:90,raioMax:240,raioAtual:90,angulo:Math.PI/2,cone:Math.PI*.56,dreno:1.8,flick:0,flickAmp:0,pulsar:0};
 const tocha={ativa:false,duracao:0};
@@ -827,12 +831,17 @@ function iniciarJogo(){
     if(e.code==='KeyE'||e.code==='Enter'){if(document.getElementById('modal-lenda').classList.contains('aberto'))fecharLenda();else if(document.getElementById('painel-craft').classList.contains('aberto'))fecharCraft();else if(document.getElementById('painel-diario').classList.contains('aberto'))fecharDiario();else ativarAcaoSel();}
     if(e.code==='KeyQ')navAcoes(-1);if(e.code==='KeyR')navAcoes(1);
     if(e.code==='KeyF')toggleLanterna();if(e.code==='KeyC')abrirCraft();if(e.code==='KeyJ')abrirDiario();
+    if(e.code==='Digit2'){ 
+      modo2P = !modo2P; 
+      msg(modo2P ? "👥 Modo 2 Jogadores ATIVADO (setas = P2)" : "👤 Modo Single Player");
+      if(modo2P && !E2){ E2 = {...E, x: E.x+3, y: E.y+1, dir:'L'}; }
+    }
   };
   document.onkeyup=e=>teclas[e.code]=false;
   const cv2=document.getElementById('canvas-mundo');
   cv2.onmousemove=e=>{mouseX=e.clientX;mouseY=e.clientY;lanterna.angulo=Math.atan2(e.clientY-cv2.height/2,e.clientX-cv2.width/2);const a=lanterna.angulo;if(a>-Math.PI/4&&a<Math.PI/4)E.dir='L';else if(a>=Math.PI/4&&a<3*Math.PI/4)E.dir='S';else if(a>=-3*Math.PI/4&&a<-Math.PI/4)E.dir='N';else E.dir='O';};
   atualizarAcoes();
-  msg("Você acorda na floresta amazônica. O ar é denso, quente, e cheio de sons desconhecidos.");
+  msg("Você acorda na floresta amazônica. Pressione [2] para modo 2 jogadores (companheiro segue você). Dano agora causa tremor na tela!");
   addDiario("Acordei. Floresta. Não sei como cheguei aqui. O calor abafa e os sons não param. Preciso encontrar comida, água, abrigo.");
   if(animID)cancelAnimationFrame(animID);
   animID=requestAnimationFrame(loop);
@@ -861,6 +870,11 @@ function loop(ts){
   lerGP();processGP(dt);
   if(!E.dormindo){
     moverJogador(dt);moverEntidades(dt);moverInimigos(dt);
+    if(modo2P && E2){ 
+      const dx=E.x-E2.x, dy=E.y-E2.y, d=Math.hypot(dx,dy)||1; 
+      if(d>2.2){ E2.x += (dx/d)*4.2*dt; E2.y += (dy/d)*4.2*dt; }
+      E2.dir = Math.abs(dx)>Math.abs(dy) ? (dx>0?'L':'O') : (dy>0?'S':'N');
+    }
     verificarCol();verificarInimigos(dt);
     atualizarStats(dt);atualizarDiaClima(dt);
     atualizarLanterna(dt);atualizarVagalumes(dt);atualizarParticles(dt);
@@ -1015,7 +1029,11 @@ function coletarItem(item){
   atualizarAcoes();
 }
 function addInv(nome,emoji,tipo){const ex=E.inv.find(i=>i.nome===nome);if(ex)ex.qtd=(ex.qtd||1)+1;else E.inv.push({nome,emoji,tipo,qtd:1});}
-function dano(qtd){E.vida=Math.max(0,E.vida-qtd);sfx.dano();const fl=document.getElementById('dmg-flash');fl.style.opacity='1';setTimeout(()=>fl.style.opacity='0',200);}
+function dano(qtd){E.vida=Math.max(0,E.vida-qtd);sfx.dano();const fl=document.getElementById('dmg-flash');fl.style.opacity='1';setTimeout(()=>fl.style.opacity='0',180);
+  // Screen shake on damage (visual feedback)
+  const cv=document.getElementById('canvas-mundo');
+  if(cv){cv.style.transition='none';cv.style.transform=`translate(${(Math.random()-0.5)*8}px,${(Math.random()-0.5)*8}px)`;setTimeout(()=>{cv.style.transition='transform .1s';cv.style.transform='translate(0,0)';},80);}
+}
 
 // ══════════════════════════════════════════════════════════
 //  STATS / DIA / CLIMA
@@ -1366,6 +1384,21 @@ function renderizar(){
   // Armadilhas
   for(let ty=ty0;ty<=ty1;ty++)for(let tx=tx0;tx<=tx1;tx++){if(mapa[ty]?.[tx]?.armadilha){const sx=tx*TILE-camX+TILE/2,sy=ty*TILE-camY+TILE/2;ctx.save();ctx.font='12px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=.7;ctx.fillText('🪤',sx,sy);ctx.restore();}}
   desenharJogador(ctx,W/2,H/2);
+  if(modo2P && E2){
+    const sx2=E2.x*TILE-camX, sy2=E2.y*TILE-camY;
+    ctx.save();
+    ctx.globalAlpha=0.9;
+    ctx.font='22px serif';
+    ctx.fillStyle='#88ffaa';
+    ctx.shadowColor='#00ff88';
+    ctx.shadowBlur=10;
+    ctx.textAlign='center';
+    ctx.fillText('🧍',sx2,sy2-6);
+    // small health bar for companion
+    ctx.fillStyle='rgba(0,0,0,.5)'; ctx.fillRect(sx2-12,sy2-22,24,4);
+    ctx.fillStyle='#44ff88'; ctx.fillRect(sx2-12,sy2-22,24*0.7,4);
+    ctx.restore();
+  }
   // Chuva
   if(clima==='chuva'){ctx.save();chuva.forEach(g=>{ctx.globalAlpha=g.op*(.5+Math.random()*.3);ctx.strokeStyle='rgba(160,210,255,.9)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(g.x*W,g.y*H);ctx.lineTo(g.x*W-6,g.y*H+18);ctx.stroke();});ctx.globalAlpha=.22;ctx.fillStyle='rgba(18,30,50,.8)';ctx.fillRect(0,0,W,H);ctx.restore();}
   if(clima==='nevoeiro'){ctx.save();const fg=ctx.createRadialGradient(W/2+Math.sin(tempo*.07)*40,H/2,0,W/2,H/2,Math.max(W,H)*.9);fg.addColorStop(0,'transparent');fg.addColorStop(.4,'rgba(140,160,130,.1)');fg.addColorStop(1,'rgba(140,160,130,.55)');ctx.fillStyle=fg;ctx.fillRect(0,0,W,H);ctx.restore();}
@@ -1465,6 +1498,7 @@ function renderMiniMapa(){
   entidades.forEach(e=>{if(!legendasVistas.has(e.lenda)){ctx.globalAlpha=.5+Math.sin(tempo*3+e.fase)*.35;ctx.fillStyle=LENDAS[e.lenda].cor;ctx.beginPath();ctx.arc(e.x*sc,e.y*sc,2.4,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}});
   ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,3,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(0,255,136,.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,5.5,0,Math.PI*2);ctx.stroke();
+  if(modo2P && E2){ ctx.fillStyle='#88ffaa'; ctx.beginPath(); ctx.arc(E2.x*sc,E2.y*sc,2.5,0,Math.PI*2); ctx.fill(); }
   if(lanterna.ativa&&(perIdx===0||perIdx===4)){ctx.save();ctx.globalAlpha=.55;ctx.strokeStyle='#ffe066';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(E.x*sc,E.y*sc);ctx.lineTo(E.x*sc+Math.cos(lanterna.angulo)*9,E.y*sc+Math.sin(lanterna.angulo)*9);ctx.stroke();ctx.restore();}
   ctx.strokeStyle='rgba(0,255,127,.12)';ctx.lineWidth=1;ctx.strokeRect(1,1,138,138);
 }
@@ -1486,8 +1520,3 @@ window.addEventListener('resize',()=>{const c=document.getElementById('canvas-mu
 </script>
 </body>
 </html>
-HTMLEOF
-echo "Arquivo criado com sucesso: $(wc -c < /mnt/user-data/outputs/amazonia.html) bytes"
-Saída
-
-Command argument is 143_944 bytes, exceeding the 100_000-byte per-argument limit. For large content, pipe via stdin or use a file-write API instead of embedding the content inline in the command. Argument preview: 'cat > /mnt/user-data/outputs/amazonia.html << \'HTMLEOF\'\n<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>'
