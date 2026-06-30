@@ -1,4 +1,3 @@
-cat > /home/claude/amazonia_v9.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -53,7 +52,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .btn-start:hover{color:#000;border-color:var(--vc);box-shadow:0 0 40px rgba(0,255,127,.5);}
 .btn-start:hover::after{transform:translateX(0);}
 .v-badge{position:absolute;bottom:1.2rem;right:1.5rem;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(255,255,255,.18);letter-spacing:2px;}
-.v-badge::after{content:' • v9.1 + MANAUS';font-size:.42rem;opacity:.8;color:#ffaa00;}
+.v-badge::after{content:' • v9.2 + MANAUS (corrigido)';font-size:.42rem;opacity:.8;color:#ffaa00;}
 
 /* ══ MODO SELEÇÃO ══ */
 #tela-modo{position:fixed;inset:0;z-index:1500;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.95);backdrop-filter:blur(12px);}
@@ -224,6 +223,8 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .btn-fechar{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3em;padding:10px 32px;background:transparent;border:1px solid;cursor:pointer;transition:all .3s;text-transform:uppercase;border-radius:2px;}
 .btn-fechar.secundario{opacity:.5;}
 .btn-fechar.secundario:hover{opacity:1;}
+.m-progresso{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(200,144,16,.7);margin:.4rem 0 1rem;letter-spacing:.1em;}
+.m-progresso.completo{font-family:'Cinzel Decorative',serif;font-size:.7rem;color:#e8c040;animation:logoPulse 2s infinite;}
 
 /* ══ MANAUS — CUTSCENE ══ */
 #tela-manaus{display:none;position:fixed;inset:0;z-index:800;background:#000;overflow:hidden;}
@@ -365,7 +366,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
       <button class="btn-start" onclick="selecionarModo()">Entrar na Floresta</button>
     </div>
   </div>
-  <div class="v-badge">v9.1 · AMAZÔNIA + Manaus</div>
+  <div class="v-badge">v9.2 · AMAZÔNIA + Manaus</div>
 </div>
 
 <!-- SELEÇÃO DE MODO -->
@@ -464,6 +465,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
         <p class="m-texto" id="m-texto"></p>
         <div class="m-dica" id="m-dica-box"><div class="m-dica-label" id="m-dica-label">⚠ SOBREVIVÊNCIA</div><div class="m-dica-txt" id="m-dica"></div></div>
         <div class="m-efeito" id="m-efeito-tag">efeito</div>
+        <div class="m-progresso" id="m-progresso"></div>
         <div class="m-btns"><button class="btn-fechar primario" id="btn-fechar-lenda" onclick="fecharLenda()">Continuar</button></div>
       </div>
     </div>
@@ -709,6 +711,7 @@ let pausado=false;
 let modo2P=false;
 let finimCanvas=null,finimRaf=null;
 let manausCanvasRaf=null;
+let manausPendente=false; // flag: 10 lendas alcançadas, aguardando fechar modal para revelar Manaus
 
 const lanterna={ativa:false,nivel:100,raioBase:90,raioMax:240,raioAtual:90,angulo:Math.PI/2,cone:Math.PI*.56,dreno:1.8,flick:0,flickAmp:0,pulsar:0};
 const lanterna2={ativa:false,nivel:100,raioAtual:70,angulo:0};
@@ -850,7 +853,7 @@ function iniciarJogo(is2P){
   tempo=0;diaNum=1;perIdx=1;tsAnt=performance.now();
   legendasVistas=new Set();conquistasObtidas=new Set();
   clima='limpo';climaTmp=0;climaDur=80+Math.random()*120;
-  pausado=false;particles=[];diario=[];
+  pausado=false;particles=[];diario=[];manausPendente=false;
   setupKeys();
   atualizarAcoes();
   msg(modo2P?"👥 Modo 2 Jogadores! P1: WASD | P2: Setas. [B] revive P1.":"Você acorda na floresta amazônica. Encontre as 10 lendas para desbloquear Manaus!");
@@ -930,12 +933,19 @@ function loop(ts){
   verificarConquistas();
   renderizar();atualizarHUD();
   if(E.vida<=0){fimJogo();return;}
-  // Verificar todas lendas
+  // CORREÇÃO: as 10 lendas foram encontradas. Só dispara a transição para Manaus
+  // quando o modal da última lenda já tiver sido fechado pelo jogador — caso contrário
+  // o loop principal era cancelado enquanto o modal ainda estava aberto, deixando o
+  // jogo "travado" (sem resposta a teclas, sem animações) até a cutscene forçar a tela.
   if(E.lendas.length>=10&&!E.manausDesbloqueada){
-    E.manausDesbloqueada=true;
-    cancelAnimationFrame(animID);
-    setTimeout(()=>revelarManaus(),500);
-    return;
+    if(document.getElementById('modal-lenda').classList.contains('aberto')){
+      manausPendente=true; // aguardamos o fechamento do modal
+    }else{
+      E.manausDesbloqueada=true;
+      cancelAnimationFrame(animID);
+      setTimeout(()=>revelarManaus(),500);
+      return;
+    }
   }
   animID=requestAnimationFrame(loop);
 }
@@ -1253,19 +1263,20 @@ function exibirLenda(idx,rev=false,ent=null){
   const efTag=document.getElementById('m-efeito-tag');efTag.textContent=l.efeitoNome;efTag.style.color=l.cor;efTag.style.borderColor=l.cor+'60';efTag.style.background=l.corBg;
   const btnF=document.getElementById('btn-fechar-lenda');btnF.style.color=l.cor;btnF.style.borderColor=l.cor+'80';
   btnF.onmouseover=()=>{btnF.style.background=l.cor;btnF.style.color='#000';};btnF.onmouseout=()=>{btnF.style.background='transparent';btnF.style.color=l.cor;};
-  
-  // Mostrar progresso das lendas no modal
+
+  // Mostrar progresso das lendas no modal (elemento fixo, sem acumular nós no DOM)
   const lendasRestantes=10-E.lendas.length;
+  const progEl=document.getElementById('m-progresso');
   if(!rev&&lendasRestantes>0){
-    const progressHint=document.createElement('div');progressHint.style.cssText='font-family:"Share Tech Mono",monospace;font-size:.52rem;color:rgba(200,144,16,.7);margin-top:.5rem;letter-spacing:.1em;';
-    progressHint.textContent=`🏙 Lendas para Manaus: ${E.lendas.length}/10 — faltam ${lendasRestantes}`;
-    document.getElementById('m-btns').before(progressHint);
-  } else if(!rev&&lendasRestantes===0){
-    const manausHint=document.createElement('div');manausHint.style.cssText='font-family:"Cinzel Decorative",serif;font-size:.7rem;color:#e8c040;margin-top:.5rem;animation:logoPulse 2s infinite;';
-    manausHint.textContent='🏙 MANAUS DESBLOQUEADA!';
-    document.getElementById('m-btns').before(manausHint);
+    progEl.className='m-progresso';
+    progEl.textContent=`🏙 Lendas para Manaus: ${E.lendas.length}/10 — faltam ${lendasRestantes}`;
+  }else if(!rev&&lendasRestantes===0){
+    progEl.className='m-progresso completo';
+    progEl.textContent='🏙 MANAUS DESBLOQUEADA! Feche para continuar a jornada.';
+  }else{
+    progEl.className='m-progresso';progEl.textContent='';
   }
-  
+
   const cv=document.getElementById('modal-canvas');cv.width=cv.parentElement.offsetWidth||680;cv.height=cv.parentElement.offsetHeight||500;
   if(modalRaf)cancelAnimationFrame(modalRaf);modalT=0;
   function animModal(){if(!document.getElementById('modal-lenda').classList.contains('aberto')){cancelAnimationFrame(modalRaf);return;}modalT+=0.016;lendaCanvasGeneric(cv,modalT,l.cor,l.emoji);modalRaf=requestAnimationFrame(animModal);}
@@ -1274,7 +1285,19 @@ function exibirLenda(idx,rev=false,ent=null){
   if(!rev){sfx.lenda();setTimeout(()=>l.sfx&&l.sfx(),600);}
   if(!rev&&ent){aplicarEfeitoLenda(l.efeito);addDiario("Encontrei "+l.nome+". "+l.texto.substring(0,80)+"...");}
 }
-function fecharLenda(){sfx.botao();document.getElementById('modal-lenda').classList.remove('aberto');if(modalRaf)cancelAnimationFrame(modalRaf);}
+function fecharLenda(){
+  sfx.botao();
+  document.getElementById('modal-lenda').classList.remove('aberto');
+  if(modalRaf)cancelAnimationFrame(modalRaf);
+  // CORREÇÃO: se as 10 lendas já foram coletadas e o jogo estava aguardando o
+  // fechamento deste modal para iniciar a cutscene de Manaus, dispara agora.
+  if(manausPendente&&E.lendas.length>=10&&!E.manausDesbloqueada){
+    manausPendente=false;
+    E.manausDesbloqueada=true;
+    cancelAnimationFrame(animID);
+    setTimeout(()=>revelarManaus(),300);
+  }
+}
 function aplicarEfeitoLenda(ef){
   switch(ef){
     case 'confusao':E.x=Math.max(1,Math.min(MW-1,E.x+(Math.random()-.5)*14));E.y=Math.max(1,Math.min(MH-1,E.y+(Math.random()-.5)*14));msg("🌀 O Curupira embaralhou sua orientação!");break;
@@ -1330,39 +1353,39 @@ function atualizarHUD(){
 async function revelarManaus(){
   cancelAnimationFrame(animID);stopAmbience();
   sfx.manausReveal();
-  
+
   // Tela Manaus
   document.getElementById('tela-manaus').classList.add('aberto');
   iniciarAnimManausCanvas();
-  
+
   const lendaNomes=E.lendas.map(i=>LENDAS[i].nome).join(', ');
-  
+
   // Gerar história de chegada a Manaus
   const promptChegada=`Você é o espírito narrador da floresta amazônica. Em português poético e lírico (máximo 3 frases), narre a chegada do explorador à lendária cidade de Manaus após descobrir todas as 10 lendas: ${lendaNomes}. Mencione o Rio Negro, o Teatro Amazonas ou a Belle Époque. Seja épico e emocional.`;
-  
+
   // Gerar história da Cabanagem
   const promptGuerra=`Você é um historiador apaixonado. Narre em português (4 frases dramáticas) a Guerra da Cabanagem (1835-1840) no Amazonas: a revolta dos caboclos, ribeirinhos e indígenas oprimidos contra as elites coloniais portuguesas e brasileiras. Mencione que foi um dos conflitos mais sangrentos do Brasil, com mais de 30 mil mortos — quase 40% da população do Grão-Pará. Conecte com o espírito de resistência das lendas amazônicas.`;
-  
+
   document.getElementById('manaus-historia-txt').textContent='A floresta narra sua chegada...';
   document.getElementById('manaus-guerra-txt').textContent='Aguardando a história da Cabanagem...';
-  
+
   try{
     const [r1,r2]=await Promise.all([
       fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:promptChegada}]})}),
       fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:promptGuerra}]})})
     ]);
     const [d1,d2]=await Promise.all([r1.json(),r2.json()]);
-    
+
     const txt1=d1.content?.[0]?.text?.trim()||'Você chegou a Manaus, guardião das 10 lendas. A cidade te recebe com o rugido do Rio Negro.';
     const txt2=d2.content?.[0]?.text?.trim()||'A Cabanagem (1835-1840) foi a maior revolta popular do Brasil. Caboclos, indígenas e ribeirinhos ergueram-se contra séculos de opressão colonial. O sangue do Amazonas correu vermelho — mais de 30 mil vidas ceifadas. Mas o espírito dos vencidos vive nas lendas que você descobriu.';
-    
+
     // Digitar o texto da chegada
     const el1=document.getElementById('manaus-historia-txt');
     el1.style.color='rgba(230,215,180,.95)';
     el1.textContent='';
     let ci=0;
     await new Promise(res=>{const iv=setInterval(()=>{if(ci<txt1.length){el1.textContent+=txt1[ci++];}else{clearInterval(iv);res();}},18);});
-    
+
     // Digitar o texto da guerra (com pausa)
     await new Promise(r=>setTimeout(r,400));
     const el2=document.getElementById('manaus-guerra-txt');
@@ -1370,7 +1393,7 @@ async function revelarManaus(){
     el2.textContent='';
     let ci2=0;
     await new Promise(res=>{const iv=setInterval(()=>{if(ci2<txt2.length){el2.textContent+=txt2[ci2++];}else{clearInterval(iv);res();}},15);});
-    
+
   }catch(e){
     document.getElementById('manaus-historia-txt').style.color='rgba(230,215,180,.95)';
     document.getElementById('manaus-historia-txt').textContent='Você chegou a Manaus, guardião das 10 lendas da Amazônia. O Teatro Amazonas brilha como uma joia no coração da floresta, e o Rio Negro sussurra seu nome com reverência.';
@@ -1643,8 +1666,3 @@ window.addEventListener('resize',()=>{const c=document.getElementById('canvas-mu
 </script>
 </body>
 </html>
-HTMLEOF
-echo "Arquivo criado: $(wc -c < /home/claude/amazonia_v9.html) bytes"
-Saída
-
-Command argument is 157_096 bytes, exceeding the 100_000-byte per-argument limit. For large content, pipe via stdin or use a file-write API instead of embedding the content inline in the command. Argument preview: 'cat > /home/claude/amazonia_v9.html << \'HTMLEOF\'\n<!DOCTYPE html>\n<html lang="pt-BR">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>AMAZÔNI'
