@@ -109,7 +109,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 #inv-wrap{margin-top:5px;display:flex;flex-wrap:wrap;gap:3px;pointer-events:all;max-width:200px;}
 .inv-chip{background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.08);padding:1px 6px;font-size:.58rem;border-radius:2px;color:rgba(220,236,212,.75);cursor:pointer;transition:all .15s;}
 .inv-chip:hover{border-color:rgba(0,255,127,.4);color:var(--vn);}
-#lanterna-hud{position:fixed;bottom:88px;left:14px;display:none;pointer-events:none;}
+#lanterna-hud{position:fixed;bottom:88px;left:14px;display:none;pointer-events:none;z-index:210;}
 .lant-box{background:var(--bg-h);border:1px solid var(--bd-h);padding:6px 10px;backdrop-filter:blur(8px);border-radius:2px;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(180,180,180,.7);}
 .lant-track{width:88px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:4px;overflow:hidden;}
 .lant-fill{height:100%;border-radius:2px;transition:width .5s,background .5s;}
@@ -141,6 +141,22 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .diario-corpo::-webkit-scrollbar-thumb{background:rgba(200,144,16,.3);}
 .entrada-diario{border-left:2px solid rgba(200,144,16,.2);padding:6px 10px;margin-bottom:8px;font-size:.82rem;line-height:1.8;color:rgba(220,210,185,.85);font-style:italic;}
 .entrada-diario .entrada-ts{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(200,144,16,.5);display:block;margin-bottom:3px;font-style:normal;}
+
+/* ══ INVENTÁRIO (NOVO) ══ */
+#painel-inv{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:560px;max-width:96vw;background:linear-gradient(160deg,rgba(4,14,18,.98),rgba(6,22,26,.98));border:1px solid rgba(0,200,255,.2);z-index:450;display:none;backdrop-filter:blur(20px);border-radius:3px;box-shadow:0 20px 80px rgba(0,0,0,.9);}
+#painel-inv.aberto{display:block;animation:mentrada .3s cubic-bezier(.23,1,.32,1);}
+.inv-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(0,200,255,.12);}
+.inv-titulo{font-family:'Cinzel Decorative',serif;font-size:.75rem;color:#5cd8ff;letter-spacing:.15em;}
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px;max-height:62vh;overflow-y:auto;}
+.inv-grid::-webkit-scrollbar{width:3px;}
+.inv-grid::-webkit-scrollbar-thumb{background:rgba(0,200,255,.25);}
+.inv-slot{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .2s;position:relative;}
+.inv-slot:hover{border-color:rgba(0,200,255,.5);background:rgba(0,200,255,.07);box-shadow:0 0 14px rgba(0,200,255,.15);transform:translateY(-2px);}
+.inv-slot-emoji{font-size:1.8rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6));}
+.inv-slot-nome{font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(220,236,212,.8);text-align:center;line-height:1.3;}
+.inv-slot-qtd{position:absolute;top:4px;right:6px;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#5cd8ff;background:rgba(0,0,0,.6);padding:0px 4px;border-radius:8px;border:1px solid rgba(0,200,255,.3);}
+.inv-vazio{grid-column:1/-1;text-align:center;padding:2.5rem 1rem;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:rgba(180,200,170,.35);letter-spacing:.1em;}
+.inv-vazio-ico{font-size:2.2rem;display:block;margin-bottom:.6rem;opacity:.4;}
 
 /* ══ CONQUISTA ══ */
 #conquista-notif{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-80px);background:linear-gradient(135deg,rgba(2,10,2,.97),rgba(6,20,6,.97));border:1px solid var(--dol);padding:10px 22px;z-index:600;border-radius:2px;backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;min-width:260px;transition:transform .4s cubic-bezier(.23,1,.32,1);}
@@ -446,6 +462,12 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 <div id="painel-diario">
   <div class="diario-header"><div class="diario-titulo">📖 DIÁRIO DO EXPLORADOR</div><button class="craft-fechar" onclick="fecharDiario()">✕</button></div>
   <div class="diario-corpo" id="diario-corpo"></div>
+</div>
+
+<!-- INVENTÁRIO (NOVO) -->
+<div id="painel-inv">
+  <div class="inv-header"><div class="inv-titulo">🎒 INVENTÁRIO</div><button class="craft-fechar" onclick="fecharInv()">✕</button></div>
+  <div class="inv-grid" id="inv-grid"></div>
 </div>
 
 <!-- CONQUISTA -->
@@ -871,6 +893,7 @@ function setupKeys(){
     if(e.code==='Escape'){
       if(document.getElementById('painel-craft').classList.contains('aberto')){fecharCraft();return;}
       if(document.getElementById('painel-diario').classList.contains('aberto')){fecharDiario();return;}
+      if(document.getElementById('painel-inv').classList.contains('aberto')){fecharInv();return;}
       if(document.getElementById('modal-lenda').classList.contains('aberto')){fecharLenda();return;}
       if(document.getElementById('tela-pausa').classList.contains('aberto')){fecharPausa();return;}
       if(!pausado)abrirPausa();else fecharPausa();return;
@@ -881,6 +904,7 @@ function setupKeys(){
       if(document.getElementById('modal-lenda').classList.contains('aberto'))fecharLenda();
       else if(document.getElementById('painel-craft').classList.contains('aberto'))fecharCraft();
       else if(document.getElementById('painel-diario').classList.contains('aberto'))fecharDiario();
+      else if(document.getElementById('painel-inv').classList.contains('aberto'))fecharInv();
       else ativarAcaoSel();
     }
     if(e.code==='KeyF')toggleLanterna();
@@ -1194,6 +1218,28 @@ function abrirDiario(){sfx.botao();const corpo=document.getElementById('diario-c
 function fecharDiario(){document.getElementById('painel-diario').classList.remove('aberto');sfx.botao();}
 
 // ══════════════════════════════════════════════════════════
+//  INVENTÁRIO VISUAL (NOVO)
+// ══════════════════════════════════════════════════════════
+function abrirInv(){
+  sfx.botao();
+  const grid=document.getElementById('inv-grid');
+  grid.innerHTML='';
+  if(E.inv.length===0){
+    grid.innerHTML='<div class="inv-vazio"><span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Explore a floresta para coletar itens.</div>';
+  }else{
+    E.inv.forEach(item=>{
+      const slot=document.createElement('div');
+      slot.className='inv-slot';
+      const qtd=item.qtd||1;
+      slot.innerHTML=`${qtd>1?`<span class="inv-slot-qtd">×${qtd}</span>`:''}<span class="inv-slot-emoji">${item.emoji}</span><span class="inv-slot-nome">${item.nome}</span>`;
+      grid.appendChild(slot);
+    });
+  }
+  document.getElementById('painel-inv').classList.add('aberto');
+}
+function fecharInv(){document.getElementById('painel-inv').classList.remove('aberto');sfx.botao();}
+
+// ══════════════════════════════════════════════════════════
 //  CONQUISTAS
 // ══════════════════════════════════════════════════════════
 function verificarConquistas(){CONQUISTAS_DEF.forEach(c=>{if(!conquistasObtidas.has(c.id)&&c.check(E)){conquistasObtidas.add(c.id);sfx.conquista();const n=document.getElementById('conquista-notif');document.getElementById('conq-ico').textContent=c.emoji;document.getElementById('conq-nome').textContent=c.nome;n.classList.add('vis');clearTimeout(conquTmr);conquTmr=setTimeout(()=>n.classList.remove('vis'),4000);}});}
@@ -1236,7 +1282,7 @@ function montarAbrigo(){if(contarItem('Bambu')>=2){removerItem('Bambu',2);E.temA
 function tentarDormir(){if(!E.temAbrigo&&Math.random()<.45){dano(35);msg("⚠ Atacado enquanto dormia sem abrigo!");return;}sfx.dormir();E.energia=Math.min(100,E.energia+85);E.sanidade=Math.min(100,E.sanidade+35);tempo+=32;addDiario("Dormi.");msg("💤 Você adormece.");}
 function usarAntidoto(){if(contarItem('Antídoto')>0){removerItem('Antídoto',1);E.veneno=false;sfx.remedio();E.curas++;msg("💊 Antídoto!");}else msg("Não tem Antídoto.");}
 function explorarGruta(){sfx.botao();const r=Math.random();if(r<.25){addInv('Pederneira','🪨','ferr');addInv('Pederneira','🪨','ferr');sfx.coletar();msg("💎 Pederneiras raras!");}else if(r<.45){dano(28);msg("⚠ Algo te atacou!");}else if(r<.6){E.sanidade=Math.max(0,E.sanidade-25);msg("👁 Visões perturbadoras.");}else msg("A gruta está vazia.")}
-function verInv(){sfx.botao();if(E.inv.length===0)msg("Inventário vazio.");else msg("📦 "+E.inv.map(i=>i.emoji+' '+i.nome+(i.qtd>1?' ×'+i.qtd:'')).join('  ·  '));}
+function verInv(){abrirInv();}
 function verLendas(){sfx.botao();if(E.lendas.length===0){msg("Explore mais para encontrar as 10 lendas!");return;}exibirLenda(E.lendas[Math.floor(Math.random()*E.lendas.length)],true,null);}
 function contarItem(nome){return E.inv.filter(i=>i.nome===nome).reduce((s,i)=>s+(i.qtd||1),0);}
 function removerItem(nome,qtd){let rest=qtd;for(let i=E.inv.length-1;i>=0&&rest>0;i--){if(E.inv[i].nome===nome){const t=Math.min(rest,E.inv[i].qtd||1);if((E.inv[i].qtd||1)<=t)E.inv.splice(i,1);else E.inv[i].qtd-=t;rest-=t;}}}
@@ -1343,8 +1389,9 @@ function atualizarHUD(){
   if(E.lendas.length>=8)efDiv.innerHTML+='<span class="efeit-chip" style="color:#e8c040;animation:bdest 1.5s infinite">🏙 Quase!</span>';
   const invDiv=document.getElementById('inv-wrap');const counts={};
   E.inv.forEach(i=>{if(!counts[i.nome])counts[i.nome]={e:i.emoji,n:0};counts[i.nome].n+=(i.qtd||1);});
-  invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>`<span class="inv-chip">${d.e} ${nm}${d.n>1?' ×'+d.n:''}</span>`).join('');
+  invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>`<span class="inv-chip" onclick="abrirInv()">${d.e} ${nm}${d.n>1?' ×'+d.n:''}</span>`).join('');
   atualizarAcoes();
+  if(document.getElementById('painel-inv').classList.contains('aberto'))abrirInv();
 }
 
 // ══════════════════════════════════════════════════════════
