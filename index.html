@@ -52,7 +52,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .btn-start:hover{color:#000;border-color:var(--vc);box-shadow:0 0 40px rgba(0,255,127,.5);}
 .btn-start:hover::after{transform:translateX(0);}
 .v-badge{position:absolute;bottom:1.2rem;right:1.5rem;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(255,255,255,.18);letter-spacing:2px;}
-.v-badge::after{content:' • v9.2 + MANAUS (corrigido)';font-size:.42rem;opacity:.8;color:#ffaa00;}
+.v-badge::after{content:' • v9.3 + MANAUS (P2 aprimorado)';font-size:.42rem;opacity:.8;color:#ffaa00;}
 
 /* ══ MODO SELEÇÃO ══ */
 #tela-modo{position:fixed;inset:0;z-index:1500;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.95);backdrop-filter:blur(12px);}
@@ -92,10 +92,21 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 
 /* HUD P2 */
 #hud-p2{display:none;position:fixed;bottom:90px;left:14px;z-index:200;pointer-events:none;}
-.hud-p2-painel{background:rgba(2,4,16,.92);border:1px solid rgba(255,110,199,.2);padding:8px 12px;backdrop-filter:blur(12px);border-radius:2px;}
-.hud-p2-nome{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.2em;color:var(--p2);margin-bottom:5px;}
-.barra-p2-track{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden;min-width:70px;}
-.fill-p2-vida{background:linear-gradient(90deg,#991060,#cc44aa,#ff88dd);}
+.hud-p2-painel{background:linear-gradient(160deg,rgba(18,2,14,.94),rgba(4,2,12,.94));border:1px solid rgba(255,110,199,.28);padding:9px 13px;backdrop-filter:blur(14px);border-radius:3px;box-shadow:0 6px 26px rgba(120,0,80,.25),inset 0 1px 0 rgba(255,255,255,.05);min-width:158px;}
+.hud-p2-nome{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.2em;color:var(--p2);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.hud-p2-nome::before{content:'●';color:#ff6ec7;animation:p2pulse 1.6s ease-in-out infinite;}
+@keyframes p2pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.barra-p2-row{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.barra-p2-row:last-child{margin-bottom:0;}
+.barra-p2-ico{font-size:.62rem;width:13px;text-align:center;flex-shrink:0;}
+.barra-p2-track{flex:1;height:4.5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;min-width:70px;}
+.barra-p2-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.23,1,.32,1);}
+.fill-p2-vida{background:linear-gradient(90deg,#991060,#cc44aa,#ff88dd);box-shadow:0 0 6px rgba(255,110,199,.5);}
+.fill-p2-fome{background:linear-gradient(90deg,#603010,#c07020,#e8a040);}
+.fill-p2-sede{background:linear-gradient(90deg,#083858,#1878b8,#40b0e0);}
+.fill-p2-ener{background:linear-gradient(90deg,#505010,#a8c020,#d8f040);}
+.barra-p2-num{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:rgba(255,255,255,.4);min-width:20px;text-align:right;}
+.p2-crit .barra-p2-fill{animation:bpiscar .65s ease-in-out infinite;}
 
 .painel-info{min-width:170px;}
 #loc-txt{font-family:'Cinzel Decorative',serif;font-size:.58rem;letter-spacing:.1em;color:var(--vn);margin-bottom:3px;}
@@ -363,10 +374,10 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
       <div class="ctrl-col">
         <div class="ctrl-head">🎮 Jogador 2</div>
         <div class="ctrl-row"><span class="k">↑↓←→</span> mover</div>
-        <div class="ctrl-row"><span class="k">M</span> ação/curar P2</div>
+        <div class="ctrl-row"><span class="k">M</span> ação/sobreviver</div>
         <div class="ctrl-row"><span class="k">N</span> lanterna P2</div>
         <div class="ctrl-row"><span class="k">B</span> reviver P2</div>
-        <div class="ctrl-row" style="margin-top:4px;color:rgba(255,110,199,.7)">Modo 2P: compartilham inventário</div>
+        <div class="ctrl-row" style="margin-top:4px;color:rgba(255,110,199,.7)">Modo 2P: compartilham inventário e combate</div>
       </div>
       <div class="ctrl-col">
         <div class="ctrl-head">🎯 Mecânicas</div>
@@ -382,7 +393,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
       <button class="btn-start" onclick="selecionarModo()">Entrar na Floresta</button>
     </div>
   </div>
-  <div class="v-badge">v9.2 · AMAZÔNIA + Manaus</div>
+  <div class="v-badge">v9.3 · AMAZÔNIA + Manaus</div>
 </div>
 
 <!-- SELEÇÃO DE MODO -->
@@ -398,7 +409,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
     <div class="modo-card p2" onclick="iniciarJogo(true)">
       <div class="modo-card-ico">👥</div>
       <div class="modo-card-nome">2 Jogadores</div>
-      <div class="modo-card-desc">P1: WASD &nbsp;|&nbsp; P2: Setas<br>Compartilham inventário e lendas.<br>P2 pode reviver P1 (tecla B).</div>
+      <div class="modo-card-desc">P1: WASD &nbsp;|&nbsp; P2: Setas<br>Compartilham inventário, combate e lendas.<br>P2 pode reviver P1 (tecla B).</div>
     </div>
   </div>
   <button class="modo-voltar" onclick="voltarTitulo()">← Voltar ao menu</button>
@@ -430,8 +441,11 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 <!-- HUD P2 -->
 <div id="hud-p2">
   <div class="hud-p2-painel">
-    <div class="hud-p2-nome">👥 P2 · Setas para mover</div>
-    <div class="barra-row"><span class="barra-ico" style="font-size:.7rem">❤</span><div class="barra-p2-track"><div class="barra-fill fill-p2-vida" id="b-p2-vida" style="width:100%"></div></div><span class="barra-num" id="n-p2-vida">100</span></div>
+    <div class="hud-p2-nome">P2 · Setas para mover</div>
+    <div class="barra-p2-row"><span class="barra-p2-ico">❤</span><div class="barra-p2-track"><div class="barra-p2-fill fill-p2-vida" id="b-p2-vida" style="width:100%"></div></div><span class="barra-p2-num" id="n-p2-vida">100</span></div>
+    <div class="barra-p2-row"><span class="barra-p2-ico">🍖</span><div class="barra-p2-track"><div class="barra-p2-fill fill-p2-fome" id="b-p2-fome" style="width:100%"></div></div><span class="barra-p2-num" id="n-p2-fome">100</span></div>
+    <div class="barra-p2-row"><span class="barra-p2-ico">💧</span><div class="barra-p2-track"><div class="barra-p2-fill fill-p2-sede" id="b-p2-sede" style="width:100%"></div></div><span class="barra-p2-num" id="n-p2-sede">100</span></div>
+    <div class="barra-p2-row"><span class="barra-p2-ico">⚡</span><div class="barra-p2-track"><div class="barra-p2-fill fill-p2-ener" id="b-p2-ener" style="width:100%"></div></div><span class="barra-p2-num" id="n-p2-ener">100</span></div>
     <div id="p2-estado" style="font-family:'Share Tech Mono',monospace;font-size:.48rem;color:rgba(255,110,199,.6);margin-top:4px;"></div>
   </div>
 </div>
@@ -912,7 +926,7 @@ function setupKeys(){
     if(e.code==='KeyJ')abrirDiario();
     if(modo2P&&E2){
       if(e.code==='KeyN')toggleLanterna2();
-      if(e.code==='KeyM')p2Curar();
+      if(e.code==='KeyM')p2Interagir();
       if(e.code==='KeyB')p2Reviver();
     }
   };
@@ -983,25 +997,63 @@ function moverP2(dt){
   let dx=0,dy=0;
   if(teclas['ArrowLeft'])dx-=1;if(teclas['ArrowRight'])dx+=1;
   if(teclas['ArrowUp'])dy-=1;if(teclas['ArrowDown'])dy+=1;
+  E2.xAnt=E2.x;E2.yAnt=E2.y;
   if(dx!==0||dy!==0){
     const mag=Math.sqrt(dx*dx+dy*dy);dx=(dx/mag)*vel;dy=(dy/mag)*vel;
     if(Math.abs(dx)>Math.abs(dy))E2.dir=dx>0?'L':'O';else E2.dir=dy>0?'S':'N';
     const nx=Math.max(.6,Math.min(MW-1.6,E2.x+dx)),ny=Math.max(.6,Math.min(MH-1.6,E2.y+dy));
     const tile=mapa[Math.floor(ny)]?.[Math.floor(nx)];
-    if(tile&&tile.tipo!==T.PEDRA&&tile.tipo!==T.PENHASCO){E2.x=nx;E2.y=ny;E2.passos++;tile.vis=true;
+    if(tile&&tile.tipo!==T.PEDRA&&tile.tipo!==T.PENHASCO){
+      if((tile.tipo===T.AGUA||tile.tipo===T.LIRIO)&&!E2.jangada&&!E.jangada){E2.x=Math.max(.6,Math.min(MW-1.6,E2.x+dx*.55));E2.y=Math.max(.6,Math.min(MH-1.6,E2.y+dy*.55));E2.sede=Math.min(100,E2.sede+.55);}
+      else{E2.x=nx;E2.y=ny;}
+      E2.passos++;tile.vis=true;sfxPasso(tile);
       if(E2.passos%55===0){E2.fome=Math.max(0,E2.fome-1.5);E2.sede=Math.max(0,E2.sede-2.0);E2.energia=Math.max(0,E2.energia-.8);}
+      if(tile.tipo===T.PANTANO){E2.energia=Math.max(0,E2.energia-dt*1.5);}
+      if(tile.tipo===T.GRUTA){E2.sanidade=Math.max(0,E2.sanidade-dt*.8);}
+      if(tile.armadilha&&Math.random()<.3){tile.armadilha=false;addInv('Peixe Seco','🐟','fome_sede');sfx.coletar();toast("🪤 Armadilha capturou algo!");}
     }
   }
-  for(let i=itens.length-1;i>=0;i--){if(Math.hypot(itens[i].x-E2.x,itens[i].y-E2.y)<.85){coletarItem(itens[i]);addParticle(itens[i].x,itens[i].y,'#ff88dd',6);itens.splice(i,1);}}
-  entidades.forEach(ent=>{if(Math.hypot(ent.x-E2.x,ent.y-E2.y)<ent.raio&&!legendasVistas.has(ent.lenda)){legendasVistas.add(ent.lenda);E.lendas.push(ent.lenda);if(E2)E2.lendas=E.lendas;exibirLenda(ent.lenda,false,ent);}});
+  E2.vx=(E2.x-E2.xAnt)/Math.max(dt,.001);E2.vy=(E2.y-E2.yAnt)/Math.max(dt,.001);
+  for(let i=itens.length-1;i>=0;i--){if(Math.hypot(itens[i].x-E2.x,itens[i].y-E2.y)<.85){coletarItem(itens[i],E2);addParticle(itens[i].x,itens[i].y,'#ff88dd',6);itens.splice(i,1);}}
+  entidades.forEach(ent=>{if(Math.hypot(ent.x-E2.x,ent.y-E2.y)<ent.raio&&!legendasVistas.has(ent.lenda)){legendasVistas.add(ent.lenda);E.lendas.push(ent.lenda);if(E2)E2.lendas=E.lendas;exibirLenda(ent.lenda,false,ent,E2);}});
   const mult=clima==='chuva'?1.25:1;
   E2.fome=Math.max(0,E2.fome-dt*.32*mult);E2.sede=Math.max(0,E2.sede-dt*.48*mult);
   if(E2.fome<12)E2.vida=Math.max(0,E2.vida-dt*.65);
   if(E2.sede<12)E2.vida=Math.max(0,E2.vida-dt*1.1);
-  if(E2.vida<=0&&!E2.morto){E2.morto=true;msg("💀 P2 caiu! Pressione [B] para reviver.");}
+  if(E2.veneno){E2.venCD=(E2.venCD||0)-dt;if(E2.venCD<=0){E2.venCD=1.5;danoJogador(E2,7);msg("☠ P2: o veneno corrói...");}}
+  if(E2.vida<=0&&!E2.morto){E2.morto=true;msg("💀 P2 caiu! Aproxime-se e pressione [B] para reviver.");}
 }
 function toggleLanterna2(){if(!E2||E2.morto)return;lanterna2.ativa=!lanterna2.ativa;if(lanterna2.ativa)sfx.lantOn();else sfx.lantOff();}
-function p2Curar(){if(E2&&!E2.morto&&contarItem('Erva Medicinal')>0){removerItem('Erva Medicinal',1);E2.vida=Math.min(100,E2.vida+25);sfx.remedio();msg("🌿 P2 se curou!");}else msg("P2 precisa de Erva Medicinal.");}
+function p2Interagir(){
+  if(!E2||E2.morto)return;
+  const tile=mapa[Math.floor(E2.y)]?.[Math.floor(E2.x)];
+  if(!tile){p2Curar();return;}
+  if(tile.tipo===T.AGUA||tile.tipo===T.LIRIO){
+    if(E2.temFiltro||E.temFiltro||Math.random()>.28){sfx.beber();E2.sede=Math.min(100,E2.sede+45);msg("💧 P2 bebeu água fresca!");}
+    else{danoJogador(E2,14);msg("⚠ P2: água contaminada!");}
+    return;
+  }
+  if(tile.tipo===T.FRUTAS){sfx.coletar();E2.fome=Math.min(100,E2.fome+32);msg("🍊 P2 colheu frutas!");return;}
+  if(tile.tipo===T.COGUMELO){
+    if(Math.random()<.5){sfx.coletar();E2.vida=Math.min(100,E2.vida+15);msg("P2: cogumelo comestível!");}
+    else if(!E2.temFiltro&&!E.temFiltro){danoJogador(E2,18);E2.veneno=true;msg("⚠ P2: cogumelo venenoso!");}
+    return;
+  }
+  if(tile.tipo===T.FOGO){sfx.fogueira();E2.energia=Math.min(100,E2.energia+22);E2.vida=Math.min(100,E2.vida+12);msg("🔥 P2 se aqueceu na fogueira!");return;}
+  if(tile.tipo===T.ABRIGO){sfx.dormir();E2.energia=Math.min(100,E2.energia+55);msg("🏕 P2 descansou no abrigo!");return;}
+  if(tile.tipo===T.BAMBU||tile.tipo===T.BAMBU_DENSO){sfx.coletar();addInv('Bambu','🎋','mat');msg("🎋 P2 cortou bambu!");return;}
+  if(tile.tipo===T.PEDRA||tile.tipo===T.PENHASCO){sfx.coletar();addInv('Pederneira','🪨','ferr');msg("🪨 P2 coletou pederneira!");return;}
+  p2Curar();
+}
+function p2Curar(){
+  if(!E2||E2.morto)return;
+  if(E2.veneno&&contarItem('Antídoto')>0){removerItem('Antídoto',1);E2.veneno=false;sfx.remedio();E.curas++;msg("💊 P2 usou Antídoto!");return;}
+  if(E2.vida<70&&contarItem('Erva Medicinal')>0){removerItem('Erva Medicinal',1);E2.vida=Math.min(100,E2.vida+25);sfx.remedio();msg("🌿 P2 se curou!");return;}
+  if(E2.sede<E2.fome&&contarItem('Água Limpa')>0){removerItem('Água Limpa',1);E2.sede=Math.min(100,E2.sede+38);sfx.beber();msg("💧 P2 bebeu água do inventário!");return;}
+  if(contarItem('Fruta Silvestre')>0){removerItem('Fruta Silvestre',1);E2.fome=Math.min(100,E2.fome+28);sfx.coletar();msg("🍊 P2 comeu uma fruta!");return;}
+  if(contarItem('Erva Medicinal')>0){removerItem('Erva Medicinal',1);E2.vida=Math.min(100,E2.vida+25);sfx.remedio();msg("🌿 P2 se curou!");return;}
+  msg("P2: nada para usar no inventário compartilhado agora.");
+}
 function p2Reviver(){
   if(!E2||!E2.morto)return;
   const dist=Math.hypot(E.x-E2.x,E.y-E2.y);
@@ -1032,7 +1084,7 @@ function atualizarLanterna(dt){
   lanterna.raioAtual+=(alvo-lanterna.raioAtual)*dt*5.5;
   if(lanterna2.ativa&&noite)lanterna2.nivel=Math.max(0,lanterna2.nivel-dt*1.6);
   if(lanterna2.nivel<=0)lanterna2.ativa=false;
-  const alvo2=lanterna2.ativa&&noite?140:60;
+  const alvo2=lanterna2.ativa&&noite?150:60;
   lanterna2.raioAtual+=(alvo2-lanterna2.raioAtual)*dt*4;
   const eEl=document.getElementById('lant-estado'),fEl=document.getElementById('lant-fill');
   if(eEl){eEl.textContent=tocha.ativa?'TOCHA':lanterna.ativa?'LIGADA':'DESLIGADA';eEl.style.color=tocha.ativa?'#ff8800':lanterna.ativa?'#ffe066':'#555';}
@@ -1095,43 +1147,71 @@ function verificarInimigos(dt){
   inimigos.forEach(ini=>{if(ini.morto)return;
   const d1=Math.hypot(ini.x-E.x,ini.y-E.y);
   if(d1<ini.dist&&ini.atqCD<=0){ini.atqCD=2.2;let dmg=ini.dano;if(E.arma==='arma_machado')dmg=Math.max(0,dmg-18);if(E.arma==='arma_faca')dmg=Math.max(0,dmg-10);if(E.veneno_def){dmg=Math.floor(dmg*.5);if(Math.random()<.3)ini.vidaAtual-=15;}
-  dano(dmg);if(ini.veneno&&!E.veneno&&Math.random()<.55){E.veneno=true;msg("🐍 Envenenado! Use Antídoto.");}else msg("⚔ "+ini.nome+" atacou! −"+dmg);
+  danoJogador(E,dmg);if(ini.veneno&&!E.veneno&&Math.random()<.55){E.veneno=true;msg("🐍 Envenenado! Use Antídoto.");}else msg("⚔ "+ini.nome+" atacou! −"+dmg);
   if(ini.tipo==='cobra')sfx.cobra();else if(ini.tipo==='onca')sfx.onca();else sfx.dano();
   const atqDmg=E.armaDano+(E.arma!=='mãos'?15:0);ini.vidaAtual-=atqDmg;
   if(ini.vidaAtual<=0){ini.morto=true;E.inimigosVencidos++;sfx.combate();addParticle(ini.x,ini.y,'#cc2200',12);toast("⚔ "+ini.nome+" derrotado!");if(ini.drop){E.inv.push({...ini.drop});sfx.coletar();}}}
   if(modo2P&&E2&&!E2.morto){
     const d2=Math.hypot(ini.x-E2.x,ini.y-E2.y);
-    if(d2<ini.dist&&ini.atqCD<=0){ini.atqCD=2.2;E2.vida=Math.max(0,E2.vida-Math.floor(ini.dano*.8));sfx.dano();if(E2.vida<=0&&!E2.morto){E2.morto=true;msg("💀 P2 caiu! Pressione [B] próximo a ele para reviver.");}}}});
+    if(d2<ini.dist&&ini.atqCD<=0){
+      ini.atqCD=2.2;
+      let dmg2=ini.dano;
+      if(E2.arma==='arma_machado')dmg2=Math.max(0,dmg2-18);if(E2.arma==='arma_faca')dmg2=Math.max(0,dmg2-10);
+      if(E2.veneno_def){dmg2=Math.floor(dmg2*.5);if(Math.random()<.3)ini.vidaAtual-=15;}
+      danoJogador(E2,dmg2);
+      if(ini.veneno&&!E2.veneno&&Math.random()<.55){E2.veneno=true;msg("🐍 P2 envenenado! Use [M].");}else msg("⚔ "+ini.nome+" atacou P2! −"+dmg2);
+      if(ini.tipo==='cobra')sfx.cobra();else if(ini.tipo==='onca')sfx.onca();else sfx.dano();
+      const atqDmg2=(E2.armaDano||10)+(E2.arma&&E2.arma!=='mãos'?15:0);
+      ini.vidaAtual-=atqDmg2;
+      if(E2.vida<=0&&!E2.morto){E2.morto=true;msg("💀 P2 caiu! Pressione [B] próximo a ele para reviver.");}
+      if(ini.vidaAtual<=0&&!ini.morto){ini.morto=true;E.inimigosVencidos++;sfx.combate();addParticle(ini.x,ini.y,'#ff6ec7',12);toast("⚔ "+ini.nome+" derrotado por P2!");if(ini.drop){E.inv.push({...ini.drop});sfx.coletar();}}
+    }
+  }});
 }
 
 // ══════════════════════════════════════════════════════════
 //  COLISÕES
 // ══════════════════════════════════════════════════════════
 function verificarCol(){
-  for(let i=itens.length-1;i>=0;i--){if(Math.hypot(itens[i].x-E.x,itens[i].y-E.y)<.85){coletarItem(itens[i]);addParticle(itens[i].x,itens[i].y,'#00ff88',8);itens.splice(i,1);}}
-  entidades.forEach(ent=>{if(Math.hypot(ent.x-E.x,ent.y-E.y)<ent.raio&&!legendasVistas.has(ent.lenda)){legendasVistas.add(ent.lenda);E.lendas.push(ent.lenda);exibirLenda(ent.lenda,false,ent);}});
+  for(let i=itens.length-1;i>=0;i--){if(Math.hypot(itens[i].x-E.x,itens[i].y-E.y)<.85){coletarItem(itens[i],E);addParticle(itens[i].x,itens[i].y,'#00ff88',8);itens.splice(i,1);}}
+  entidades.forEach(ent=>{if(Math.hypot(ent.x-E.x,ent.y-E.y)<ent.raio&&!legendasVistas.has(ent.lenda)){legendasVistas.add(ent.lenda);E.lendas.push(ent.lenda);exibirLenda(ent.lenda,false,ent,E);}});
 }
-function coletarItem(item){
+function coletarItem(item,jogador){
+  jogador=jogador||E;
+  const p2Prefix=jogador===E2?'P2: ':'';
   toast(item.emoji+' '+item.nome);
   if(item.ef==='sede'||item.tipo==='agua')sfx.beber();else sfx.coletar();
   switch(item.ef){
-    case 'fome':E.fome=Math.min(100,E.fome+item.val);break;
-    case 'vida':E.vida=Math.min(100,E.vida+item.val);break;
-    case 'sede':E.sede=Math.min(100,E.sede+item.val);break;
-    case 'fome_vida':E.fome=Math.min(100,E.fome+item.val);E.vida=Math.min(100,E.vida+item.val);break;
-    case 'fome_sede':E.fome=Math.min(100,E.fome+item.val);E.sede=Math.min(100,E.sede+item.val/2);break;
+    case 'fome':jogador.fome=Math.min(100,jogador.fome+item.val);break;
+    case 'vida':jogador.vida=Math.min(100,jogador.vida+item.val);break;
+    case 'sede':jogador.sede=Math.min(100,jogador.sede+item.val);break;
+    case 'fome_vida':jogador.fome=Math.min(100,jogador.fome+item.val);jogador.vida=Math.min(100,jogador.vida+item.val);break;
+    case 'fome_sede':jogador.fome=Math.min(100,jogador.fome+item.val);jogador.sede=Math.min(100,jogador.sede+item.val/2);break;
     case 'constr':addInv('Bambu','🎋','mat');break;
     case 'fogo':addInv('Pederneira','🪨','ferr');break;
-    case 'lanterna':lanterna.nivel=Math.min(100,lanterna.nivel+item.val);msg("🫙 Óleo! +"+item.val+"% combustível.");break;
-    case 'misterio':if(Math.random()<.5){E.vida=Math.min(100,E.vida+18);msg("O cogumelo era comestível!");}else if(!E.temFiltro){dano(22);E.veneno=true;msg("⚠ Cogumelo venenoso!");}else msg("Filtro protegeu você.");break;
+    case 'lanterna':
+      if(jogador===E2){lanterna2.nivel=Math.min(100,lanterna2.nivel+item.val);msg(p2Prefix+"🫙 Óleo! +"+item.val+"% combustível.");}
+      else{lanterna.nivel=Math.min(100,lanterna.nivel+item.val);msg("🫙 Óleo! +"+item.val+"% combustível.");}
+      break;
+    case 'misterio':
+      if(Math.random()<.5){jogador.vida=Math.min(100,jogador.vida+18);msg(p2Prefix+"Cogumelo comestível!");}
+      else if(!E.temFiltro&&!jogador.temFiltro){danoJogador(jogador,22);jogador.veneno=true;msg(p2Prefix+"⚠ Cogumelo venenoso!");}
+      else msg("Filtro protegeu "+(jogador===E2?'P2':'você')+".");
+      break;
     default:addInv(item.nome,item.emoji,item.tipo,item.qtd||1);
   }
   atualizarAcoes();
 }
 function addInv(nome,emoji,tipo,qtd=1){const ex=E.inv.find(i=>i.nome===nome);if(ex)ex.qtd=(ex.qtd||1)+qtd;else E.inv.push({nome,emoji,tipo,qtd});}
-function dano(qtd){E.vida=Math.max(0,E.vida-qtd);sfx.dano();const fl=document.getElementById('dmg-flash');fl.style.opacity='1';setTimeout(()=>fl.style.opacity='0',180);
-  const cv=document.getElementById('canvas-mundo');if(cv){cv.style.transition='none';cv.style.transform=`translate(${(Math.random()-.5)*10}px,${(Math.random()-.5)*10}px)`;setTimeout(()=>{cv.style.transition='transform .12s ease-out';cv.style.transform='translate(0,0)';},90);}
+function danoJogador(jogador,qtd){
+  jogador.vida=Math.max(0,jogador.vida-qtd);
+  sfx.dano();
+  if(jogador===E){
+    const fl=document.getElementById('dmg-flash');fl.style.opacity='1';setTimeout(()=>fl.style.opacity='0',180);
+    const cv=document.getElementById('canvas-mundo');if(cv){cv.style.transition='none';cv.style.transform=`translate(${(Math.random()-.5)*10}px,${(Math.random()-.5)*10}px)`;setTimeout(()=>{cv.style.transition='transform .12s ease-out';cv.style.transform='translate(0,0)';},90);}
+  }
 }
+function dano(qtd){danoJogador(E,qtd);}
 
 // ══════════════════════════════════════════════════════════
 //  STATS / DIA / CLIMA
@@ -1194,18 +1274,18 @@ function executarCraft(rec){
   Object.entries(rec.req).forEach(([nome,qtd])=>{let rest=qtd;for(let i=E.inv.length-1;i>=0&&rest>0;i--){if(E.inv[i].nome===nome){const t=Math.min(rest,E.inv[i].qtd||1);if((E.inv[i].qtd||1)<=t)E.inv.splice(i,1);else E.inv[i].qtd-=t;rest-=t;}}});
   sfx.craft();E.craftados.push(rec.id);
   switch(rec.ef){
-    case 'arma_machado':E.arma='arma_machado';E.armaDano=28;E.armaEmoji='🪓';addInv('Machado','🪓','arma');msg("🪓 Machado!");break;
-    case 'arma_faca':E.arma='arma_faca';E.armaDano=18;E.armaEmoji='🔪';addInv('Faca de Bambu','🔪','arma');msg("🔪 Faca criada!");break;
-    case 'arco':E.arma='arco';E.armaDano=22;E.armaEmoji='🏹';addInv('Arco e Flecha','🏹','arma');msg("🏹 Arco e Flecha!");break;
+    case 'arma_machado':E.arma='arma_machado';E.armaDano=28;E.armaEmoji='🪓';addInv('Machado','🪓','arma');msg("🪓 Machado!");if(modo2P&&E2){E2.arma='arma_machado';E2.armaDano=28;E2.armaEmoji='🪓';}break;
+    case 'arma_faca':E.arma='arma_faca';E.armaDano=18;E.armaEmoji='🔪';addInv('Faca de Bambu','🔪','arma');msg("🔪 Faca criada!");if(modo2P&&E2){E2.arma='arma_faca';E2.armaDano=18;E2.armaEmoji='🔪';}break;
+    case 'arco':E.arma='arco';E.armaDano=22;E.armaEmoji='🏹';addInv('Arco e Flecha','🏹','arma');msg("🏹 Arco e Flecha!");if(modo2P&&E2){E2.arma='arco';E2.armaDano=22;E2.armaEmoji='🏹';}break;
     case 'tocha':tocha.ativa=true;tocha.duracao=180;addInv('Tocha','🔥','luz');sfx.fogueira();msg("🔥 Tocha acesa!");break;
-    case 'filtro_agua':E.temFiltro=true;msg("🫙 Filtro criado!");break;
+    case 'filtro_agua':E.temFiltro=true;if(modo2P&&E2)E2.temFiltro=true;msg("🫙 Filtro criado!");break;
     case 'antidoto':E.veneno=false;E.vida=Math.min(100,E.vida+15);sfx.remedio();E.curas++;msg("💊 Veneno neutralizado.");break;
     case 'bandagem':E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg("🩹 +35 de vida.");break;
-    case 'abrigo_reforcado':E.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx.conquista();msg("⛺ Abrigo construído!");break;
+    case 'abrigo_reforcado':E.temAbrigo=true;if(modo2P&&E2)E2.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx.conquista();msg("⛺ Abrigo construído!");break;
     case 'armadilha':const tx=Math.round(E.x),ty=Math.round(E.y);if(mapa[ty]?.[tx])mapa[ty][tx].armadilha=true;msg("🪤 Armadilha posicionada.");break;
-    case 'jangada':E.jangada=true;msg("🛶 Jangada! Explore os rios.");break;
+    case 'jangada':E.jangada=true;if(modo2P&&E2)E2.jangada=true;msg("🛶 Jangada! Explore os rios.");break;
     case 'repelente':E.repelente=300;msg("🌿 Repelente ativo.");break;
-    case 'veneno_def':E.veneno_def=true;msg("☠ Veneno de Defesa ativo.");break;
+    case 'veneno_def':E.veneno_def=true;if(modo2P&&E2)E2.veneno_def=true;msg("☠ Veneno de Defesa ativo.");break;
   }
   fecharCraft();atualizarAcoes();toast("⚒ "+rec.nome+" fabricado!");
 }
@@ -1269,14 +1349,15 @@ function atualizarAcoes(){
   btn(lndLabel,verLendas,E.lendas.length>=10?'manaus-btn':'');
   if(E.veneno)btn('💊 Antídoto',usarAntidoto,'peri');
   if(modo2P&&E2&&E2.morto)btn('🆘 Reviver P2 [B]',p2Reviver,'p2-btn');
+  if(modo2P&&E2&&!E2.morto&&(E2.vida<100||E2.fome<100||E2.sede<100))btn('👥 Ajudar P2',p2Curar,'p2-btn');
   btn('😴 Dormir',tentarDormir,'peri');
   btn('⏸ Pausa',abrirPausa);
   const bs=document.querySelectorAll('.btn-ac');if(acaoSelIdx>=bs.length)acaoSelIdx=0;bs.forEach((b,i)=>b.classList.toggle('sel',i===acaoSelIdx));
 }
 function beberAgua(){if(E.temFiltro||Math.random()>.28){sfx.beber();E.sede=Math.min(100,E.sede+45);msg("💧 Água fresca!");}else{dano(14);msg("⚠ Água contaminada! Construa um Filtro.");}}
 function colherFrutas(){const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];if(tile?.tipo===T.COGUMELO){if(Math.random()<.5){sfx.coletar();E.vida=Math.min(100,E.vida+15);msg("Cogumelo comestível!");}else if(!E.temFiltro){dano(18);E.veneno=true;msg("⚠ Cogumelo venenoso!");}}else{sfx.coletar();E.fome=Math.min(100,E.fome+32);msg("🍊 Frutas!");}}
-function descansar(){sfx.dormir();E.energia=Math.min(100,E.energia+55);E.sanidade=Math.min(100,E.sanidade+20);E.temAbrigo=true;tempo+=22;lanterna.nivel=Math.min(100,lanterna.nivel+15);if(modo2P&&E2&&!E2.morto){E2.energia=Math.min(100,E2.energia+40);}msg("🏕 Você descansa no abrigo.");}
-function sentarFogueira(){sfx.fogueira();E.energia=Math.min(100,E.energia+22);E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+15);E.temFogo=true;E.temperatura=Math.min(40,E.temperatura+1.5);lanterna.nivel=Math.min(100,lanterna.nivel+10);if(modo2P&&E2&&!E2.morto&&Math.hypot(E.x-E2.x,E.y-E2.y)<5){E2.energia=Math.min(100,E2.energia+15);}msg("🔥 Fogueira!");}
+function descansar(){sfx.dormir();E.energia=Math.min(100,E.energia+55);E.sanidade=Math.min(100,E.sanidade+20);E.temAbrigo=true;tempo+=22;lanterna.nivel=Math.min(100,lanterna.nivel+15);if(modo2P&&E2&&!E2.morto){E2.energia=Math.min(100,E2.energia+40);E2.sanidade=Math.min(100,E2.sanidade+15);}msg("🏕 Você descansa no abrigo.");}
+function sentarFogueira(){sfx.fogueira();E.energia=Math.min(100,E.energia+22);E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+15);E.temFogo=true;E.temperatura=Math.min(40,E.temperatura+1.5);lanterna.nivel=Math.min(100,lanterna.nivel+10);if(modo2P&&E2&&!E2.morto&&Math.hypot(E.x-E2.x,E.y-E2.y)<5){E2.energia=Math.min(100,E2.energia+15);E2.vida=Math.min(100,E2.vida+6);}msg("🔥 Fogueira!");}
 function cortarBambu(){sfx.coletar();const qtd=1+Math.floor(Math.random()*2);for(let i=0;i<qtd;i++)addInv('Bambu','🎋','mat');msg("🎋 Cortou "+qtd+" cana(s).");atualizarAcoes();}
 function montarAbrigo(){if(contarItem('Bambu')>=2){removerItem('Bambu',2);E.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx.conquista();msg("⛺ Abrigo construído!");}else msg("Precisa de 2 Bambus.");atualizarAcoes();}
 function tentarDormir(){if(!E.temAbrigo&&Math.random()<.45){dano(35);msg("⚠ Atacado enquanto dormia sem abrigo!");return;}sfx.dormir();E.energia=Math.min(100,E.energia+85);E.sanidade=Math.min(100,E.sanidade+35);tempo+=32;addDiario("Dormi.");msg("💤 Você adormece.");}
@@ -1290,7 +1371,7 @@ function removerItem(nome,qtd){let rest=qtd;for(let i=E.inv.length-1;i>=0&&rest>
 // ══════════════════════════════════════════════════════════
 //  MODAL LENDA
 // ══════════════════════════════════════════════════════════
-function exibirLenda(idx,rev=false,ent=null){
+function exibirLenda(idx,rev=false,ent=null,quem=null){
   const l=LENDAS[idx];
   document.getElementById('m-topbar').style.background=`linear-gradient(90deg,transparent,${l.cor},transparent)`;
   document.getElementById('m-orbe').style.borderColor=l.cor+'80';
@@ -1329,7 +1410,7 @@ function exibirLenda(idx,rev=false,ent=null){
   modalRaf=requestAnimationFrame(animModal);
   document.getElementById('modal-lenda').classList.add('aberto');
   if(!rev){sfx.lenda();setTimeout(()=>l.sfx&&l.sfx(),600);}
-  if(!rev&&ent){aplicarEfeitoLenda(l.efeito);addDiario("Encontrei "+l.nome+". "+l.texto.substring(0,80)+"...");}
+  if(!rev&&ent){aplicarEfeitoLenda(l.efeito,quem||E);addDiario("Encontrei "+l.nome+". "+l.texto.substring(0,80)+"...");}
 }
 function fecharLenda(){
   sfx.botao();
@@ -1344,18 +1425,20 @@ function fecharLenda(){
     setTimeout(()=>revelarManaus(),300);
   }
 }
-function aplicarEfeitoLenda(ef){
+function aplicarEfeitoLenda(ef,jogador){
+  jogador=jogador||E;
+  const p2Prefix=jogador===E2?'P2: ':'';
   switch(ef){
-    case 'confusao':E.x=Math.max(1,Math.min(MW-1,E.x+(Math.random()-.5)*14));E.y=Math.max(1,Math.min(MH-1,E.y+(Math.random()-.5)*14));msg("🌀 O Curupira embaralhou sua orientação!");break;
-    case 'medo':E.energia=Math.max(0,E.energia-28);E.sanidade=Math.max(0,E.sanidade-30);dano(8);break;
-    case 'atracaoAgua':E.sanidade=Math.max(0,E.sanidade-15);msg("🧜‍♀️ O canto de Iara ressoa...");break;
-    case 'sorte':E.vida=Math.min(100,E.vida+18);E.fome=Math.min(100,E.fome+18);E.sanidade=Math.min(100,E.sanidade+25);lanterna.nivel=Math.min(100,lanterna.nivel+20);msg("🐬 O Boto te abençoou!");break;
-    case 'susto':E.energia=Math.max(0,E.energia-18);E.sanidade=Math.max(0,E.sanidade-20);msg("🦉 O assobio da Matinta te gela.");break;
-    case 'aviso':msg("🦌 O Anhangá te olha fundo nos olhos — e desaparece.");break;
-    case 'fogo_danoso':dano(20);msg("🔥 O Boitatá te queimou!");break;
-    case 'caos':if(E.inv.length>0){E.inv.splice(Math.floor(Math.random()*E.inv.length),1);msg("🌪 O Saci roubou um item!");}E.sanidade=Math.max(0,E.sanidade-10);break;
-    case 'profundeza':E.sanidade=Math.max(0,E.sanidade-20);if(mapa[Math.floor(E.y)]?.[Math.floor(E.x)]?.tipo===T.AGUA){dano(25);msg("🌊 A Uiara puxou você!");}else msg("🌊 A Uiara sussurrou...");break;
-    case 'bencaoAqua':E.sede=Math.min(100,E.sede+30);E.fome=Math.min(100,E.fome+15);msg("🦭 O Peixe-Boi abençoou as águas.");break;
+    case 'confusao':jogador.x=Math.max(1,Math.min(MW-1,jogador.x+(Math.random()-.5)*14));jogador.y=Math.max(1,Math.min(MH-1,jogador.y+(Math.random()-.5)*14));msg(p2Prefix+"🌀 O Curupira embaralhou a orientação!");break;
+    case 'medo':jogador.energia=Math.max(0,jogador.energia-28);jogador.sanidade=Math.max(0,jogador.sanidade-30);danoJogador(jogador,8);break;
+    case 'atracaoAgua':jogador.sanidade=Math.max(0,jogador.sanidade-15);msg(p2Prefix+"🧜‍♀️ O canto de Iara ressoa...");break;
+    case 'sorte':jogador.vida=Math.min(100,jogador.vida+18);jogador.fome=Math.min(100,jogador.fome+18);jogador.sanidade=Math.min(100,jogador.sanidade+25);if(jogador===E2)lanterna2.nivel=Math.min(100,lanterna2.nivel+20);else lanterna.nivel=Math.min(100,lanterna.nivel+20);msg(p2Prefix+"🐬 O Boto abençoou!");break;
+    case 'susto':jogador.energia=Math.max(0,jogador.energia-18);jogador.sanidade=Math.max(0,jogador.sanidade-20);msg(p2Prefix+"🦉 O assobio da Matinta gela.");break;
+    case 'aviso':msg(p2Prefix+"🦌 O Anhangá olha fundo nos olhos — e desaparece.");break;
+    case 'fogo_danoso':danoJogador(jogador,20);msg(p2Prefix+"🔥 O Boitatá queimou!");break;
+    case 'caos':if(E.inv.length>0){E.inv.splice(Math.floor(Math.random()*E.inv.length),1);msg(p2Prefix+"🌪 O Saci roubou um item do grupo!");}jogador.sanidade=Math.max(0,jogador.sanidade-10);break;
+    case 'profundeza':jogador.sanidade=Math.max(0,jogador.sanidade-20);if(mapa[Math.floor(jogador.y)]?.[Math.floor(jogador.x)]?.tipo===T.AGUA){danoJogador(jogador,25);msg(p2Prefix+"🌊 A Uiara puxou!");}else msg(p2Prefix+"🌊 A Uiara sussurrou...");break;
+    case 'bencaoAqua':jogador.sede=Math.min(100,jogador.sede+30);jogador.fome=Math.min(100,jogador.fome+15);msg(p2Prefix+"🦭 O Peixe-Boi abençoou as águas.");break;
   }
 }
 function lendaCanvasGeneric(cv,t,cor,emoji){
@@ -1373,7 +1456,14 @@ function toast(txt){const el=document.getElementById('toast');el.textContent=txt
 function atualizarHUD(){
   [['vida','b-vida','n-vida','row-vida'],['fome','b-fome','n-fome','row-fome'],['sede','b-sede','n-sede','row-sede'],['energia','b-ener','n-ener','row-ener'],['sanidade','b-san','n-san','row-san']].forEach(([k,bid,nid,rid])=>{const v=Math.round(E[k]);document.getElementById(bid).style.width=v+'%';document.getElementById(nid).textContent=v;document.getElementById(rid).classList.toggle('stat-crit',v<18);});
   const tp=Math.round(E.temperatura*10)/10;document.getElementById('b-temp').style.width=((E.temperatura-34)/6*100)+'%';document.getElementById('n-temp').textContent=tp+'°';document.getElementById('row-temp').classList.toggle('stat-crit',E.temperatura<35.5);
-  if(modo2P&&E2){const p2v=Math.round(E2.vida);document.getElementById('b-p2-vida').style.width=(E2.morto?0:p2v)+'%';document.getElementById('n-p2-vida').textContent=E2.morto?'CAIU':p2v;document.getElementById('p2-estado').textContent=E2.morto?'💀 Reviva com [B] (2 Ervas)':E2.veneno?'☠ Envenenado':'';}
+  if(modo2P&&E2){
+    const p2v=Math.round(E2.vida),p2f=Math.round(E2.fome),p2s=Math.round(E2.sede),p2e=Math.round(E2.energia);
+    document.getElementById('b-p2-vida').style.width=(E2.morto?0:p2v)+'%';document.getElementById('n-p2-vida').textContent=E2.morto?'—':p2v;
+    document.getElementById('b-p2-fome').style.width=(E2.morto?0:p2f)+'%';document.getElementById('n-p2-fome').textContent=E2.morto?'—':p2f;
+    document.getElementById('b-p2-sede').style.width=(E2.morto?0:p2s)+'%';document.getElementById('n-p2-sede').textContent=E2.morto?'—':p2s;
+    document.getElementById('b-p2-ener').style.width=(E2.morto?0:p2e)+'%';document.getElementById('n-p2-ener').textContent=E2.morto?'—':p2e;
+    document.getElementById('p2-estado').textContent=E2.morto?'💀 Reviva com [B] (2 Ervas)':E2.veneno?'☠ Envenenado — [M] para agir':'';
+  }
   const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
   document.getElementById('loc-txt').textContent=(BLOCOS[tile?.tipo??0]?.nm??'Floresta').toUpperCase();
   const dirs={N:'↑ Norte',S:'↓ Sul',L:'→ Leste',O:'← Oeste'};
@@ -1601,11 +1691,15 @@ function renderizarNoite(ctx,W,H,px,py){
   if(E.temFogo){const flk=.92+Math.sin(tempo*9)*.08;lighten(px,py,185*flk,.9);}
   if(lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual*(1+lanterna.flickAmp*.05);const cg=lc.createRadialGradient(px,py,0,px,py,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();}
   if(tocha.ativa){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;lc.globalCompositeOperation='destination-out';const cg=lc.createRadialGradient(px,py,0,px,py,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.beginPath();lc.moveTo(px,py);lc.arc(px,py,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();}
-  if(modo2P&&E2&&!E2.morto){const cv=document.getElementById('canvas-mundo'),camX=E.x*TILE-cv.width/2,camY=E.y*TILE-cv.height/2;const sx2=E2.x*TILE-camX,sy2=E2.y*TILE-camY;lighten(sx2,sy2,lanterna2.ativa?90:35,.5);}
+  let sx2=null,sy2=null;
+  if(modo2P&&E2&&!E2.morto){const cv=document.getElementById('canvas-mundo'),camX=E.x*TILE-cv.width/2,camY=E.y*TILE-cv.height/2;sx2=E2.x*TILE-camX;sy2=E2.y*TILE-camY;lighten(sx2,sy2,lanterna2.ativa?95:35,.55);
+    if(lanterna2.ativa&&lanterna2.nivel>0){const ang2=lanterna2.angulo,hc2=Math.PI*.5,r2=lanterna2.raioAtual;const cg2=lc.createRadialGradient(sx2,sy2,0,sx2,sy2,r2);cg2.addColorStop(0,'rgba(0,0,0,0)');cg2.addColorStop(.65,'rgba(0,0,0,.35)');cg2.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(sx2,sy2);lc.arc(sx2,sy2,r2,ang2-hc2,ang2+hc2);lc.closePath();lc.fillStyle=cg2;lc.fill();}
+  }
   ctx.drawImage(lightCanvas,0,0);
   ctx.save();
   if(E.temFogo){const wg=ctx.createRadialGradient(px,py,0,px,py,195);wg.addColorStop(0,'rgba(255,120,30,.09)');wg.addColorStop(1,'transparent');ctx.fillStyle=wg;ctx.fillRect(0,0,W,H);}
   if(lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;ctx.globalAlpha=.025+Math.sin(lanterna.pulsar)*.008;for(let ri=0;ri<3;ri++){const sa=ang+(ri-1)*(hc*.28),rl=r*.9;const vg=ctx.createLinearGradient(px,py,px+Math.cos(sa)*rl,py+Math.sin(sa)*rl);vg.addColorStop(0,'rgba(255,240,180,.85)');vg.addColorStop(1,'transparent');ctx.beginPath();ctx.moveTo(px,py);ctx.arc(px,py,rl,sa-hc*.07,sa+hc*.07);ctx.closePath();ctx.fillStyle=vg;ctx.fill();}ctx.globalAlpha=1;}
+  if(sx2!==null&&lanterna2.ativa&&lanterna2.nivel>0){const ang2=lanterna2.angulo,hc2=Math.PI*.5,r2=lanterna2.raioAtual*.9;ctx.globalAlpha=.02+Math.sin(tempo*2.5)*.008;const vg2=ctx.createLinearGradient(sx2,sy2,sx2+Math.cos(ang2)*r2,sy2+Math.sin(ang2)*r2);vg2.addColorStop(0,'rgba(255,180,230,.8)');vg2.addColorStop(1,'transparent');ctx.beginPath();ctx.moveTo(sx2,sy2);ctx.arc(sx2,sy2,r2,ang2-hc2*.4,ang2+hc2*.4);ctx.closePath();ctx.fillStyle=vg2;ctx.fill();ctx.globalAlpha=1;}
   ctx.restore();
 }
 
@@ -1664,22 +1758,62 @@ function desenharJogador(ctx,px,py,isP2=false){
 function desenharP2(ctx,sx,sy){
   if(!E2||E2.morto)return;
   const mov=Math.sqrt((E2.vx||0)*(E2.vx||0)+(E2.vy||0)*(E2.vy||0));
-  const bob=mov>0.5?Math.sin(tempo*10)*2:Math.sin(tempo*1.3)*.5,by=sy+bob;
+  const critico=E2.vida<30||E2.fome<15||E2.sede<15;
+  const bob=mov>0.5?Math.sin(tempo*10)*2.2:Math.sin(tempo*1.6)*.7,by=sy+bob;
   ctx.save();
-  ctx.globalAlpha=.08;const hg=ctx.createRadialGradient(sx,by,0,sx,by,28);hg.addColorStop(0,'rgba(255,110,199,.7)');hg.addColorStop(1,'transparent');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(sx,by,28,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-  ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(sx+2,sy+17,10,3.5,0,0,Math.PI*2);ctx.fill();
-  const legS=mov>0.5?Math.sin(tempo*10)*4:0;
-  ctx.fillStyle='#1a1030';ctx.fillRect(sx-6,by+10,5,8+legS*.1);ctx.fillRect(sx+1,by+10,5,8-legS*.1);
+
+  // Aura de companheirismo — pulsa em rosa, fica vermelha se crítico
+  const auraCor=critico?'rgba(255,60,60,.85)':'rgba(255,110,199,.85)';
+  ctx.globalAlpha=.1+Math.sin(tempo*2.4)*.04;
+  const hg=ctx.createRadialGradient(sx,by,0,sx,by,32);hg.addColorStop(0,auraCor);hg.addColorStop(1,'transparent');
+  ctx.fillStyle=hg;ctx.beginPath();ctx.arc(sx,by,32,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+
+  // Sombra
+  ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(sx+2,sy+17,mov>0.5?13:10,3.5,0,0,Math.PI*2);ctx.fill();
+
+  // Pernas
+  const legS=mov>0.5?Math.sin(tempo*10)*4.2:0;
+  ctx.fillStyle='#180a28';ctx.fillRect(sx-6,by+10,5,8+legS*.12);ctx.fillRect(sx+1,by+10,5,8-legS*.12);
   ctx.fillStyle='#2a1040';ctx.fillRect(sx-5,by+8,10,4);
-  ctx.fillStyle='#4a1a5e';ctx.fillRect(sx-8,by-4,16,13);ctx.fillStyle='#3a0a4a';ctx.fillRect(sx-3,by-3,6,10);
-  ctx.fillStyle='#d0a000';ctx.fillRect(sx-2,by,4,2);
+
+  // Corpo — gradiente rosa/roxo
+  const bodyGrad=ctx.createLinearGradient(sx-8,by-4,sx+8,by+9);
+  bodyGrad.addColorStop(0,'#6a2478');bodyGrad.addColorStop(1,'#3a0a4a');
+  ctx.fillStyle=bodyGrad;ctx.fillRect(sx-8,by-4,16,13);
+  ctx.fillStyle='#ff6ec7';ctx.globalAlpha=.75;ctx.fillRect(sx-3,by-3,6,10);ctx.globalAlpha=1;
+  ctx.fillStyle='#ffd83c';ctx.fillRect(sx-2,by,4,2);
+
+  // Braços
   const armS2=mov>0.5?Math.sin(tempo*10+Math.PI)*4.5:0;
-  ctx.fillStyle='#d0a878';ctx.fillRect(sx-12,by-3-armS2*.2,5,9);ctx.fillRect(sx+7,by-3+armS2*.2,5,9);
-  ctx.fillStyle='#4a1a5e';ctx.fillRect(sx-11,by-4,5,5);ctx.fillRect(sx+6,by-4,5,5);
-  ctx.fillStyle='#d0a878';ctx.fillRect(sx-7,by-17,14,13);
-  ctx.fillStyle='#cc0020';ctx.fillRect(sx-10,by-21,20,4);ctx.fillRect(sx-6,by-26,12,6);
-  ctx.fillStyle='rgba(255,110,199,.9)';ctx.font='bold 9px Share Tech Mono,monospace';ctx.textAlign='center';ctx.fillText('P2',sx,by-30);
-  if(E2.arma&&E2.arma!=='mãos'){ctx.font='12px serif';ctx.fillText(E2.armaEmoji||'',sx+11,by);}
+  ctx.fillStyle='#e8bd94';ctx.fillRect(sx-12,by-3-armS2*.2,5,9);ctx.fillRect(sx+7,by-3+armS2*.2,5,9);
+  ctx.fillStyle='#5a1a68';ctx.fillRect(sx-11,by-4,5,5);ctx.fillRect(sx+6,by-4,5,5);
+
+  // Cabeça
+  ctx.fillStyle='#e8bd94';ctx.fillRect(sx-7,by-17,14,13);
+  // Bandana/headband rosa em vez de chapéu comum
+  ctx.fillStyle='#cc0060';ctx.fillRect(sx-10,by-21,20,4);
+  ctx.fillStyle='#ff6ec7';ctx.fillRect(sx-10,by-19,20,1.5);
+  // laço atrás
+  ctx.fillStyle='#cc0060';ctx.fillRect(sx+9,by-20,4,6);
+  // olhos
+  ctx.fillStyle='#180a10';
+  if(E2.dir==='L'){ctx.fillRect(sx+2,by-14,2.5,2.5);}
+  else if(E2.dir==='O'){ctx.fillRect(sx-4.5,by-14,2.5,2.5);}
+  else{ctx.fillRect(sx-4.5,by-14,2.5,2.5);ctx.fillRect(sx+2,by-14,2.5,2.5);}
+
+  // Etiqueta P2 flutuante
+  ctx.fillStyle=critico?'#ff5050':'#ff6ec7';
+  ctx.font='bold 9px "Share Tech Mono",monospace';ctx.textAlign='center';
+  ctx.shadowColor=critico?'#ff2020':'#ff6ec7';ctx.shadowBlur=critico?10:5;
+  ctx.fillText(critico?'⚠ P2':'P2',sx,by-30);
+  ctx.shadowBlur=0;
+
+  // Arma
+  if(E2.arma&&E2.arma!=='mãos'){ctx.font='13px serif';ctx.fillText(E2.armaEmoji||'',sx+11,by);}
+
+  // Brilho de contorno sutil (rim light)
+  ctx.globalAlpha=.35;ctx.strokeStyle='#ff9edb';ctx.lineWidth=.6;ctx.strokeRect(sx-8,by-17,16,13);ctx.globalAlpha=1;
+
   ctx.restore();
 }
 
@@ -1692,7 +1826,7 @@ function renderMiniMapa(){
   entidades.forEach(e=>{if(!legendasVistas.has(e.lenda)){ctx.globalAlpha=.5+Math.sin(tempo*3+e.fase)*.35;ctx.fillStyle=LENDAS[e.lenda].cor;ctx.beginPath();ctx.arc(e.x*sc,e.y*sc,2.4,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;}});
   ctx.fillStyle='#00ff88';ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,3,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='rgba(0,255,136,.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(E.x*sc,E.y*sc,5.5,0,Math.PI*2);ctx.stroke();
-  if(modo2P&&E2){ctx.fillStyle=E2.morto?'rgba(255,110,199,.3)':'#ff88cc';ctx.beginPath();ctx.arc(E2.x*sc,E2.y*sc,2.5,0,Math.PI*2);ctx.fill();}
+  if(modo2P&&E2){ctx.fillStyle=E2.morto?'rgba(255,110,199,.3)':'#ff88cc';ctx.beginPath();ctx.arc(E2.x*sc,E2.y*sc,2.5,0,Math.PI*2);ctx.fill();if(!E2.morto){ctx.strokeStyle='rgba(255,110,199,.4)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(E2.x*sc,E2.y*sc,5,0,Math.PI*2);ctx.stroke();}}
   if(lanterna.ativa&&(perIdx===0||perIdx===4)){ctx.save();ctx.globalAlpha=.5;ctx.strokeStyle='#ffe066';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(E.x*sc,E.y*sc);ctx.lineTo(E.x*sc+Math.cos(lanterna.angulo)*9,E.y*sc+Math.sin(lanterna.angulo)*9);ctx.stroke();ctx.restore();}
   ctx.strokeStyle='rgba(0,255,127,.12)';ctx.lineWidth=1;ctx.strokeRect(1,1,138,138);
 }
