@@ -341,9 +341,53 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .vp-label{position:fixed;top:190px;z-index:210;font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.35em;padding:3px 10px;border-radius:2px;backdrop-filter:blur(6px);display:none;pointer-events:none;}
 #vp-label-p1{left:14px;color:var(--vn);background:rgba(0,20,4,.55);border:1px solid rgba(0,255,127,.25);}
 #vp-label-p2{right:14px;color:var(--p2);background:rgba(20,2,14,.55);border:1px solid rgba(255,110,199,.25);}
+
+/* ══ LOGIN ══ */
+#tela-login{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;background:#000;}
+.login-box{max-width:420px;width:90vw;background:linear-gradient(160deg,rgba(4,18,4,.98),rgba(8,28,8,.98));border:1px solid rgba(0,255,127,.25);border-radius:4px;padding:2.6rem 2rem;text-align:center;box-shadow:0 20px 80px rgba(0,0,0,.9);}
+.login-logo{font-family:'Cinzel Decorative',serif;font-size:1.7rem;background:linear-gradient(170deg,#ffe868,#00ff7f);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem;}
+.login-sub{font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:.3em;color:rgba(0,255,127,.55);margin-bottom:1.8rem;text-transform:uppercase;}
+.login-input{width:100%;padding:12px 14px;background:rgba(0,0,0,.4);border:1px solid rgba(0,255,127,.3);color:#dcecd4;font-family:'Cormorant Garamond',serif;font-size:1.05rem;border-radius:2px;margin-bottom:.8rem;text-align:center;outline:none;}
+.login-input:focus{border-color:var(--vn);box-shadow:0 0 14px rgba(0,255,127,.2);}
+.login-erro{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#ff6060;min-height:1.2em;margin-bottom:.8rem;}
+.login-info{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:rgba(0,255,127,.35);margin-top:1.1rem;letter-spacing:.1em;line-height:1.8;}
+
+/* ══ RANKING ══ */
+#tela-ranking{position:fixed;inset:0;z-index:1600;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.95);backdrop-filter:blur(10px);}
+.ranking-box{max-width:540px;width:92vw;max-height:82vh;background:linear-gradient(160deg,rgba(4,18,4,.98),rgba(8,28,8,.98));border:1px solid rgba(200,144,16,.3);border-radius:4px;padding:1.8rem;display:flex;flex-direction:column;box-shadow:0 20px 80px rgba(0,0,0,.9);}
+.ranking-titulo{font-family:'Cinzel Decorative',serif;font-size:1.15rem;color:var(--dol);text-align:center;margin-bottom:.2rem;}
+.ranking-sub{font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(0,255,127,.5);text-align:center;letter-spacing:.25em;margin-bottom:1.2rem;text-transform:uppercase;}
+.ranking-lista{overflow-y:auto;flex:1;font-family:'Share Tech Mono',monospace;font-size:.66rem;color:rgba(220,236,212,.85);min-height:120px;}
+.ranking-lista::-webkit-scrollbar{width:3px;}
+.ranking-lista::-webkit-scrollbar-thumb{background:rgba(200,144,16,.3);}
+.ranking-item{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.06);gap:8px;}
+.ranking-item .rk-nome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ranking-item .rk-pts{opacity:.7;flex-shrink:0;font-size:.6rem;}
 </style>
 </head>
 <body>
+
+<!-- LOGIN -->
+<div id="tela-login">
+  <div class="login-box">
+    <div class="login-logo">AMAZÔNIA</div>
+    <div class="login-sub">identifique-se, explorador</div>
+    <input id="login-input" class="login-input" maxlength="16" placeholder="Seu nome de explorador" autocomplete="off">
+    <div class="login-erro" id="login-erro"></div>
+    <button class="btn-start" style="width:100%;padding:12px;" onclick="fazerLogin()">Entrar na Floresta</button>
+    <div class="login-info">Seu nome aparecerá no Ranking Global.<br>Sua jornada é salva automaticamente.</div>
+  </div>
+</div>
+
+<!-- RANKING -->
+<div id="tela-ranking">
+  <div class="ranking-box">
+    <div class="ranking-titulo">🏆 RANKING GLOBAL</div>
+    <div class="ranking-sub">Melhores exploradores da Amazônia</div>
+    <div class="ranking-lista" id="ranking-lista">Carregando...</div>
+    <button class="modo-voltar" onclick="fecharRanking()" style="margin-top:1rem;">← Fechar</button>
+  </div>
+</div>
 
 <!-- INTRO -->
 <div id="tela-intro">
@@ -394,8 +438,14 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
         <div class="ctrl-row">Diário de bordo</div>
       </div>
     </div>
+    <div id="titulo-boas-vindas" style="font-family:'Share Tech Mono',monospace;font-size:.58rem;color:var(--vn);letter-spacing:.15em;min-height:1em;"></div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
       <button class="btn-start" onclick="selecionarModo()">Entrar na Floresta</button>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:.4rem;">
+      <button class="modo-voltar" onclick="abrirRanking()">🏆 Ranking Global</button>
+      <button class="modo-voltar" id="btn-continuar" style="display:none;" onclick="continuarJogoSalvo()">💾 Continuar Jornada Salva</button>
+      <button class="modo-voltar" onclick="trocarJogador()">🔁 Trocar Explorador</button>
     </div>
   </div>
   <div class="v-badge">v9.4 · AMAZÔNIA + Manaus</div>
@@ -437,6 +487,7 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
     <div class="painel painel-info">
       <div id="loc-txt">FLORESTA</div>
       <div id="hora-txt">☀ Dia 1 — Manhã</div>
+      <div id="jogador-nome-hud"></div>
       <div id="status-efeitos"></div>
       <div id="lendas-ico"></div>
     </div>
@@ -577,9 +628,11 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
     <div class="fim-stats-grid" id="fim-stats"></div>
     <div class="fim-conquistas" id="fim-conquistas"></div>
     <div class="fim-lendas-encontradas" id="fim-lendas-enc"></div>
+    <div id="fim-ranking-info" style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(0,255,127,.5);text-align:center;"></div>
     <div class="fim-acoes">
       <button class="btn-start" onclick="reiniciar()" style="padding:14px 36px;font-size:.8rem;">🔄 Tentar Novamente</button>
       <button class="btn-start" onclick="voltarMenu()" style="padding:14px 28px;font-size:.7rem;border-color:#c89010;color:#c89010;">🏠 Menu</button>
+      <button class="btn-start" onclick="abrirRanking()" style="padding:14px 28px;font-size:.7rem;border-color:var(--dol);color:var(--dol);">🏆 Ranking</button>
     </div>
     <div style="font-size:.55rem;color:rgba(220,236,212,.3);font-family:'Share Tech Mono',monospace;">ENTER ou R para reiniciar</div>
   </div>
@@ -599,6 +652,114 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 
 <script>
 'use strict';
+// ══════════════════════════════════════════════════════════
+//  LOGIN / PERFIL / RANKING GLOBAL
+// ══════════════════════════════════════════════════════════
+let jogadorNome='';
+let continuarFlag=false;
+
+function fazerLogin(){
+  const inp=document.getElementById('login-input');
+  const nome=(inp.value||'').trim().slice(0,16);
+  if(nome.length<2){document.getElementById('login-erro').textContent='Digite um nome com ao menos 2 letras.';return;}
+  jogadorNome=nome;
+  try{initAudio();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}
+  document.getElementById('tela-login').style.display='none';
+  document.getElementById('titulo-boas-vindas').textContent='🌿 Bem-vindo(a), '+jogadorNome+'!';
+  const hudNome=document.getElementById('jogador-nome-hud');if(hudNome)hudNome.textContent='👤 '+jogadorNome;
+  verificarSaveESugerirContinuar();
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const inp=document.getElementById('login-input');
+  if(inp){inp.addEventListener('keydown',e=>{if(e.code==='Enter')fazerLogin();});setTimeout(()=>inp.focus(),300);}
+});
+
+function trocarJogador(){
+  sfx.botao();
+  jogadorNome='';
+  document.getElementById('login-input').value='';
+  document.getElementById('login-erro').textContent='';
+  document.getElementById('titulo-boas-vindas').textContent='';
+  document.getElementById('btn-continuar').style.display='none';
+  document.getElementById('tela-login').style.display='flex';
+  setTimeout(()=>document.getElementById('login-input')?.focus(),200);
+}
+
+async function verificarSaveESugerirContinuar(){
+  const btn=document.getElementById('btn-continuar');
+  btn.style.display='none';
+  try{
+    const r=await window.storage.get('save_'+jogadorNome,false);
+    if(r&&r.value)btn.style.display='inline-block';
+  }catch(e){/* sem save salvo */}
+}
+
+async function salvarProgresso(){
+  if(!jogadorNome)return;
+  try{
+    const dados={x:E.x,y:E.y,vida:E.vida,fome:E.fome,sede:E.sede,energia:E.energia,sanidade:E.sanidade,
+      temperatura:E.temperatura,lendas:E.lendas,diaNum,craftados:E.craftados,inv:E.inv,
+      inimigosVencidos:E.inimigosVencidos,arma:E.arma,armaDano:E.armaDano,armaEmoji:E.armaEmoji,
+      temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,jangada:E.jangada,curas:E.curas,
+      noitesSobrevividas:E.noitesSobrevividas,modo2P:modo2P};
+    await window.storage.set('save_'+jogadorNome,JSON.stringify(dados),false);
+  }catch(e){console.error('Erro ao salvar progresso',e);}
+}
+
+async function carregarProgresso(){
+  if(!jogadorNome)return;
+  try{
+    const r=await window.storage.get('save_'+jogadorNome,false);
+    if(r&&r.value){
+      const d=JSON.parse(r.value);
+      Object.assign(E,d);
+      if(d.diaNum){diaNum=d.diaNum;tempo=Math.max(tempo,(diaNum-1)*65*PERIODOS.length);E.diaNum=diaNum;}
+      d.lendas?.forEach(i=>legendasVistas.add(i));
+      msg('💾 Jornada anterior restaurada, '+jogadorNome+'! Dia '+diaNum+', '+E.lendas.length+'/10 lendas.');
+      toast('💾 Progresso carregado!');
+    }
+  }catch(e){console.error('Erro ao carregar progresso',e);}
+}
+
+function continuarJogoSalvo(){
+  sfx.botao();
+  continuarFlag=true;
+  selecionarModo();
+}
+
+async function enviarPontuacao(vitoria,stats){
+  try{
+    const pontos=E.lendas.length*150+diaNum*20+E.inimigosVencidos*10+(vitoria?500:0);
+    let lista=[];
+    try{const r=await window.storage.get('leaderboard',true);lista=r&&r.value?JSON.parse(r.value):[];}catch(e){lista=[];}
+    lista.push({nome:jogadorNome||'Explorador',pontos,dias:diaNum,lendas:E.lendas.length,vitoria:!!vitoria,modo:modo2P?'2P':'Solo',data:new Date().toLocaleDateString('pt-BR')});
+    lista.sort((a,b)=>b.pontos-a.pontos);
+    lista=lista.slice(0,50);
+    await window.storage.set('leaderboard',JSON.stringify(lista),true);
+    const pos=lista.findIndex(it=>it.pontos===pontos&&it.nome===(jogadorNome||'Explorador'));
+    const info=document.getElementById('fim-ranking-info');
+    if(info)info.textContent=pos>=0&&pos<10?('🏆 Você entrou no TOP '+(pos+1)+' do Ranking Global! ('+pontos+' pts)'):('Pontuação registrada: '+pontos+' pts. Confira o Ranking Global!');
+  }catch(e){console.error('Erro ao enviar pontuação',e);}
+  if(vitoria){try{await window.storage.delete('save_'+jogadorNome,false);}catch(e){}}
+}
+
+async function abrirRanking(){
+  sfx.botao();
+  document.getElementById('tela-ranking').style.display='flex';
+  const el=document.getElementById('ranking-lista');
+  el.innerHTML='Carregando...';
+  try{
+    const r=await window.storage.get('leaderboard',true);
+    const lista=r&&r.value?JSON.parse(r.value):[];
+    if(!lista.length){el.innerHTML='<div style="text-align:center;opacity:.5;padding:2rem 0;">Ninguém completou uma jornada ainda.<br>Seja o primeiro explorador da lenda!</div>';return;}
+    el.innerHTML=lista.slice(0,15).map((it,i)=>`<div class="ranking-item" style="${i===0?'color:#ffe868':i===1?'color:#c8d8d0':i===2?'color:#e0a868':''}">
+      <span class="rk-nome">${i+1}. ${it.vitoria?'🏙':'💀'} ${(it.nome||'Explorador').replace(/[<>&]/g,'')}</span>
+      <span class="rk-pts">${it.pontos} pts · D${it.dias} · ${it.lendas}/10 · ${it.modo||'Solo'}</span>
+    </div>`).join('');
+  }catch(e){el.innerHTML='<div style="text-align:center;opacity:.6;">Não foi possível carregar o ranking agora.</div>';}
+}
+function fecharRanking(){sfx.botao();document.getElementById('tela-ranking').style.display='none';}
+
 // ══════════════════════════════════════════════════════════
 //  AUDIO ENGINE
 // ══════════════════════════════════════════════════════════
@@ -776,8 +937,10 @@ function abrirPausa(){
   if(document.getElementById('tela-fim').classList.contains('aberto'))return;
   if(document.getElementById('modal-lenda').classList.contains('aberto'))return;
   pausado=true;sfx.pausa();
+  salvarProgresso();
   const info=document.getElementById('pausa-info');
   info.innerHTML=`
+    <div class="pausa-info-row"><span>Explorador</span><span class="pausa-info-val">${jogadorNome||'—'}</span></div>
     <div class="pausa-info-row"><span>Dia</span><span class="pausa-info-val">${diaNum}</span></div>
     <div class="pausa-info-row"><span>Período</span><span class="pausa-info-val">${PERIODOS[perIdx]}</span></div>
     <div class="pausa-info-row"><span>Modo</span><span class="pausa-info-val">${modo2P?'2 Jogadores':'Solo'}</span></div>
@@ -902,8 +1065,10 @@ function iniciarJogo(is2P){
   atualizarLayoutSplitScreen();
   setupKeys();
   atualizarAcoes();
+  const hudNome=document.getElementById('jogador-nome-hud');if(hudNome)hudNome.textContent=jogadorNome?('👤 '+jogadorNome):'';
   msg(modo2P?"👥 Modo 2 Jogadores! Tela dividida — cada um com sua câmera. P1: WASD | P2: Setas. [B] revive P1.":"Você acorda na floresta amazônica. Encontre as 10 lendas para desbloquear Manaus!");
   addDiario("Acordei. Floresta. Não sei como cheguei aqui. Preciso encontrar as lendas."+(modo2P?" Não estou sozinho.":""));
+  if(continuarFlag){continuarFlag=false;carregarProgresso();}
   if(animID)cancelAnimationFrame(animID);
   animID=requestAnimationFrame(loop);
 }
@@ -977,6 +1142,7 @@ function voltarMenu(){
   setTimeout(()=>{
     ['jogo','hud','hud-p2','log-area','mini-mapa','bussola','lanterna-hud','vp-label-p1','vp-label-p2'].forEach(id=>{document.getElementById(id).style.display='none';});
     const tt=document.getElementById('tela-titulo');tt.style.display='flex';tt.style.opacity='1';
+    verificarSaveESugerirContinuar();
   },100);
 }
 
@@ -1273,7 +1439,7 @@ function atualizarDiaClima(dt){
     const prevP=perIdx;perIdx=nP;diaNum=nD;E.diaNum=nD;
     document.getElementById('hora-txt').textContent=IPER[nP]+' Dia '+nD+' — '+PERIODOS[nP];
     if(nP===4||nP===0){msg("🌙 A noite cai. Acenda a lanterna!");addDiario("A noite chegou.");if(prevP!==0&&prevP!==4)E.noitesSobrevividas++;}
-    if(nP===1){addDiario("Dia "+nD+". Sobrevivi mais uma noite.");msg("☀️ Novo amanhecer.");mostrarNotifDia(nD,PERIODOS[nP]);}
+    if(nP===1){addDiario("Dia "+nD+". Sobrevivi mais uma noite.");msg("☀️ Novo amanhecer.");mostrarNotifDia(nD,PERIODOS[nP]);salvarProgresso();}
   }
   climaTmp+=dt;
   if(climaTmp>=climaDur){climaTmp=0;climaDur=60+Math.random()*120;const cls=['limpo','limpo','chuva','nevoeiro','chuva'];clima=cls[Math.floor(Math.random()*cls.length)];if(clima==='chuva'){msg("🌧 Chuva tropical.");sfx.chuva();gerarChuva();}else if(clima==='nevoeiro')msg("🌫 Névoa densa.");else msg("☀️ O tempo abre.");}
@@ -1514,6 +1680,7 @@ function atualizarHUD(){
 async function revelarManaus(){
   cancelAnimationFrame(animID);stopAmbience();
   sfx.manausReveal();
+  salvarProgresso();
 
   // Tela Manaus
   document.getElementById('tela-manaus').classList.add('aberto');
@@ -1670,6 +1837,8 @@ async function fimJogo(vitoriaForce=false){
 
   document.getElementById('tela-fim').classList.add('aberto');
   animarFimCanvas(vitoria);
+  document.getElementById('fim-ranking-info').textContent='Enviando pontuação ao Ranking Global...';
+  enviarPontuacao(vitoria,stats);
   document.getElementById('fim-historia-txt').textContent='A floresta está narrando sua história...';
   document.getElementById('fim-historia-txt').style.color='rgba(0,255,127,.4)';
   const historia=await gerarFimHistoria(vitoria,causa,stats);
