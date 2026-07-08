@@ -364,17 +364,25 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .login-erro{font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#ff6060;min-height:1.2em;margin-bottom:.8rem;}
 .login-info{font-family:'Share Tech Mono',monospace;font-size:.48rem;color:rgba(0,255,127,.35);margin-top:1.1rem;letter-spacing:.1em;line-height:1.8;}
 
-/* ══ RANKING ══ */
-#tela-ranking{position:fixed;inset:0;z-index:1600;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.95);backdrop-filter:blur(10px);}
-.ranking-box{max-width:540px;width:92vw;max-height:82vh;background:linear-gradient(160deg,rgba(4,18,4,.98),rgba(8,28,8,.98));border:1px solid rgba(200,144,16,.3);border-radius:4px;padding:1.8rem;display:flex;flex-direction:column;box-shadow:0 20px 80px rgba(0,0,0,.9);}
-.ranking-titulo{font-family:'Cinzel Decorative',serif;font-size:1.15rem;color:var(--dol);text-align:center;margin-bottom:.2rem;}
-.ranking-sub{font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(0,255,127,.5);text-align:center;letter-spacing:.25em;margin-bottom:1.2rem;text-transform:uppercase;}
-.ranking-lista{overflow-y:auto;flex:1;font-family:'Share Tech Mono',monospace;font-size:.66rem;color:rgba(220,236,212,.85);min-height:120px;}
-.ranking-lista::-webkit-scrollbar{width:3px;}
-.ranking-lista::-webkit-scrollbar-thumb{background:rgba(200,144,16,.3);}
-.ranking-item{display:flex;justify-content:space-between;align-items:center;padding:7px 9px;border-bottom:1px solid rgba(255,255,255,.06);gap:8px;}
-.ranking-item .rk-nome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ranking-item .rk-pts{opacity:.7;flex-shrink:0;font-size:.6rem;}
+/* ══ RANKING MELHORADO ══ */
+#tela-ranking{position:fixed;inset:0;z-index:1600;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.96);backdrop-filter:blur(14px);}
+.ranking-box{max-width:620px;width:94vw;max-height:86vh;background:linear-gradient(160deg,rgba(4,18,4,.98),rgba(8,28,8,.98));border:1px solid rgba(200,144,16,.4);border-radius:5px;padding:1.6rem 1.8rem;display:flex;flex-direction:column;box-shadow:0 25px 90px rgba(0,0,0,.95);}
+.ranking-titulo{font-family:'Cinzel Decorative',serif;font-size:1.35rem;color:#e8c040;text-align:center;margin-bottom:.15rem;letter-spacing:.05em;}
+.ranking-sub{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(0,255,127,.55);text-align:center;letter-spacing:.3em;margin-bottom:1.1rem;text-transform:uppercase;}
+.ranking-lista{overflow-y:auto;flex:1;font-family:'Share Tech Mono',monospace;font-size:.62rem;color:rgba(220,236,212,.9);min-height:140px;padding-right:4px;}
+.ranking-lista::-webkit-scrollbar{width:4px;}
+.ranking-lista::-webkit-scrollbar-thumb{background:rgba(200,144,16,.4);border-radius:2px;}
+.ranking-item{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.07);gap:10px;transition:all .15s;}
+.ranking-item:hover{background:rgba(255,255,255,.03);}
+.ranking-item.top1{background:rgba(200,144,16,.12);border-left:3px solid #e8c040;}
+.ranking-item.top2{background:rgba(180,180,180,.08);border-left:3px solid #c8d8d0;}
+.ranking-item.top3{background:rgba(180,120,60,.1);border-left:3px solid #e0a868;}
+.ranking-item.meu{background:rgba(0,255,127,.08);border:1px solid rgba(0,255,127,.3);}
+.ranking-pos{width:32px;text-align:center;font-weight:700;color:#e8c040;}
+.ranking-nome{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.68rem;}
+.ranking-stats{display:flex;gap:14px;align-items:center;font-size:.55rem;opacity:.85;}
+.ranking-stats span{display:flex;align-items:center;gap:3px;}
+.ranking-pts{font-weight:700;color:#ffe868;min-width:58px;text-align:right;font-size:.65rem;}
 </style>
 </head>
 <body>
@@ -760,7 +768,16 @@ async function enviarPontuacao(vitoria,stats){
     const pontos=E.lendas.length*150+diaNum*20+E.inimigosVencidos*10+(vitoria?500:0);
     let lista=[];
     try{const r=await window.storage.get('leaderboard',true);lista=r&&r.value?JSON.parse(r.value):[];}catch(e){lista=[];}
-    lista.push({nome:jogadorNome||'Explorador',pontos,dias:diaNum,lendas:E.lendas.length,vitoria:!!vitoria,modo:modo2P?'2P':'Solo',data:new Date().toLocaleDateString('pt-BR')});
+    lista.push({
+      nome: jogadorNome || 'Explorador',
+      pontos,
+      dias: diaNum,
+      lendas: E.lendas.length,
+      inimigos: E.inimigosVencidos || 0,
+      vitoria: !!vitoria,
+      modo: modo2P ? '2P' : 'Solo',
+      data: new Date().toLocaleDateString('pt-BR')
+    });
     lista.sort((a,b)=>b.pontos-a.pontos);
     lista=lista.slice(0,50);
     await window.storage.set('leaderboard',JSON.stringify(lista),true);
@@ -779,12 +796,45 @@ async function abrirRanking(){
   try{
     const r=await window.storage.get('leaderboard',true);
     const lista=r&&r.value?JSON.parse(r.value):[];
-    if(!lista.length){el.innerHTML='<div style="text-align:center;opacity:.5;padding:2rem 0;">Ninguém completou uma jornada ainda.<br>Seja o primeiro explorador da lenda!</div>';return;}
-    el.innerHTML=lista.slice(0,15).map((it,i)=>`<div class="ranking-item" style="${i===0?'color:#ffe868':i===1?'color:#c8d8d0':i===2?'color:#e0a868':''}">
-      <span class="rk-nome">${i+1}. ${it.vitoria?'🏙':'💀'} ${(it.nome||'Explorador').replace(/[<>&]/g,'')}</span>
-      <span class="rk-pts">${it.pontos} pts · D${it.dias} · ${it.lendas}/10 · ${it.modo||'Solo'}</span>
-    </div>`).join('');
-  }catch(e){el.innerHTML='<div style="text-align:center;opacity:.6;">Não foi possível carregar o ranking agora.</div>';}
+    if(!lista.length){
+      el.innerHTML='<div style="text-align:center;opacity:.5;padding:2.5rem 0;">Ninguém completou uma jornada ainda.<br>Seja o primeiro a deixar sua marca na Amazônia!</div>';
+      return;
+    }
+
+    const meuNome = (jogadorNome || '').toLowerCase();
+
+    el.innerHTML = lista.slice(0,20).map((it,i) => {
+      const isTop = i < 3;
+      const isMe = (it.nome || '').toLowerCase() === meuNome;
+      let classes = 'ranking-item';
+      if (i === 0) classes += ' top1';
+      else if (i === 1) classes += ' top2';
+      else if (i === 2) classes += ' top3';
+      if (isMe) classes += ' meu';
+
+      const vitoriaIcon = it.vitoria ? '🏙' : '💀';
+      const nome = (it.nome || 'Explorador').replace(/[<>&]/g, '');
+
+      return `
+        <div class="${classes}">
+          <div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1">
+            <span class="ranking-pos">${i+1}º</span>
+            <span class="ranking-nome">${vitoriaIcon} ${nome} ${isMe ? '<span style="color:#00ff7f;font-size:.7rem">(Você)</span>' : ''}</span>
+          </div>
+          <div class="ranking-stats">
+            <span title="Dias">📅 ${it.dias || 1}</span>
+            <span title="Lendas">🗺 ${it.lendas || 0}/10</span>
+            <span title="Inimigos">⚔ ${it.inimigos || 0}</span>
+            <span title="Modo">${it.modo || 'Solo'}</span>
+          </div>
+          <div class="ranking-pts">${(it.pontos || 0).toLocaleString()} pts</div>
+        </div>
+      `;
+    }).join('');
+
+  }catch(e){
+    el.innerHTML='<div style="text-align:center;opacity:.6;padding:2rem 0;">Não foi possível carregar o ranking agora.</div>';
+  }
 }
 function fecharRanking(){sfx.botao();document.getElementById('tela-ranking').style.display='none';}
 
