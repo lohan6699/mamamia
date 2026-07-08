@@ -278,6 +278,14 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 #manaus-guerra-txt{font-family:'Cormorant Garamond',serif;font-size:clamp(.85rem,1.7vw,1rem);font-style:italic;line-height:2.2;color:rgba(230,200,160,.9);}
 .manaus-acoes{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
 
+/* ══ CAPÍTULO 1 CONCLUÍDO ══ */
+#tela-capitulo1{display:none;position:fixed;inset:0;z-index:850;align-items:center;justify-content:center;background:rgba(0,0,0,.94);backdrop-filter:blur(12px);}
+.capitulo-box{text-align:center;max-width:620px;padding:2.5rem 2rem;background:linear-gradient(160deg,rgba(4,18,4,.98),rgba(8,28,8,.98));border:1px solid rgba(200,144,16,.35);border-radius:4px;box-shadow:0 20px 80px rgba(0,0,0,.9);}
+.capitulo-titulo{font-family:'Cinzel Decorative',serif;font-size:2.4rem;color:#e8c040;letter-spacing:.08em;margin-bottom:.4rem;text-shadow:0 0 30px rgba(232,200,64,.4);}
+.capitulo-sub{font-family:'Share Tech Mono',monospace;font-size:1.05rem;color:#00ff7f;letter-spacing:5px;margin-bottom:1.6rem;text-transform:uppercase;}
+.capitulo-texto{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:rgba(220,236,212,.92);line-height:1.85;margin-bottom:2.2rem;}
+.capitulo-btn{padding:16px 52px;font-size:.95rem;}
+
 /* ══ TOAST / OVERLAYS ══ */
 #toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.88);background:rgba(2,8,2,.97);border:1px solid rgba(200,144,16,.55);padding:1rem 2rem;font-family:'Cinzel Decorative',serif;font-size:.78rem;letter-spacing:.12em;color:var(--dol);z-index:600;display:none;text-align:center;backdrop-filter:blur(10px);box-shadow:0 0 60px rgba(0,0,0,.95);transition:all .3s cubic-bezier(.23,1,.32,1);border-radius:2px;}
 #toast.vis{display:block;transform:translate(-50%,-50%) scale(1);}
@@ -615,6 +623,21 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
       <button class="btn-start" onclick="continuarParaFimManaus()" style="border-color:#c89010;color:#c89010;padding:14px 36px;">Ver Fim da Jornada →</button>
     </div>
     <div style="font-size:.52rem;color:rgba(220,236,212,.25);font-family:'Share Tech Mono',monospace;text-align:center;">A história de Manaus foi gerada pela IA com base em sua jornada</div>
+  </div>
+</div>
+
+<!-- TELA CAPÍTULO 1 CONCLUÍDO -->
+<div id="tela-capitulo1">
+  <div class="capitulo-box">
+    <div class="capitulo-titulo">PARABÉNS, EXPLORADOR!</div>
+    <div class="capitulo-sub">CAPÍTULO 1 — AS 10 LENDAS</div>
+    <div class="capitulo-texto">
+      Você despertou todas as lendas da Amazônia.<br>
+      A floresta agora te reconhece como seu guardião.<br>
+      Manaus se abre para você — a cidade do Rio Negro.
+    </div>
+    <button class="btn-start capitulo-btn" onclick="continuarParaFimManaus()">Ver o Final da Jornada →</button>
+    <div style="margin-top:1.4rem;font-size:.52rem;color:rgba(220,236,212,.25);font-family:'Share Tech Mono',monospace;">Sua jornada foi registrada no Ranking Global</div>
   </div>
 </div>
 
@@ -1727,6 +1750,20 @@ async function revelarManaus(){
     el2.textContent='';
     let ci2=0;
     await new Promise(res=>{const iv=setInterval(()=>{if(ci2<txt2.length){el2.textContent+=txt2[ci2++];}else{clearInterval(iv);res();}},15);});
+
+    // Após a narração completa da história de Manaus → mostrar "Capítulo 1 Concluído"
+    setTimeout(() => {
+      document.getElementById('tela-manaus').classList.remove('aberto');
+      const cap = document.getElementById('tela-capitulo1');
+      if (cap) {
+        cap.style.display = 'flex';
+        cap.style.opacity = '0';
+        setTimeout(() => {
+          cap.style.transition = 'opacity .7s ease';
+          cap.style.opacity = '1';
+        }, 60);
+      }
+    }, 1400);
 
   }catch(e){
     document.getElementById('manaus-historia-txt').style.color='rgba(230,215,180,.95)';
