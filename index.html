@@ -2,7 +2,11 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#020802">
 <title>AMAZÔNIA — Sobrevivência</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap');
@@ -383,6 +387,87 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .ranking-stats{display:flex;gap:14px;align-items:center;font-size:.55rem;opacity:.85;}
 .ranking-stats span{display:flex;align-items:center;gap:3px;}
 .ranking-pts{font-weight:700;color:#ffe868;min-width:58px;text-align:right;font-size:.65rem;}
+
+/* ══ CONTROLES TOUCH / MOBILE ══ */
+#controles-touch{display:none;position:fixed;inset:0;z-index:220;pointer-events:none;}
+#controles-touch.visivel{display:block;}
+.touch-zone{position:absolute;pointer-events:all;touch-action:none;-webkit-user-select:none;user-select:none;}
+#joystick-zone{left:0;bottom:0;width:46%;height:42%;max-width:280px;max-height:260px;}
+#joystick-base{position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(0,20,4,.35);border:2px solid rgba(0,255,127,.28);left:24px;bottom:28px;box-shadow:0 0 24px rgba(0,255,127,.08),inset 0 0 20px rgba(0,0,0,.4);}
+#joystick-stick{position:absolute;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(0,255,127,.55),rgba(0,120,60,.7));border:2px solid rgba(0,255,127,.7);left:50%;top:50%;transform:translate(-50%,-50%);box-shadow:0 0 16px rgba(0,255,127,.35);transition:none;pointer-events:none;}
+#joystick-base.ativo{border-color:rgba(0,255,127,.55);background:rgba(0,30,8,.5);}
+#acoes-touch{right:0;bottom:0;width:48%;height:48%;max-width:300px;max-height:300px;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;padding:0 16px 24px 0;gap:10px;}
+.touch-btn{width:58px;height:58px;border-radius:50%;background:rgba(2,12,4,.72);border:2px solid rgba(0,255,127,.32);color:var(--vn);font-size:1.35rem;display:flex;align-items:center;justify-content:center;pointer-events:all;touch-action:none;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 18px rgba(0,0,0,.5);transition:transform .1s,background .15s,border-color .15s;font-family:'Share Tech Mono',monospace;}
+.touch-btn:active,.touch-btn.pressed{transform:scale(.88);background:rgba(0,255,127,.22);border-color:var(--vn);box-shadow:0 0 20px rgba(0,255,127,.35);}
+.touch-btn.acao-principal{width:68px;height:68px;font-size:1.55rem;border-color:rgba(232,200,64,.45);color:var(--dob);background:rgba(20,12,2,.75);}
+.touch-btn.acao-principal:active,.touch-btn.acao-principal.pressed{background:rgba(200,144,16,.3);border-color:var(--dol);}
+.touch-btn.lanterna-btn{border-color:rgba(255,180,40,.4);color:#ffc040;}
+.touch-btn.secundario{width:48px;height:48px;font-size:1.05rem;opacity:.9;}
+.touch-row{display:flex;gap:10px;align-items:center;}
+#btn-touch-pausa{position:absolute;top:10px;right:10px;width:42px;height:42px;border-radius:8px;background:rgba(2,8,2,.7);border:1px solid rgba(0,255,127,.25);color:rgba(220,236,212,.8);font-size:1.1rem;pointer-events:all;touch-action:none;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+#btn-touch-pausa:active{background:rgba(0,255,127,.15);}
+
+/* Media queries — ajustes para celular */
+@media (max-width:900px),(pointer:coarse){
+  .painel{padding:7px 10px;}
+  .barra-track{min-width:56px;height:5px;}
+  .barra-num{font-size:.5rem;min-width:20px;}
+  .barra-ico{font-size:.7rem;width:14px;}
+  .painel-info{min-width:120px;padding:7px 10px;}
+  #loc-txt{font-size:.5rem;}
+  #hora-txt{font-size:.5rem;}
+  #mini-mapa{width:100px;height:100px;bottom:auto;top:auto;left:8px;bottom:calc(42% + 8px);}
+  #mini-mapa-p2{width:90px;height:90px;right:8px;bottom:calc(48% + 8px);}
+  #lanterna-hud{bottom:auto;top:auto;left:8px;bottom:calc(42% + 116px);}
+  #log-area{padding:6px 10px 12px;bottom:auto;top:auto;left:0;right:0;/* sobe para não ficar sob o joystick */
+    bottom:calc(38% + 4px);padding-bottom:8px;background:linear-gradient(to top,rgba(2,8,2,.97) 50%,transparent);}
+  #msg-atual{font-size:.78rem;max-width:100%;}
+  .btn-ac{font-size:.52rem;padding:8px 12px;min-height:36px;border-radius:4px;}
+  #acoes-wrap{gap:6px;}
+  #bussola{top:8px;}
+  .buss-inner{font-size:.48rem;padding:3px 10px;}
+  .hud-esq{top:8px;left:8px;}
+  .hud-dir{top:8px;right:8px;}
+  #hud-p2{top:8px;right:8px;}
+  .titulo-principal{font-size:clamp(2.2rem,12vw,5rem);}
+  .titulo-controles{grid-template-columns:1fr;gap:.8rem;max-width:90vw;}
+  .modo-grid{grid-template-columns:1fr;max-width:320px;}
+  #painel-craft,#painel-inv,#painel-diario{width:96vw;max-height:80vh;}
+  .craft-grid{grid-template-columns:1fr;}
+  .inv-grid{grid-template-columns:repeat(3,1fr);}
+  .login-box{padding:1.8rem 1.2rem;}
+  .login-logo{font-size:1.4rem;}
+  .btn-start{padding:12px 28px;font-size:.7rem;letter-spacing:.2em;}
+  .vp-label{display:none!important;}
+  body{cursor:default;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+  /* mini-mapa sobe junto com a área de ações */
+  #mini-mapa{bottom:calc(38% + 4px + 52px);left:8px;}
+  #lanterna-hud{bottom:calc(38% + 4px + 52px + 108px);left:8px;}
+}
+@media (max-width:480px){
+  #joystick-base{width:96px;height:96px;left:16px;bottom:20px;}
+  #joystick-stick{width:42px;height:42px;}
+  .touch-btn{width:52px;height:52px;font-size:1.2rem;}
+  .touch-btn.acao-principal{width:60px;height:60px;}
+  .touch-btn.secundario{width:44px;height:44px;font-size:.95rem;}
+  #acoes-touch{padding:0 10px 18px 0;gap:8px;}
+  .barra-row{gap:5px;margin-bottom:3px;}
+  #mini-mapa{width:80px;height:80px;}
+}
+@media (orientation:landscape) and (max-height:500px){
+  #joystick-zone{height:85%;max-height:none;width:36%;}
+  #acoes-touch{height:90%;max-height:none;width:40%;}
+  #joystick-base{bottom:10px;left:12px;width:80px;height:80px;}
+  #joystick-stick{width:34px;height:34px;}
+  .touch-btn{width:42px;height:42px;font-size:1rem;}
+  .touch-btn.acao-principal{width:50px;height:50px;}
+  .touch-btn.secundario{width:38px;height:38px;}
+  #mini-mapa,#mini-mapa-p2,#lanterna-hud{display:none!important;}
+  .painel{padding:5px 8px;}
+  #log-area{bottom:4px;left:38%;right:42%;padding:4px 6px;background:rgba(2,8,2,.85);border-radius:4px;}
+  #msg-atual{font-size:.7rem;}
+  .btn-ac{padding:5px 8px;min-height:28px;font-size:.48rem;}
+}
 </style>
 </head>
 <body>
@@ -685,6 +770,27 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 <div id="overlay-frio"></div>
 <div id="overlay-veneno"></div>
 <div id="overlay-sanidade"></div>
+
+<!-- CONTROLES TOUCH (MOBILE) -->
+<div id="controles-touch">
+  <button id="btn-touch-pausa" type="button" aria-label="Pausa">⏸</button>
+  <div id="joystick-zone" class="touch-zone">
+    <div id="joystick-base">
+      <div id="joystick-stick"></div>
+    </div>
+  </div>
+  <div id="acoes-touch" class="touch-zone">
+    <div class="touch-row">
+      <button type="button" class="touch-btn secundario" id="btn-touch-inv" aria-label="Inventário">🎒</button>
+      <button type="button" class="touch-btn secundario" id="btn-touch-craft" aria-label="Crafting">⚒</button>
+      <button type="button" class="touch-btn secundario" id="btn-touch-diario" aria-label="Diário">📖</button>
+    </div>
+    <div class="touch-row">
+      <button type="button" class="touch-btn lanterna-btn" id="btn-touch-lant" aria-label="Lanterna">🔦</button>
+      <button type="button" class="touch-btn acao-principal" id="btn-touch-acao" aria-label="Ação">✋</button>
+    </div>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -996,6 +1102,11 @@ let finimCanvas=null,finimRaf=null;
 let manausCanvasRaf=null;
 let manausPendente=false; // flag: 10 lendas alcançadas, aguardando fechar modal para revelar Manaus
 
+// ── Mobile / Touch ──
+const isMobile=(()=>{try{return('ontouchstart' in window)||(navigator.maxTouchPoints>0)||/Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent||'');}catch(e){return false;}})();
+const touchMove={dx:0,dy:0,ativo:false};
+let joyActive=false,joyId=null,joyCx=0,joyCy=0,joyMaxR=42;
+
 const lanterna={ativa:false,nivel:100,raioBase:90,raioMax:240,raioAtual:90,angulo:Math.PI/2,cone:Math.PI*.56,dreno:1.8,flick:0,flickAmp:0,pulsar:0};
 const lanterna2={ativa:false,nivel:100,raioAtual:70,angulo:0};
 const tocha={ativa:false,duracao:0};
@@ -1143,9 +1254,10 @@ function iniciarJogo(is2P){
   pausado=false;particles=[];diario=[];manausPendente=false;
   atualizarLayoutSplitScreen();
   setupKeys();
+  mostrarControlesTouch(true);
   atualizarAcoes();
   const hudNome=document.getElementById('jogador-nome-hud');if(hudNome)hudNome.textContent=jogadorNome?('👤 '+jogadorNome):'';
-  msg(modo2P?"👥 Modo 2 Jogadores! Tela dividida — cada um com sua câmera. P1: WASD | P2: Setas. [B] revive P1.":"Você acorda na floresta amazônica. Encontre as 10 lendas para desbloquear Manaus!");
+  msg(modo2P?(isMobile?"👥 Modo 2P no celular: use o joystick para P1. P2 precisa de teclado (setas).":"👥 Modo 2 Jogadores! Tela dividida — cada um com sua câmera. P1: WASD | P2: Setas. [B] revive P1."):(isMobile?"Você acorda na floresta. Use o joystick para andar e os botões à direita para agir.":"Você acorda na floresta amazônica. Encontre as 10 lendas para desbloquear Manaus!"));
   addDiario("Acordei. Floresta. Não sei como cheguei aqui. Preciso encontrar as lendas."+(modo2P?" Não estou sozinho.":""));
   if(continuarFlag){continuarFlag=false;carregarProgresso();}
   if(animID)cancelAnimationFrame(animID);
@@ -1197,10 +1309,129 @@ function setupKeys(){
   document.onkeyup=e=>teclas[e.code]=false;
   const cv2=document.getElementById('canvas-mundo');
   cv2.onmousemove=e=>{
+    if(isMobile)return;
     const vw=modo2P?Math.floor((cv2.width-SPLIT_GAP)/2):cv2.width;
     lanterna.angulo=Math.atan2(e.clientY-cv2.height/2,e.clientX-vw/2);
     const a=lanterna.angulo;if(a>-Math.PI/4&&a<Math.PI/4)E.dir='L';else if(a>=Math.PI/4&&a<3*Math.PI/4)E.dir='S';else if(a>=-3*Math.PI/4&&a<-Math.PI/4)E.dir='N';else E.dir='O';
   };
+  setupTouchControls();
+}
+
+// ══════════════════════════════════════════════════════════
+//  CONTROLES TOUCH (MOBILE)
+// ══════════════════════════════════════════════════════════
+function setupTouchControls(){
+  const wrap=document.getElementById('controles-touch');
+  if(!wrap)return;
+  if(!isMobile){wrap.classList.remove('visivel');return;}
+  wrap.classList.add('visivel');
+
+  // Prevenir gestos do navegador durante o jogo (mas permite scroll em painéis)
+  document.body.style.touchAction='none';
+  document.documentElement.style.touchAction='none';
+  const preventScroll=e=>{
+    const t=e.target;
+    if(t&&(t.closest('.craft-grid')||t.closest('.diario-corpo')||t.closest('.inv-grid')||t.closest('.ranking-lista')||t.closest('.login-input')||t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
+    if(e.cancelable)e.preventDefault();
+  };
+  document.addEventListener('touchmove',preventScroll,{passive:false});
+  document.addEventListener('gesturestart',e=>e.preventDefault());
+
+  const base=document.getElementById('joystick-base');
+  const stick=document.getElementById('joystick-stick');
+  const zone=document.getElementById('joystick-zone');
+
+  function resetJoy(){
+    joyActive=false;joyId=null;
+    touchMove.dx=0;touchMove.dy=0;touchMove.ativo=false;
+    if(stick){stick.style.transform='translate(-50%,-50%)';}
+    if(base)base.classList.remove('ativo');
+  }
+
+  function updateJoy(clientX,clientY){
+    if(!base)return;
+    const rect=base.getBoundingClientRect();
+    joyCx=rect.left+rect.width/2;
+    joyCy=rect.top+rect.height/2;
+    joyMaxR=rect.width*0.38;
+    let dx=clientX-joyCx, dy=clientY-joyCy;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist>joyMaxR){dx=(dx/dist)*joyMaxR;dy=(dy/dist)*joyMaxR;}
+    if(stick)stick.style.transform=`translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    const nx=dx/joyMaxR, ny=dy/joyMaxR;
+    touchMove.dx=nx;touchMove.dy=ny;touchMove.ativo=true;
+    // Atualiza ângulo da lanterna pelo joystick
+    if(Math.abs(nx)>.15||Math.abs(ny)>.15){
+      lanterna.angulo=Math.atan2(ny,nx);
+    }
+  }
+
+  zone.addEventListener('touchstart',e=>{
+    e.preventDefault();
+    if(joyActive)return;
+    const t=e.changedTouches[0];
+    joyActive=true;joyId=t.identifier;
+    if(base)base.classList.add('ativo');
+    updateJoy(t.clientX,t.clientY);
+  },{passive:false});
+
+  zone.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    if(!joyActive)return;
+    for(let i=0;i<e.changedTouches.length;i++){
+      const t=e.changedTouches[i];
+      if(t.identifier===joyId){updateJoy(t.clientX,t.clientY);break;}
+    }
+  },{passive:false});
+
+  const endJoy=e=>{
+    for(let i=0;i<e.changedTouches.length;i++){
+      if(e.changedTouches[i].identifier===joyId){resetJoy();break;}
+    }
+  };
+  zone.addEventListener('touchend',endJoy,{passive:false});
+  zone.addEventListener('touchcancel',endJoy,{passive:false});
+
+  // Botões de ação
+  function bindBtn(id,fn){
+    const el=document.getElementById(id);
+    if(!el)return;
+    const down=e=>{e.preventDefault();e.stopPropagation();el.classList.add('pressed');fn();};
+    const up=e=>{e.preventDefault();el.classList.remove('pressed');};
+    el.addEventListener('touchstart',down,{passive:false});
+    el.addEventListener('touchend',up,{passive:false});
+    el.addEventListener('touchcancel',up,{passive:false});
+    // clique também (emuladores / híbridos)
+    el.addEventListener('click',e=>{e.preventDefault();fn();});
+  }
+
+  bindBtn('btn-touch-acao',()=>{
+    if(document.getElementById('modal-lenda').classList.contains('aberto'))fecharLenda();
+    else if(document.getElementById('painel-craft').classList.contains('aberto'))fecharCraft();
+    else if(document.getElementById('painel-diario').classList.contains('aberto'))fecharDiario();
+    else if(document.getElementById('painel-inv').classList.contains('aberto'))fecharInv();
+    else if(document.getElementById('tela-pausa').classList.contains('aberto'))fecharPausa();
+    else ativarAcaoSel();
+  });
+  bindBtn('btn-touch-lant',()=>toggleLanterna());
+  bindBtn('btn-touch-craft',()=>{if(pausado)return;abrirCraft();});
+  bindBtn('btn-touch-diario',()=>{if(pausado)return;abrirDiario();});
+  bindBtn('btn-touch-inv',()=>{if(pausado)return;abrirInv();});
+  bindBtn('btn-touch-pausa',()=>{
+    if(document.getElementById('painel-craft').classList.contains('aberto')){fecharCraft();return;}
+    if(document.getElementById('painel-diario').classList.contains('aberto')){fecharDiario();return;}
+    if(document.getElementById('painel-inv').classList.contains('aberto')){fecharInv();return;}
+    if(document.getElementById('modal-lenda').classList.contains('aberto')){fecharLenda();return;}
+    if(document.getElementById('tela-pausa').classList.contains('aberto'))fecharPausa();
+    else abrirPausa();
+  });
+}
+
+function mostrarControlesTouch(show){
+  const wrap=document.getElementById('controles-touch');
+  if(!wrap)return;
+  if(show&&isMobile)wrap.classList.add('visivel');
+  else wrap.classList.remove('visivel');
 }
 
 function reiniciar(){
@@ -1218,6 +1449,8 @@ function voltarMenu(){
   if(finimRaf)cancelAnimationFrame(finimRaf);
   if(manausCanvasRaf)cancelAnimationFrame(manausCanvasRaf);
   cancelAnimationFrame(animID);stopAmbience();pausado=false;
+  mostrarControlesTouch(false);
+  touchMove.dx=0;touchMove.dy=0;touchMove.ativo=false;
   setTimeout(()=>{
     ['jogo','hud','hud-p2','log-area','mini-mapa','mini-mapa-p2','bussola','lanterna-hud','vp-label-p1','vp-label-p2'].forEach(id=>{document.getElementById(id).style.display='none';});
     const tt=document.getElementById('tela-titulo');tt.style.display='flex';tt.style.opacity='1';
@@ -1370,6 +1603,10 @@ function moverJogador(dt){
   let dx=0,dy=0;
   if(teclas['KeyA'])dx-=1;if(teclas['KeyD'])dx+=1;
   if(teclas['KeyW'])dy-=1;if(teclas['KeyS'])dy+=1;
+  // Entrada touch / joystick virtual
+  if(touchMove.ativo&&(Math.abs(touchMove.dx)>.12||Math.abs(touchMove.dy)>.12)){
+    dx+=touchMove.dx;dy+=touchMove.dy;
+  }
   E.xAnt=E.x;E.yAnt=E.y;
   if(dx!==0||dy!==0){
     const mag=Math.sqrt(dx*dx+dy*dy);dx=(dx/mag)*vel;dy=(dy/mag)*vel;
@@ -1758,6 +1995,8 @@ function atualizarHUD(){
 // ══════════════════════════════════════════════════════════
 async function revelarManaus(){
   cancelAnimationFrame(animID);stopAmbience();
+  mostrarControlesTouch(false);
+  touchMove.dx=0;touchMove.dy=0;touchMove.ativo=false;
   sfx.manausReveal();
   salvarProgresso();
 
@@ -1900,6 +2139,8 @@ function animarFimCanvas(vitoria){
 // ══════════════════════════════════════════════════════════
 async function fimJogo(vitoriaForce=false){
   if(!vitoriaForce){cancelAnimationFrame(animID);stopAmbience();}
+  mostrarControlesTouch(false);
+  touchMove.dx=0;touchMove.dy=0;touchMove.ativo=false;
   const vitoria=vitoriaForce||(E.lendas.length>=10&&diaNum>=7);
   let causa='A floresta reclamou o que é dela.';
   if(!vitoriaForce){
