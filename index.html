@@ -16,10 +16,15 @@
   --verm:#b81800;--verv:#ff2800;
   --bg-h:rgba(2,8,2,.95);--bd-h:rgba(0,255,127,.15);
   --p1:#00ff7f;--p2:#ff6ec7;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-left:env(safe-area-inset-left,0px);
+  --safe-right:env(safe-area-inset-right,0px);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;overflow:hidden;}
 body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,serif;cursor:crosshair;}
+body.critico-alerta{box-shadow:inset 0 0 80px rgba(180,0,0,.35);}
 
 /* ══ INTRO ══ */
 #tela-intro{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#000;overflow:hidden;}
@@ -87,8 +92,8 @@ span.pc-only,span.mobile-only{display:inline;}
 
 /* ══ HUD ══ */
 #hud{display:none;position:fixed;top:0;left:0;right:0;z-index:200;pointer-events:none;}
-.hud-esq{position:fixed;top:12px;left:14px;pointer-events:all;}
-.hud-dir{position:fixed;top:12px;right:14px;pointer-events:all;text-align:right;}
+.hud-esq{position:fixed;top:calc(12px + var(--safe-top));left:calc(14px + var(--safe-left));pointer-events:all;}
+.hud-dir{position:fixed;top:calc(12px + var(--safe-top));right:calc(14px + var(--safe-right));pointer-events:all;text-align:right;}
 .painel{background:var(--bg-h);border:1px solid var(--bd-h);padding:10px 14px;backdrop-filter:blur(16px);border-radius:2px;box-shadow:0 6px 32px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04);}
 .barra-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
 .barra-row:last-child{margin-bottom:0;}
@@ -106,7 +111,7 @@ span.pc-only,span.mobile-only{display:inline;}
 @keyframes bpiscar{0%,100%{opacity:1}50%{opacity:.2}}
 
 /* HUD P2 */
-#hud-p2{display:none;position:fixed;top:12px;right:14px;z-index:200;pointer-events:none;}
+#hud-p2{display:none;position:fixed;top:calc(12px + var(--safe-top));right:calc(14px + var(--safe-right));z-index:200;pointer-events:none;}
 .hud-p2-painel{background:linear-gradient(160deg,rgba(18,2,14,.94),rgba(4,2,12,.94));border:1px solid rgba(255,110,199,.28);padding:9px 13px;backdrop-filter:blur(14px);border-radius:3px;box-shadow:0 6px 26px rgba(120,0,80,.25),inset 0 1px 0 rgba(255,255,255,.05);min-width:158px;}
 .hud-p2-nome{font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.2em;color:var(--p2);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
 .hud-p2-nome::before{content:'●';color:#ff6ec7;animation:p2pulse 1.6s ease-in-out infinite;}
@@ -226,7 +231,7 @@ span.pc-only,span.mobile-only{display:inline;}
 @keyframes manausGlow{0%,100%{box-shadow:0 0 8px rgba(200,144,16,.3)}50%{box-shadow:0 0 20px rgba(200,144,16,.7),0 0 40px rgba(255,220,80,.2)}}
 
 /* ══ BÚSSOLA ══ */
-#bussola{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:200;display:none;}
+#bussola{position:fixed;top:calc(12px + var(--safe-top));left:50%;transform:translateX(-50%);z-index:200;display:none;}
 .buss-inner{font-family:'Share Tech Mono',monospace;font-size:.55rem;letter-spacing:3px;background:var(--bg-h);border:1px solid var(--bd-h);padding:4px 14px;color:rgba(180,200,170,.6);backdrop-filter:blur(4px);border-radius:2px;}
 .buss-dir{color:var(--vn);}
 
@@ -415,8 +420,10 @@ span.pc-only,span.mobile-only{display:inline;}
 .touch-btn.lanterna-btn{border-color:rgba(255,180,40,.4);color:#ffc040;}
 .touch-btn.secundario{width:48px;height:48px;font-size:1.05rem;opacity:.9;}
 .touch-row{display:flex;gap:10px;align-items:center;}
-#btn-touch-pausa{position:absolute;top:10px;right:10px;width:42px;height:42px;border-radius:8px;background:rgba(2,8,2,.7);border:1px solid rgba(0,255,127,.25);color:rgba(220,236,212,.8);font-size:1.1rem;pointer-events:all;touch-action:none;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+#btn-touch-pausa{position:absolute;top:calc(10px + var(--safe-top));right:calc(10px + var(--safe-right));width:42px;height:42px;border-radius:8px;background:rgba(2,8,2,.7);border:1px solid rgba(0,255,127,.25);color:rgba(220,236,212,.8);font-size:1.1rem;pointer-events:all;touch-action:none;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
 #btn-touch-pausa:active{background:rgba(0,255,127,.15);}
+#joystick-base{bottom:calc(28px + var(--safe-bottom));left:calc(24px + var(--safe-left));}
+#acoes-touch{padding:0 calc(16px + var(--safe-right)) calc(24px + var(--safe-bottom)) 0;}
 
 /* Media queries — ajustes para celular */
 @media (max-width:900px),(pointer:coarse){
@@ -437,9 +444,9 @@ span.pc-only,span.mobile-only{display:inline;}
   #acoes-wrap{gap:6px;}
   #bussola{top:8px;}
   .buss-inner{font-size:.48rem;padding:3px 10px;}
-  .hud-esq{top:8px;left:8px;}
-  .hud-dir{top:8px;right:8px;}
-  #hud-p2{top:8px;right:8px;}
+  .hud-esq{top:calc(8px + var(--safe-top));left:calc(8px + var(--safe-left));}
+  .hud-dir{top:calc(8px + var(--safe-top));right:calc(8px + var(--safe-right));}
+  #hud-p2{top:calc(8px + var(--safe-top));right:calc(8px + var(--safe-right));}
   .titulo-principal{font-size:clamp(2.2rem,12vw,5rem);}
   .titulo-controles{grid-template-columns:1fr;gap:.8rem;max-width:90vw;}
   .modo-grid{grid-template-columns:1fr;max-width:320px;}
@@ -456,12 +463,12 @@ span.pc-only,span.mobile-only{display:inline;}
   #lanterna-hud{bottom:calc(38% + 4px + 52px + 108px);left:8px;}
 }
 @media (max-width:480px){
-  #joystick-base{width:96px;height:96px;left:16px;bottom:20px;}
+  #joystick-base{width:96px;height:96px;left:calc(16px + var(--safe-left));bottom:calc(20px + var(--safe-bottom));}
   #joystick-stick{width:42px;height:42px;}
   .touch-btn{width:52px;height:52px;font-size:1.2rem;}
   .touch-btn.acao-principal{width:60px;height:60px;}
   .touch-btn.secundario{width:44px;height:44px;font-size:.95rem;}
-  #acoes-touch{padding:0 10px 18px 0;gap:8px;}
+  #acoes-touch{padding:0 calc(10px + var(--safe-right)) calc(18px + var(--safe-bottom)) 0;gap:8px;}
   .barra-row{gap:5px;margin-bottom:3px;}
   #mini-mapa{width:80px;height:80px;}
 }
@@ -720,6 +727,7 @@ span.pc-only,span.mobile-only{display:inline;}
       <button class="pausa-btn" onclick="fecharPausa()"><span class="pc-only">▶ Continuar [ESC]</span><span class="mobile-only">▶ Continuar</span></button>
       <button class="pausa-btn" onclick="abrirCraftFromPausa()"><span class="pc-only">⚒ Crafting [C]</span><span class="mobile-only">⚒ Crafting</span></button>
       <button class="pausa-btn" onclick="abrirDiarioFromPausa()"><span class="pc-only">📖 Diário [J]</span><span class="mobile-only">📖 Diário</span></button>
+      <button class="pausa-btn" id="btn-mute" onclick="toggleSom()">🔊 Som: Ligado</button>
       <button class="pausa-btn danger" onclick="voltarMenuFromPausa()">🏠 Menu Principal</button>
     </div>
   </div>
@@ -983,7 +991,16 @@ function fecharRanking(){sfx.botao();document.getElementById('tela-ranking').sty
 //  AUDIO ENGINE
 // ══════════════════════════════════════════════════════════
 let audioCtx=null,masterGain=null,ambiPlaying=false,ambiNodes={},ambiInterval=null;
-function initAudio(){if(audioCtx)return;try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=.65;masterGain.connect(audioCtx.destination);}catch(e){audioCtx=null;}}
+let audioMuted=false;
+function initAudio(){if(audioCtx)return;try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=audioMuted?0:.65;masterGain.connect(audioCtx.destination);}catch(e){audioCtx=null;}}
+function toggleSom(){
+  audioMuted=!audioMuted;
+  if(masterGain)masterGain.gain.value=audioMuted?0:.65;
+  const btn=document.getElementById('btn-mute');
+  if(btn)btn.textContent=audioMuted?'🔇 Som: Mudo':'🔊 Som: Ligado';
+  if(!audioMuted)try{sfx.botao();}catch(e){}
+}
+function vibrar(ms){try{if(navigator.vibrate)navigator.vibrate(ms||30);}catch(e){}}
 function playTone(freq,type,dur,vol,atk=.01,dec=.05,sd=0){if(!audioCtx)return;const t=audioCtx.currentTime+sd,o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(masterGain);o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+atk);g.gain.exponentialRampToValueAtTime(.001,t+dur-dec);o.start(t);o.stop(t+dur);}
 function makeNoise(dur,ffreq,vol,type='lowpass',sd=0){if(!audioCtx)return;const buf=audioCtx.createBuffer(1,Math.floor(audioCtx.sampleRate*dur),audioCtx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;const s=audioCtx.createBufferSource(),f=audioCtx.createBiquadFilter(),g=audioCtx.createGain();s.buffer=buf;f.type=type;f.frequency.value=ffreq;s.connect(f);f.connect(g);g.connect(masterGain);const t=audioCtx.currentTime+sd;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+dur-.05);s.start(t);s.stop(t+dur);}
 const sfx={
@@ -1172,6 +1189,8 @@ function abrirPausa(){
     <div class="pausa-info-row"><span>Inimigos</span><span class="pausa-info-val">${E.inimigosVencidos}</span></div>
     <div class="pausa-info-row"><span>Conquistas</span><span class="pausa-info-val">${conquistasObtidas.size}/${CONQUISTAS_DEF.length}</span></div>
   `;
+  const muteBtn=document.getElementById('btn-mute');
+  if(muteBtn)muteBtn.textContent=audioMuted?'🔇 Som: Mudo':'🔊 Som: Ligado';
   document.getElementById('tela-pausa').classList.add('aberto');
 }
 function fecharPausa(){pausado=false;sfx.pausa();document.getElementById('tela-pausa').classList.remove('aberto');tsAnt=performance.now();animID=requestAnimationFrame(loop);}
@@ -1292,8 +1311,10 @@ function iniciarJogo(is2P){
   mostrarControlesTouch(true);
   atualizarAcoes();
   const hudNome=document.getElementById('jogador-nome-hud');if(hudNome)hudNome.textContent=jogadorNome?('👤 '+jogadorNome):'';
-  msg(modo2P?(isMobile?"👥 Modo 2P no celular: use o joystick para P1. P2 precisa de teclado (setas).":"👥 Modo 2 Jogadores! Tela dividida — cada um com sua câmera. P1: WASD | P2: Setas. [B] revive P1."):(isMobile?"Você acorda na floresta. Use o joystick para andar e os botões à direita para agir.":"Você acorda na floresta amazônica. Encontre as 10 lendas para desbloquear Manaus!"));
+  msg(modo2P?(isMobile?"👥 Modo 2P: joystick = P1. P2 precisa de teclado (setas). Toque ✋ para agir.":"👥 Modo 2 Jogadores! Tela dividida — cada um com sua câmera. P1: WASD | P2: Setas. [B] revive P1."):(isMobile?"🌿 Você acorda na floresta. Joystick para andar · ✋ para agir · 🔦 lanterna · encontre as 10 lendas!":"Você acorda na floresta amazônica. Encontre as 10 lendas para desbloquear Manaus!"));
   addDiario("Acordei. Floresta. Não sei como cheguei aqui. Preciso encontrar as lendas."+(modo2P?" Não estou sozinho.":""));
+  // Início um pouco mais gentil no 1º dia
+  if(!continuarFlag){E.fome=100;E.sede=100;E.energia=100;E.sanidade=100;E.vida=100;}
   if(continuarFlag){continuarFlag=false;carregarProgresso();}
   if(animID)cancelAnimationFrame(animID);
   animID=requestAnimationFrame(loop);
@@ -1721,6 +1742,7 @@ function coletarItem(item,jogador){
   jogador=jogador||E;
   const p2Prefix=jogador===E2?'P2: ':'';
   toast(item.emoji+' '+item.nome);
+  vibrar(25);
   if(item.ef==='sede'||item.tipo==='agua')sfx.beber();else sfx.coletar();
   switch(item.ef){
     case 'fome':jogador.fome=Math.min(100,jogador.fome+item.val);break;
@@ -1747,6 +1769,7 @@ function addInv(nome,emoji,tipo,qtd=1){const ex=E.inv.find(i=>i.nome===nome);if(
 function danoJogador(jogador,qtd){
   jogador.vida=Math.max(0,jogador.vida-qtd);
   sfx.dano();
+  vibrar(qtd>15?[40,40,60]:40);
   if(jogador===E){
     const fl=document.getElementById('dmg-flash');fl.style.opacity='1';setTimeout(()=>fl.style.opacity='0',180);
     const cv=document.getElementById('canvas-mundo');if(cv){cv.style.transition='none';cv.style.transform=`translate(${(Math.random()-.5)*10}px,${(Math.random()-.5)*10}px)`;setTimeout(()=>{cv.style.transition='transform .12s ease-out';cv.style.transform='translate(0,0)';},90);}
@@ -1758,7 +1781,7 @@ function dano(qtd){danoJogador(E,qtd);}
 //  STATS / DIA / CLIMA
 // ══════════════════════════════════════════════════════════
 function atualizarStats(dt){
-  const mult=clima==='chuva'?1.25:1;
+  const mult=(clima==='chuva'?1.25:1)*(diaNum<=1?0.72:1); // 1º dia um pouco mais gentil
   E.fome=Math.max(0,E.fome-dt*.32*mult);E.sede=Math.max(0,E.sede-dt*.48*mult);
   const noite=perIdx===0||perIdx===4,tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)],naAgua=tile&&(tile.tipo===T.AGUA||tile.tipo===T.LIRIO);
   E.temperatura+=((E.temFogo?38:noite?34.5:naAgua?34:37)-E.temperatura)*dt*.08;
@@ -1776,6 +1799,18 @@ function atualizarStats(dt){
   if(E.sanidade<40){const s=(40-E.sanidade)/40;document.getElementById('overlay-sanidade').style.opacity=String(s*.5);document.getElementById('overlay-sanidade').style.background=`radial-gradient(ellipse at center,transparent 20%,rgba(${Math.floor(60*s)},0,${Math.floor(80*s)},${s*.6}) 100%)`;if(Math.random()<.003)msg("👁 Você vê formas se movendo nas sombras...");}
   else document.getElementById('overlay-sanidade').style.opacity='0';
   document.getElementById('overlay-morte').style.opacity=E.vida<28?String((28-E.vida)/28*.9):'0';
+  // Alerta visual quando status crítico
+  const critico=E.vida<18||E.fome<12||E.sede<12||E.sanidade<15;
+  document.body.classList.toggle('critico-alerta',critico);
+  if(critico&&!window._alertaCriticoFeito){
+    window._alertaCriticoFeito=true;
+    if(E.sede<12)msg('⚠ Sede crítica! Encontre água.');
+    else if(E.fome<12)msg('⚠ Fome crítica! Procure comida.');
+    else if(E.vida<18)msg('⚠ Vida baixa! Descanse ou cure-se.');
+    else if(E.sanidade<15)msg('⚠ Sanidade baixa! Acenda uma luz.');
+    vibrar([50,30,50]);
+  }
+  if(!critico)window._alertaCriticoFeito=false;
 }
 function mostrarNotifDia(dN,perN){
   clearTimeout(notifDiaTmr);const el=document.getElementById('notif-dia');
@@ -1872,6 +1907,7 @@ function atualizarAcoes(){
   const div=document.getElementById('acoes-wrap');div.innerHTML='';
   const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];const noite=perIdx===0||perIdx===4;
   const btn=(label,fn,cls='')=>{const b=document.createElement('button');b.className='btn-ac'+(cls?' '+cls:'');b.textContent=label;b.onclick=()=>{sfx.botao();fn();};div.appendChild(b);return b;};
+  // Ações contextuais (sempre úteis)
   if(tile?.tipo===T.AGUA||tile?.tipo===T.LIRIO)btn('💧 Beber',beberAgua);
   if(tile?.tipo===T.FRUTAS||tile?.tipo===T.COGUMELO)btn('🍊 Colher',colherFrutas);
   if(tile?.tipo===T.ABRIGO)btn('🏕 Descansar',descansar);
@@ -1882,18 +1918,23 @@ function atualizarAcoes(){
   if(tile?.tipo===T.GRUTA)btn('🕯 Gruta',explorarGruta);
   if(tile?.tipo===T.PANTANO)btn('🌿 Plantas',()=>{addInv('Erva Medicinal','🌿','erva');sfx.coletar();msg("🌿 Erva!");atualizarAcoes();});
   const kF=isMobile?'':' [F]',kC=isMobile?'':' [C]',kJ=isMobile?'':' [J]',kB=isMobile?'':' [B]';
-  btn(noite?(lanterna.ativa||tocha.ativa?'🔦 Apagar'+kF:'🔦 Acender'+kF):'🔦 Lanterna'+kF,toggleLanterna,noite&&!lanterna.ativa&&!tocha.ativa?'dest':'');
-  btn('⚒ Craft'+kC,abrirCraft,'craft-btn');
-  btn('📖 Diário'+kJ,abrirDiario);
-  btn('📦 Inv',verInv);
-  // Lendas progress com indicação de recompensa
+  // No celular: Craft / Diário / Inv / Lanterna / Pausa já existem nos botões de toque — evita duplicar
+  if(!isMobile){
+    btn(noite?(lanterna.ativa||tocha.ativa?'🔦 Apagar'+kF:'🔦 Acender'+kF):'🔦 Lanterna'+kF,toggleLanterna,noite&&!lanterna.ativa&&!tocha.ativa?'dest':'');
+    btn('⚒ Craft'+kC,abrirCraft,'craft-btn');
+    btn('📖 Diário'+kJ,abrirDiario);
+    btn('📦 Inv',verInv);
+  }else if(noite&&!lanterna.ativa&&!tocha.ativa){
+    // Noite no celular: só destaca lanterna se apagada (lembrete visual)
+    btn('🔦 Acender lanterna',toggleLanterna,'dest');
+  }
   const lndLabel=E.lendas.length>=10?'🏙 MANAUS!('+E.lendas.length+'/10)':'🗺 Lendas('+E.lendas.length+'/10)';
   btn(lndLabel,verLendas,E.lendas.length>=10?'manaus-btn':'');
   if(E.veneno)btn('💊 Antídoto',usarAntidoto,'peri');
   if(modo2P&&E2&&E2.morto)btn('🆘 Reviver P2'+kB,p2Reviver,'p2-btn');
   if(modo2P&&E2&&!E2.morto&&(E2.vida<100||E2.fome<100||E2.sede<100))btn('👥 Ajudar P2',p2Curar,'p2-btn');
   btn('😴 Dormir',tentarDormir,'peri');
-  btn('⏸ Pausa',abrirPausa);
+  if(!isMobile)btn('⏸ Pausa',abrirPausa);
   const bs=document.querySelectorAll('.btn-ac');if(acaoSelIdx>=bs.length)acaoSelIdx=0;bs.forEach((b,i)=>b.classList.toggle('sel',i===acaoSelIdx));
 }
 function beberAgua(){if(E.temFiltro||Math.random()>.28){sfx.beber();E.sede=Math.min(100,E.sede+45);msg("💧 Água fresca!");}else{dano(14);msg("⚠ Água contaminada! Construa um Filtro.");}}
