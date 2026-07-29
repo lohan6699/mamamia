@@ -2384,17 +2384,17 @@ const BLOCOS={
   0:{t:'#1e5a1e',l:'#0e3a0e',r:'#1a521a',nm:'Floresta Densa',bh:16},
   1:{t:'#0a3e6a',l:'#052844',r:'#0a4a7a',nm:'Rio',bh:4},
   2:{t:'#4a8c22',l:'#2a5c14',r:'#3c7c1a',nm:'Clareira',bh:10},
-  3:{t:'#585858',l:'#343434',r:'#4c4c4c',nm:'Afloramento Rochoso',bh:22},
-  4:{t:'#1e5e1e',l:'#0e3e0e',r:'#185818',nm:'Taquaral',bh:18},
+  3:{t:'#5e5e68',l:'#383840',r:'#52525a',nm:'Afloramento Rochoso',bh:22},
+  4:{t:'#1c5820',l:'#0c3810',r:'#164c18',nm:'Taquaral',bh:18},
   5:{t:'#2e7c1a',l:'#1a5010',r:'#267014',nm:'Pomar Silvestre',bh:12},
   6:{t:'#6a4820',l:'#3e2c10',r:'#5a3e1a',nm:'Abrigo',bh:24},
   7:{t:'#6a3800',l:'#402200',r:'#5a3000',nm:'Fogueira',bh:24},
   8:{t:'#5a4014',l:'#3c2a0a',r:'#4c3810',nm:'Margem Barrenta',bh:10},
-  9:{t:'#484848',l:'#282828',r:'#3c3c3c',nm:'Penhasco',bh:28},
+  9:{t:'#464650',l:'#262630',r:'#3a3a44',nm:'Penhasco',bh:28},
   10:{t:'#2a6a18',l:'#185010',r:'#226014',nm:'Vale dos Cogumelos',bh:12},
   11:{t:'#1e5a30',l:'#103820',r:'#1a4e28',nm:'Margem com Lírios',bh:8},
   12:{t:'#1a4a0a',l:'#0e2e06',r:'#163e08',nm:'Pântano',bh:6},
-  13:{t:'#1a5c1a',l:'#0c3c0c',r:'#145014',nm:'Bambu Denso',bh:20},
+  13:{t:'#165818',l:'#0a3810',r:'#124c14',nm:'Bambu Denso',bh:20},
   14:{t:'#2a2a38',l:'#1a1a26',r:'#222230',nm:'Gruta Escura',bh:30},
 };
 const MINI_COR=['#1a4a1a','#0a3a60','#3a6a18','#484848','#1a4e1a','#266018','#5a3a18','#5a3000','#4a3410','#383838','#1e5a14','#184a28','#142a08','#145014','#1a1a28'];
@@ -3675,13 +3675,152 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
   const tv=tile.v,ta=tile.anim;
   switch(tile.tipo){
     case T.FLORESTA:{for(let i=0;i<2;i++){const cx=sx+8+((tv*47+i*22)%(TILE-16)),cy=sy+6+((tv*38+i*19)%(tH-12)),rad=9+(i%2)*3;const gs=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);gs.addColorStop(0,'#2a7a2a');gs.addColorStop(.55,'#1e5e1e');gs.addColorStop(1,'#143c14');ctx.fillStyle=gs;ctx.beginPath();ctx.arc(cx,cy,rad,0,Math.PI*2);ctx.fill();}ctx.fillStyle='#4a2e10';ctx.fillRect(sx+TILE/2-3,sy+tH-9,6,9);break;}
-    case T.BAMBU:case T.BAMBU_DENSO:{const nc=tile.tipo===T.BAMBU_DENSO?9:6;for(let i=0;i<nc;i++){const bx=sx+1+i*(TILE/nc);ctx.fillStyle=i%2?'#1e6420':'#2a8028';ctx.fillRect(bx,sy,3,tH);ctx.fillStyle='#0e4010';for(let n=1;n<4;n++)ctx.fillRect(bx-1,sy+(tH/4)*n,5,2);}break;}
+    case T.BAMBU:case T.BAMBU_DENSO:{
+      const denso=tile.tipo===T.BAMBU_DENSO;
+      const nc=denso?7:5;
+      const sway=Math.sin(tempo*1.1+ta)*.6;
+      // solo/musgo na base
+      ctx.fillStyle='rgba(20,50,12,.55)';
+      ctx.fillRect(sx+2,sy+tH-6,TILE-4,6);
+      for(let i=0;i<nc;i++){
+        const seed=((tv*73+i*41)%100)/100;
+        const bw=denso?3.2+seed*1.4:3.8+seed*1.8;
+        const bx=sx+4+i*((TILE-8)/nc)+(seed-.5)*2+sway*(i%2?1:-.6);
+        const h=tH*(.82+seed*.18);
+        const top=sy+(tH-h);
+        // haste com gradiente vertical
+        const g=ctx.createLinearGradient(bx,top,bx+bw,top);
+        g.addColorStop(0,i%2?'#1a5c1c':'#247028');
+        g.addColorStop(.45,i%2?'#2a8030':'#34a038');
+        g.addColorStop(1,i%2?'#164a18':'#1e6020');
+        ctx.fillStyle=g;
+        ctx.beginPath();
+        ctx.moveTo(bx,sy+tH);
+        ctx.lineTo(bx+sway*.3,top);
+        ctx.lineTo(bx+bw+sway*.3,top);
+        ctx.lineTo(bx+bw,sy+tH);
+        ctx.closePath();ctx.fill();
+        // nós (segmentos de bambu)
+        const segs=3+Math.floor(seed*3);
+        for(let n=1;n<=segs;n++){
+          const ny=top+(h/segs)*n;
+          ctx.fillStyle='rgba(8,40,10,.75)';
+          ctx.fillRect(bx-1+sway*.2,ny-1.2,bw+2,2.4);
+          // anel claro
+          ctx.fillStyle='rgba(120,180,90,.22)';
+          ctx.fillRect(bx+.3,ny-1.5,bw-.6,1);
+        }
+        // brilho lateral
+        ctx.fillStyle='rgba(160,220,120,.18)';
+        ctx.fillRect(bx+bw*.15,top+2,Math.max(1,bw*.25),h-4);
+        // folhas no topo (pequenos triângulos)
+        if(seed>.25){
+          const fx=bx+bw/2+sway;
+          const fy=top+1;
+          ctx.fillStyle=seed>.6?'#3cb048':'#2a9038';
+          ctx.beginPath();
+          ctx.moveTo(fx,fy);
+          ctx.lineTo(fx-5-seed*3,fy+7+seed*4);
+          ctx.lineTo(fx+1,fy+3);
+          ctx.closePath();ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(fx,fy);
+          ctx.lineTo(fx+5+seed*3,fy+6+seed*3);
+          ctx.lineTo(fx-1,fy+3);
+          ctx.closePath();ctx.fill();
+        }
+      }
+      // sombra de folhagem densa no topo
+      if(denso){
+        ctx.fillStyle='rgba(10,40,12,.25)';
+        ctx.beginPath();
+        ctx.ellipse(sx+TILE/2,sy+6,TILE*.42,8,0,0,Math.PI*2);
+        ctx.fill();
+      }
+      break;}
     case T.AGUA:{ctx.fillStyle='rgba(20,90,160,.4)';ctx.fillRect(sx,sy,TILE,tH);const wave=Math.sin(tempo*1.6+ta)*2.5;ctx.strokeStyle='rgba(140,210,255,.3)';ctx.lineWidth=1;for(let w=0;w<3;w++){ctx.beginPath();ctx.moveTo(sx+2,sy+(tH/3)*(w+.5)+wave);ctx.bezierCurveTo(sx+TILE*.28,sy+(tH/3)*(w+.5)-3+wave,sx+TILE*.68,sy+(tH/3)*(w+.5)+3-wave,sx+TILE-2,sy+(tH/3)*(w+.5)+wave*.8);ctx.stroke();}break;}
     case T.LIRIO:{ctx.fillStyle='rgba(15,70,140,.45)';ctx.fillRect(sx,sy,TILE,tH);const wv=Math.sin(tempo*1.4+ta)*2;for(let f=0;f<2;f++){const fx=sx+10+f*25,fy=sy+tH*.35+f*12+wv*(f?-1:1);ctx.fillStyle='#26a070';ctx.beginPath();ctx.ellipse(fx,fy,10,6,f*.3,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ff8888';ctx.beginPath();ctx.arc(fx,fy,3,0,Math.PI*2);ctx.fill();}break;}
     case T.PANTANO:{ctx.fillStyle='rgba(10,30,5,.5)';ctx.fillRect(sx,sy,TILE,tH);break;}
     case T.GRUTA:{ctx.fillStyle='rgba(0,0,0,.7)';ctx.fillRect(sx,sy,TILE,tH);break;}
     case T.CLAREIRA:{const gg=ctx.createLinearGradient(sx,sy,sx,sy+tH);gg.addColorStop(0,'rgba(120,200,70,.15)');gg.addColorStop(1,'rgba(80,150,40,.08)');ctx.fillStyle=gg;ctx.fillRect(sx,sy,TILE,tH);for(let g=0;g<8;g++){const gx=sx+3+((tv*65+g*9)%(TILE-6));ctx.fillStyle=g%2?'#4aaa28':'#3a9420';ctx.fillRect(gx,sy+tH-6,2,6);}break;}
-    case T.PEDRA:case T.PENHASCO:{ctx.fillStyle='#585858';ctx.fillRect(sx+2,sy+2,TILE-4,tH-4);ctx.fillStyle='#484848';ctx.fillRect(sx+4,sy+6,TILE-8,tH-10);ctx.strokeStyle='rgba(0,0,0,.45)';ctx.lineWidth=1.2;const rx=sx+6+((tv*33)%(TILE-12));ctx.beginPath();ctx.moveTo(rx,sy+5);ctx.lineTo(rx+2,sy+tH-7);ctx.stroke();if(Math.random()<.6){const rx2=sx+10+((tv*47)%(TILE-14));ctx.beginPath();ctx.moveTo(rx2,sy+8);ctx.lineTo(rx2-1.5,sy+tH-5);ctx.stroke();}break;}
+    case T.PEDRA:case T.PENHASCO:{
+      const pen=tile.tipo===T.PENHASCO;
+      const seed=tv||1;
+      // base rochosa com gradiente
+      const rg=ctx.createLinearGradient(sx,sy,sx+TILE,sy+tH);
+      rg.addColorStop(0,pen?'#3a3a42':'#5a5a62');
+      rg.addColorStop(.4,pen?'#4a4a52':'#6a6a70');
+      rg.addColorStop(1,pen?'#2e2e36':'#4e4e56');
+      ctx.fillStyle=rg;
+      // silhueta irregular de rocha
+      ctx.beginPath();
+      const pts=[
+        [sx+3+((seed*17)%5),sy+4],
+        [sx+TILE*.35+((seed*23)%4),sy+1+((seed*11)%3)],
+        [sx+TILE*.65-((seed*19)%4),sy+2],
+        [sx+TILE-4-((seed*13)%3),sy+5+((seed*7)%3)],
+        [sx+TILE-3,sy+tH*.45],
+        [sx+TILE-5,sy+tH-3],
+        [sx+TILE*.55,sy+tH-1],
+        [sx+4+((seed*29)%4),sy+tH-4],
+        [sx+2,sy+tH*.55]
+      ];
+      ctx.moveTo(pts[0][0],pts[0][1]);
+      for(let p=1;p<pts.length;p++)ctx.lineTo(pts[p][0],pts[p][1]);
+      ctx.closePath();ctx.fill();
+      // face clara (luz)
+      ctx.fillStyle=pen?'rgba(90,90,100,.35)':'rgba(130,130,138,.4)';
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0],pts[0][1]);
+      ctx.lineTo(pts[1][0],pts[1][1]);
+      ctx.lineTo(pts[2][0],pts[2][1]);
+      ctx.lineTo(pts[3][0],pts[3][1]);
+      ctx.lineTo(sx+TILE*.7,sy+tH*.4);
+      ctx.lineTo(sx+TILE*.3,sy+tH*.35);
+      ctx.closePath();ctx.fill();
+      // fissuras determinísticas
+      ctx.strokeStyle='rgba(0,0,0,.5)';
+      ctx.lineWidth=1.1;
+      const cracks=[
+        [sx+8+((seed*31)%12),sy+8,sx+10+((seed*17)%8),sy+tH*.55],
+        [sx+TILE*.45,sy+6+((seed*13)%5),sx+TILE*.4-((seed*11)%6),sy+tH*.7],
+        [sx+TILE*.72-((seed*19)%5),sy+10,sx+TILE*.78,sy+tH*.5]
+      ];
+      cracks.forEach(([x1,y1,x2,y2],ci)=>{
+        if(ci>1&&!pen&&((seed*7+ci)%3===0))return;
+        ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+        // ramificação
+        ctx.beginPath();ctx.moveTo((x1+x2)/2,(y1+y2)/2);
+        ctx.lineTo((x1+x2)/2+4-((seed*ci*9)%8),(y1+y2)/2+6);ctx.stroke();
+      });
+      // musgo / líquens nas fendas
+      for(let m=0;m<4;m++){
+        const mx=sx+6+((seed*41+m*19)%(TILE-14));
+        const my=sy+tH*.35+((seed*23+m*17)%(tH*.4));
+        ctx.fillStyle=m%2?'rgba(40,90,30,.45)':'rgba(50,110,40,.35)';
+        ctx.beginPath();ctx.ellipse(mx,my,3+m%2,2,0,0,Math.PI*2);ctx.fill();
+      }
+      // highlight de aresta
+      ctx.strokeStyle='rgba(180,180,190,.22)';
+      ctx.lineWidth=1.2;
+      ctx.beginPath();
+      ctx.moveTo(pts[0][0],pts[0][1]);
+      ctx.lineTo(pts[1][0],pts[1][1]);
+      ctx.lineTo(pts[2][0],pts[2][1]);
+      ctx.stroke();
+      // pedregulhos pequenos na base
+      ctx.fillStyle='#3a3a40';
+      for(let r=0;r<3;r++){
+        const rx=sx+5+((seed*37+r*29)%(TILE-16));
+        const ry=sy+tH-5-((seed*11+r)%3);
+        ctx.beginPath();ctx.ellipse(rx,ry,3+r%2,2,0,0,Math.PI*2);ctx.fill();
+      }
+      if(pen){
+        // sombra vertical extra (altura do penhasco)
+        ctx.fillStyle='rgba(0,0,0,.25)';
+        ctx.fillRect(sx+2,sy+tH*.2,4,tH*.7);
+      }
+      break;}
     case T.FRUTAS:{ctx.font='13px serif';ctx.textAlign='center';ctx.textBaseline='middle';const sh=Math.sin(tempo*1.8+ta)*1.8;ctx.fillText('🍊',sx+TILE*.28,sy+tH-11);ctx.fillText('🍊',sx+TILE*.72,sy+tH-13);ctx.fillText('🍋',sx+TILE/2,sy+tH-8+sh);break;}
     case T.COGUMELO:{ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';const mb=Math.sin(tempo*1.2+ta)*1.5;ctx.fillText('🍄',sx+TILE/2,sy+tH/2-4+mb);break;}
     case T.ABRIGO:{const tg=ctx.createLinearGradient(sx,sy,sx,sy+tH*.7);tg.addColorStop(0,'#8b6832');tg.addColorStop(1,'#5a4020');ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(sx+TILE/2,sy+4);ctx.lineTo(sx+TILE-3,sy+tH-6);ctx.lineTo(sx+3,sy+tH-6);ctx.closePath();ctx.fill();ctx.fillStyle='#2e1a08';ctx.fillRect(sx+TILE/2-5,sy+tH-14,10,14);break;}
