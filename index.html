@@ -58,6 +58,17 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
 .v-badge{position:absolute;bottom:1.2rem;right:1.5rem;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(255,255,255,.18);letter-spacing:2px;}
 .v-badge::after{content:' • v9.4 + MANAUS (split-screen 2P)';font-size:.42rem;opacity:.8;color:#ffaa00;}
 
+/* Controles adaptativos: PC vs Celular */
+.pc-only{display:block;}
+.mobile-only{display:none;}
+span.pc-only,span.mobile-only{display:inline;}
+@media (max-width:900px),(pointer:coarse){
+  .pc-only{display:none!important;}
+  .mobile-only{display:block!important;}
+  span.pc-only{display:none!important;}
+  span.mobile-only{display:inline!important;}
+}
+
 /* ══ MODO SELEÇÃO ══ */
 #tela-modo{position:fixed;inset:0;z-index:1500;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.95);backdrop-filter:blur(12px);}
 .modo-titulo{font-family:'Cinzel Decorative',serif;font-size:1.3rem;color:var(--dol);letter-spacing:.2em;margin-bottom:.5rem;}
@@ -503,7 +514,8 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
     <p class="intro-tagline">A floresta não é apenas árvores e rios.<br>Ela é consciência. Ela sente. Ela julga.</p>
     <div class="intro-bar"><div class="intro-bar-fill" id="intro-bar-fill"></div></div>
     <div class="intro-status" id="intro-status">Iniciando...</div>
-    <div class="intro-press" id="intro-press">▶ Pressione qualquer tecla para entrar</div>
+    <div class="intro-press pc-only" id="intro-press">▶ Pressione qualquer tecla para entrar</div>
+    <div class="intro-press mobile-only" id="intro-press-mobile">▶ Toque na tela para entrar</div>
   </div>
 </div>
 
@@ -515,7 +527,8 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
     <div class="titulo-principal">AMAZÔNIA</div>
     <div class="titulo-ornamento"><div class="orn-linha"></div><span>🌿</span><div class="orn-linha"></div></div>
     <p class="titulo-descricao">A floresta não é apenas árvores e rios.<br>Ela é consciência. Ela sente. Ela julga.<br>Descubra as 10 lendas. Sobreviva à noite.<br><span style="color:var(--dou);font-size:.9em">Encontre todas as lendas e descubra Manaus.</span></p>
-    <div class="titulo-controles">
+    <!-- Controles PC -->
+    <div class="titulo-controles pc-only">
       <div class="ctrl-col">
         <div class="ctrl-head">⌨ Jogador 1</div>
         <div class="ctrl-row"><span class="k">WASD</span> mover</div>
@@ -532,6 +545,26 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
         <div class="ctrl-row"><span class="k">N</span> lanterna P2</div>
         <div class="ctrl-row"><span class="k">B</span> reviver P2</div>
         <div class="ctrl-row" style="margin-top:4px;color:rgba(255,110,199,.7)">Modo 2P: tela dividida, cada um com sua câmera</div>
+      </div>
+      <div class="ctrl-col">
+        <div class="ctrl-head">🎯 Mecânicas</div>
+        <div class="ctrl-row">Crafting avançado</div>
+        <div class="ctrl-row">10 lendas únicas</div>
+        <div class="ctrl-row">Modo 2 Jogadores</div>
+        <div class="ctrl-row" style="color:var(--dou)">🏙 Cidade de Manaus</div>
+        <div class="ctrl-row">Final gerado por IA</div>
+        <div class="ctrl-row">Diário de bordo</div>
+      </div>
+    </div>
+    <!-- Controles Celular / Touch -->
+    <div class="titulo-controles mobile-only">
+      <div class="ctrl-col">
+        <div class="ctrl-head">📱 Controles Touch</div>
+        <div class="ctrl-row">🕹️ Joystick — mover</div>
+        <div class="ctrl-row">✋ Botão direito — ação</div>
+        <div class="ctrl-row">🔦 Lanterna · ⚒ Craft</div>
+        <div class="ctrl-row">🎒 Inventário · 📖 Diário</div>
+        <div class="ctrl-row">⏸ Pausa (canto superior)</div>
       </div>
       <div class="ctrl-col">
         <div class="ctrl-head">🎯 Mecânicas</div>
@@ -564,12 +597,14 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
     <div class="modo-card" onclick="iniciarJogo(false)">
       <div class="modo-card-ico">🧭</div>
       <div class="modo-card-nome">Solo</div>
-      <div class="modo-card-desc">Um explorador solitário.<br>WASD para mover.<br>Toda a glória e todo o perigo são seus.</div>
+      <div class="modo-card-desc pc-only">Um explorador solitário.<br>WASD para mover.<br>Toda a glória e todo o perigo são seus.</div>
+      <div class="modo-card-desc mobile-only">Um explorador solitário.<br>Joystick para mover.<br>Toda a glória e todo o perigo são seus.</div>
     </div>
     <div class="modo-card p2" onclick="iniciarJogo(true)">
       <div class="modo-card-ico">👥</div>
       <div class="modo-card-nome">2 Jogadores</div>
-      <div class="modo-card-desc">P1: WASD &nbsp;|&nbsp; P2: Setas<br>Tela dividida — cada um com sua própria câmera.<br>P2 pode reviver P1 (tecla B).</div>
+      <div class="modo-card-desc pc-only">P1: WASD &nbsp;|&nbsp; P2: Setas<br>Tela dividida — cada um com sua própria câmera.<br>P2 pode reviver P1 (tecla B).</div>
+      <div class="modo-card-desc mobile-only">P1: joystick &nbsp;|&nbsp; P2: precisa de teclado<br>Tela dividida — cada um com sua câmera.<br>Toque no botão para reviver (ou tecla B).</div>
     </div>
   </div>
   <button class="modo-voltar" onclick="voltarTitulo()">← Voltar ao menu</button>
@@ -682,9 +717,9 @@ body{background:#020802;color:#dcecd4;font-family:'Cormorant Garamond',Georgia,s
     <div class="pausa-info" id="pausa-info"></div>
     <div class="pausa-separator"></div>
     <div class="pausa-btns">
-      <button class="pausa-btn" onclick="fecharPausa()">▶ Continuar [ESC]</button>
-      <button class="pausa-btn" onclick="abrirCraftFromPausa()">⚒ Crafting [C]</button>
-      <button class="pausa-btn" onclick="abrirDiarioFromPausa()">📖 Diário [J]</button>
+      <button class="pausa-btn" onclick="fecharPausa()"><span class="pc-only">▶ Continuar [ESC]</span><span class="mobile-only">▶ Continuar</span></button>
+      <button class="pausa-btn" onclick="abrirCraftFromPausa()"><span class="pc-only">⚒ Crafting [C]</span><span class="mobile-only">⚒ Crafting</span></button>
+      <button class="pausa-btn" onclick="abrirDiarioFromPausa()"><span class="pc-only">📖 Diário [J]</span><span class="mobile-only">📖 Diário</span></button>
       <button class="pausa-btn danger" onclick="voltarMenuFromPausa()">🏠 Menu Principal</button>
     </div>
   </div>
@@ -1149,7 +1184,7 @@ function voltarMenuFromPausa(){pausado=false;document.getElementById('tela-pausa
 // ══════════════════════════════════════════════════════════
 (function(){
   const el=document.getElementById('tela-intro'),cv=document.getElementById('intro-canvas'),ctx=cv.getContext('2d');
-  const fill=document.getElementById('intro-bar-fill'),statusEl=document.getElementById('intro-status'),press=document.getElementById('intro-press');
+  const fill=document.getElementById('intro-bar-fill'),statusEl=document.getElementById('intro-status'),press=document.getElementById('intro-press'),pressM=document.getElementById('intro-press-mobile');
   function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}resize();window.addEventListener('resize',resize);
   const steps=[{label:'Carregando floresta...',delay:400},{label:'Gerando rios e fauna...',delay:350},{label:'Invocando as 10 lendas...',delay:500},{label:'Preparando Manaus...',delay:350},{label:'Gerando guerra da Cabanagem...',delay:380},{label:'A floresta desperta...',delay:400},{label:'Pronto.',delay:200}];
   const ps=[];for(let i=0;i<65;i++)ps.push({x:Math.random(),y:Math.random()+.4,sp:.0003+Math.random()*.0005,dr:(Math.random()-.5)*.00008,sz:1+Math.random()*3,op:.2+Math.random()*.7,col:Math.random()<.5?'#00ff88':'#e8c040',ph:Math.random()*Math.PI*2});
@@ -1159,7 +1194,7 @@ function voltarMenuFromPausa(){pausado=false;document.getElementById('tela-pausa
   ps.forEach(p=>{p.y-=p.sp;p.x+=p.dr;p.ph+=.002;if(p.y<-.06){p.y=1.1;p.x=Math.random();}const fade=Math.min(1,(1.05-p.y)*8)*Math.min(1,p.y*12),blink=.7+Math.sin(p.ph)*.3;ctx.save();ctx.globalAlpha=p.op*fade*blink;ctx.fillStyle=p.col;ctx.shadowColor=p.col;ctx.shadowBlur=p.sz*4;ctx.beginPath();ctx.arc(p.x*cv.width,p.y*cv.height,p.sz,0,Math.PI*2);ctx.fill();ctx.restore();});
   const ng=ctx.createRadialGradient(cv.width*.5+Math.sin(nebOff)*cv.width*.1,cv.height*.5,0,cv.width/2,cv.height/2,cv.width*.65);ng.addColorStop(0,'rgba(4,28,8,0)');ng.addColorStop(.3,'rgba(4,28,8,.5)');ng.addColorStop(.7,'rgba(2,14,4,.75)');ng.addColorStop(1,'rgba(0,0,0,1)');ctx.fillStyle=ng;ctx.fillRect(0,0,cv.width,cv.height);requestAnimationFrame(frame);}
   requestAnimationFrame(frame);
-  function nextStep(){if(stepIdx>=steps.length){fill.style.width='100%';statusEl.textContent='';press.style.display='block';ready=true;return;}const s=steps[stepIdx++],target=(stepIdx/steps.length)*100,start=pct,t0=Date.now();statusEl.textContent=s.label;function anim(){const prog=Math.min((Date.now()-t0)/s.delay,1);pct=start+(target-start)*prog;fill.style.width=pct+'%';if(prog<1)requestAnimationFrame(anim);else setTimeout(nextStep,80);}requestAnimationFrame(anim);}
+  function nextStep(){if(stepIdx>=steps.length){fill.style.width='100%';statusEl.textContent='';if(press)press.style.display='block';if(pressM)pressM.style.display='block';ready=true;return;}const s=steps[stepIdx++],target=(stepIdx/steps.length)*100,start=pct,t0=Date.now();statusEl.textContent=s.label;function anim(){const prog=Math.min((Date.now()-t0)/s.delay,1);pct=start+(target-start)*prog;fill.style.width=pct+'%';if(prog<1)requestAnimationFrame(anim);else setTimeout(nextStep,80);}requestAnimationFrame(anim);}
   setTimeout(nextStep,600);
   function entrar(){if(!ready)return;initAudio();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();sfx.botao();
   el.style.transition='opacity .6s';el.style.opacity='0';
@@ -1523,7 +1558,7 @@ function moverP2(dt){
   if(E2.fome<12)E2.vida=Math.max(0,E2.vida-dt*.65);
   if(E2.sede<12)E2.vida=Math.max(0,E2.vida-dt*1.1);
   if(E2.veneno){E2.venCD=(E2.venCD||0)-dt;if(E2.venCD<=0){E2.venCD=1.5;danoJogador(E2,7);msg("☠ P2: o veneno corrói...");}}
-  if(E2.vida<=0&&!E2.morto){E2.morto=true;msg("💀 P2 caiu! Aproxime-se e pressione [B] para reviver.");}
+  if(E2.vida<=0&&!E2.morto){E2.morto=true;msg(isMobile?"💀 P2 caiu! Aproxime-se e toque em Reviver P2.":"💀 P2 caiu! Aproxime-se e pressione [B] para reviver.");}
 }
 function toggleLanterna2(){if(!E2||E2.morto)return;lanterna2.ativa=!lanterna2.ativa;if(lanterna2.ativa)sfx.lantOn();else sfx.lantOff();}
 function p2Interagir(){
@@ -1665,11 +1700,11 @@ function verificarInimigos(dt){
       if(E2.arma==='arma_machado')dmg2=Math.max(0,dmg2-18);if(E2.arma==='arma_faca')dmg2=Math.max(0,dmg2-10);
       if(E2.veneno_def){dmg2=Math.floor(dmg2*.5);if(Math.random()<.3)ini.vidaAtual-=15;}
       danoJogador(E2,dmg2);
-      if(ini.veneno&&!E2.veneno&&Math.random()<.55){E2.veneno=true;msg("🐍 P2 envenenado! Use [M].");}else msg("⚔ "+ini.nome+" atacou P2! −"+dmg2);
+      if(ini.veneno&&!E2.veneno&&Math.random()<.55){E2.veneno=true;msg(isMobile?"🐍 P2 envenenado! Use o botão de ação.":"🐍 P2 envenenado! Use [M].");}else msg("⚔ "+ini.nome+" atacou P2! −"+dmg2);
       if(ini.tipo==='cobra')sfx.cobra();else if(ini.tipo==='onca')sfx.onca();else sfx.dano();
       const atqDmg2=(E2.armaDano||10)+(E2.arma&&E2.arma!=='mãos'?15:0);
       ini.vidaAtual-=atqDmg2;
-      if(E2.vida<=0&&!E2.morto){E2.morto=true;msg("💀 P2 caiu! Pressione [B] próximo a ele para reviver.");}
+      if(E2.vida<=0&&!E2.morto){E2.morto=true;msg(isMobile?"💀 P2 caiu! Aproxime-se e toque em Reviver P2.":"💀 P2 caiu! Pressione [B] próximo a ele para reviver.");}
       if(ini.vidaAtual<=0&&!ini.morto){ini.morto=true;E.inimigosVencidos++;sfx.combate();addParticle(ini.x,ini.y,'#ff6ec7',12);toast("⚔ "+ini.nome+" derrotado por P2!");if(ini.drop){E.inv.push({...ini.drop});sfx.coletar();}}
     }
   }});
@@ -1846,15 +1881,16 @@ function atualizarAcoes(){
   if(tile?.tipo===T.CLAREIRA||tile?.tipo===T.TERRA)btn('⛺ Abrigo',montarAbrigo);
   if(tile?.tipo===T.GRUTA)btn('🕯 Gruta',explorarGruta);
   if(tile?.tipo===T.PANTANO)btn('🌿 Plantas',()=>{addInv('Erva Medicinal','🌿','erva');sfx.coletar();msg("🌿 Erva!");atualizarAcoes();});
-  btn(noite?(lanterna.ativa||tocha.ativa?'🔦 Apagar [F]':'🔦 Acender [F]'):'🔦 Lanterna [F]',toggleLanterna,noite&&!lanterna.ativa&&!tocha.ativa?'dest':'');
-  btn('⚒ Craft [C]',abrirCraft,'craft-btn');
-  btn('📖 Diário [J]',abrirDiario);
+  const kF=isMobile?'':' [F]',kC=isMobile?'':' [C]',kJ=isMobile?'':' [J]',kB=isMobile?'':' [B]';
+  btn(noite?(lanterna.ativa||tocha.ativa?'🔦 Apagar'+kF:'🔦 Acender'+kF):'🔦 Lanterna'+kF,toggleLanterna,noite&&!lanterna.ativa&&!tocha.ativa?'dest':'');
+  btn('⚒ Craft'+kC,abrirCraft,'craft-btn');
+  btn('📖 Diário'+kJ,abrirDiario);
   btn('📦 Inv',verInv);
   // Lendas progress com indicação de recompensa
   const lndLabel=E.lendas.length>=10?'🏙 MANAUS!('+E.lendas.length+'/10)':'🗺 Lendas('+E.lendas.length+'/10)';
   btn(lndLabel,verLendas,E.lendas.length>=10?'manaus-btn':'');
   if(E.veneno)btn('💊 Antídoto',usarAntidoto,'peri');
-  if(modo2P&&E2&&E2.morto)btn('🆘 Reviver P2 [B]',p2Reviver,'p2-btn');
+  if(modo2P&&E2&&E2.morto)btn('🆘 Reviver P2'+kB,p2Reviver,'p2-btn');
   if(modo2P&&E2&&!E2.morto&&(E2.vida<100||E2.fome<100||E2.sede<100))btn('👥 Ajudar P2',p2Curar,'p2-btn');
   btn('😴 Dormir',tentarDormir,'peri');
   btn('⏸ Pausa',abrirPausa);
@@ -1968,7 +2004,7 @@ function atualizarHUD(){
     document.getElementById('b-p2-fome').style.width=(E2.morto?0:p2f)+'%';document.getElementById('n-p2-fome').textContent=E2.morto?'—':p2f;
     document.getElementById('b-p2-sede').style.width=(E2.morto?0:p2s)+'%';document.getElementById('n-p2-sede').textContent=E2.morto?'—':p2s;
     document.getElementById('b-p2-ener').style.width=(E2.morto?0:p2e)+'%';document.getElementById('n-p2-ener').textContent=E2.morto?'—':p2e;
-    document.getElementById('p2-estado').textContent=E2.morto?'💀 Reviva com [B] (2 Ervas)':E2.veneno?'☠ Envenenado — [M] para agir':'';
+    document.getElementById('p2-estado').textContent=E2.morto?(isMobile?'💀 Reviva próximo (2 Ervas)':'💀 Reviva com [B] (2 Ervas)'):E2.veneno?(isMobile?'☠ Envenenado — use ação':'☠ Envenenado — [M] para agir'):'';
   }
   const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
   document.getElementById('loc-txt').textContent=(BLOCOS[tile?.tipo??0]?.nm??'Floresta').toUpperCase();
@@ -2227,7 +2263,7 @@ function renderizarViewport(ctx,vx,vy,vw,vh,camAlvo,donoStats){
   const sx1=E.x*TILE-camX,sy1=E.y*TILE-camY;
   if(sx1>-50&&sx1<vw+50&&sy1>-50&&sy1<vh+50)desenharJogador(ctx,sx1,sy1,false);
   let sx2=null,sy2=null;
-  if(modo2P&&E2){sx2=E2.x*TILE-camX;sy2=E2.y*TILE-camY;if(sx2>-50&&sx2<vw+50&&sy2>-50&&sy2<vh+50){if(E2.morto){ctx.save();ctx.globalAlpha=.5+Math.sin(tempo*3)*.3;ctx.font='24px serif';ctx.textAlign='center';ctx.fillStyle='var(--p2)';ctx.fillText('💀',sx2,sy2);ctx.globalAlpha=.6;ctx.fillStyle='rgba(255,110,199,.4)';ctx.font='11px Share Tech Mono,monospace';ctx.fillText('[B] REVIVER',sx2,sy2+20);ctx.restore();}else{desenharP2(ctx,sx2,sy2);}}}
+  if(modo2P&&E2){sx2=E2.x*TILE-camX;sy2=E2.y*TILE-camY;if(sx2>-50&&sx2<vw+50&&sy2>-50&&sy2<vh+50){if(E2.morto){ctx.save();ctx.globalAlpha=.5+Math.sin(tempo*3)*.3;ctx.font='24px serif';ctx.textAlign='center';ctx.fillStyle='var(--p2)';ctx.fillText('💀',sx2,sy2);ctx.globalAlpha=.6;ctx.fillStyle='rgba(255,110,199,.4)';ctx.font='11px Share Tech Mono,monospace';ctx.fillText(isMobile?'REVIVER':'[B] REVIVER',sx2,sy2+20);ctx.restore();}else{desenharP2(ctx,sx2,sy2);}}}
   if(clima==='chuva'){ctx.save();chuva.forEach(g=>{ctx.globalAlpha=g.op*(.5+Math.random()*.3);ctx.strokeStyle='rgba(160,210,255,.9)';ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(g.x*vw,g.y*vh);ctx.lineTo(g.x*vw-6,g.y*vh+18);ctx.stroke();});ctx.globalAlpha=.22;ctx.fillStyle='rgba(18,30,50,.8)';ctx.fillRect(0,0,vw,vh);ctx.restore();}
   if(clima==='nevoeiro'){ctx.save();const fg=ctx.createRadialGradient(vw*.5,vh*.5,0,vw/2,vh/2,Math.max(vw,vh)*.9);fg.addColorStop(0,'transparent');fg.addColorStop(.4,'rgba(140,160,130,.1)');fg.addColorStop(1,'rgba(140,160,130,.55)');ctx.fillStyle=fg;ctx.fillRect(0,0,vw,vh);ctx.restore();}
   if(noite)renderizarNoite(ctx,vw,vh,sx1,sy1,sx2,sy2,modo2P);
