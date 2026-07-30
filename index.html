@@ -80,12 +80,12 @@ body.critico-alerta{
 
 /* Film grain desativado (performance) */
 
-#painel-missoes{position:fixed;bottom:calc(70px + var(--safe-bottom));left:calc(12px + var(--safe-left));z-index:210;pointer-events:none;display:none;max-width:240px;}
+#painel-missoes{position:fixed;bottom:calc(90px + var(--safe-bottom));left:calc(12px + var(--safe-left));z-index:400;pointer-events:none;display:none;max-width:260px;box-shadow:0 0 20px rgba(0,0,0,.6);}
 #painel-missoes .painel{padding:8px 12px;pointer-events:all;}
 .missao-titulo{font-family:'Share Tech Mono',monospace;font-size:.48rem;letter-spacing:.2em;color:var(--dol);margin-bottom:6px;text-transform:uppercase;}
 .missao-item{font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(220,236,212,.75);margin:3px 0;line-height:1.4;display:flex;gap:6px;align-items:flex-start;}
 .missao-item.done{color:rgba(0,255,127,.7);text-decoration:line-through;}
-#xp-bar-wrap{position:fixed;top:calc(12px + var(--safe-top));left:50%;transform:translateX(-50%);z-index:210;display:none;pointer-events:none;font-family:'Share Tech Mono',monospace;font-size:.5rem;color:rgba(220,236,212,.6);text-align:center;}
+#xp-bar-wrap{position:fixed;top:calc(12px + var(--safe-top));left:50%;transform:translateX(-50%);z-index:400;display:none;pointer-events:none;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#ffe868;text-align:center;text-shadow:0 0 8px rgba(0,0,0,.8);}
 #xp-track{width:120px;height:4px;background:rgba(255,255,255,.08);border-radius:3px;margin-top:3px;overflow:hidden;}
 #xp-fill{height:100%;width:0%;background:linear-gradient(90deg,#c89010,#ffe868);border-radius:3px;transition:width .4s;}
 
@@ -2799,6 +2799,7 @@ function iniciarJogo(is2P){
     setTimeout(function(){
       msg("🐒 Animais, missões e ruínas ativos!");
       toast("📋 Missões no canto inferior esquerdo");
+      atualizarAcoes();
     },900);
   }catch(e){console.error(e);}
   if(animID)cancelAnimationFrame(animID);
@@ -3847,6 +3848,7 @@ function renderizarViewport(ctx,vx,vy,vw,vh,camAlvo,donoStats){
   entidades.forEach(ent=>{if(legendasVistas.has(ent.lenda))return;const sx=ent.x*TILE-camX,sy=ent.y*TILE-camY;if(sx<-120||sx>vw+120||sy<-120||sy>vh+120)return;const l=LENDAS[ent.lenda],brilho=.35+Math.sin(ent.fase)*.25;ctx.save();ent.trail.forEach((pt,i)=>{const tsx=pt.x*TILE-camX,tsy=pt.y*TILE-camY;ctx.globalAlpha=(i/ent.trail.length)*.08*brilho;ctx.fillStyle=l.cor;ctx.beginPath();ctx.arc(tsx,tsy,3*(i/ent.trail.length),0,Math.PI*2);ctx.fill();});ctx.restore();});
   if(noite||entardecer){vagalumes.forEach(v=>{const sx=v.x*TILE-camX,sy=v.y*TILE-camY;if(sx<-20||sx>vw+20||sy<-20||sy>vh+20)return;const prog=v.vida/v.maxVida,alpha=Math.max(0,prog<.12?prog/.12:prog>.8?(1-prog)/.2:1);ctx.save();if(v.tipo==='vaga'){const br=.55+Math.sin(v.ph)*.45;ctx.globalAlpha=alpha*.75*br;ctx.fillStyle='#99ff44';ctx.shadowColor='#66ff00';ctx.shadowBlur=10;ctx.beginPath();ctx.arc(sx,sy,v.sz,0,Math.PI*2);ctx.fill();}else{ctx.globalAlpha=alpha*.4;ctx.fillStyle='rgba(200,255,200,.5)';ctx.beginPath();ctx.arc(sx,sy,v.sz*.65,0,Math.PI*2);ctx.fill();}ctx.restore();});}
   particles.forEach(p=>{const sx=p.x*TILE-camX,sy=p.y*TILE-camY;ctx.save();ctx.globalAlpha=p.vida/.8;ctx.fillStyle=p.cor;ctx.beginPath();ctx.arc(sx,sy,p.sz,0,Math.PI*2);ctx.fill();ctx.restore();});
+  desenharAnimais(ctx,camX/TILE,camY/TILE,vw,vh);
   peixes.forEach(p=>{
     const sx=p.x*TILE-camX,sy=p.y*TILE-camY;
     if(sx<-40||sx>vw+40||sy<-40||sy>vh+40)return;
