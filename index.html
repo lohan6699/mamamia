@@ -2547,7 +2547,7 @@ function gerarPeixes(){
   for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
     if(mapa[y][x].tipo===T.AGUA||mapa[y][x].tipo===T.LIRIO)aguas.push({x,y});
   }
-  const n=Math.min(90,Math.floor(aguas.length*.08)+25);
+  const n=Math.min(45,Math.floor(aguas.length*.05)+15);
   for(let i=0;i<n;i++){
     const a=aguas[Math.floor(Math.random()*aguas.length)];
     const tipos=[
@@ -2585,8 +2585,8 @@ function atualizarPeixes(dt){
 }
 function gerarEntidades(){entidades=[];LENDAS.forEach((l,i)=>{entidades.push({lenda:i,x:8+Math.random()*(MW-16),y:8+Math.random()*(MH-16),vx:(Math.random()-.5)*.022,vy:(Math.random()-.5)*.022,raio:3.8+Math.random()*1.8,fase:Math.random()*Math.PI*2,trail:[]});});}
 function gerarInimigos(){inimigos=[];INIMIGO_DEF.forEach(def=>{const n=def.tipo==='cobra'?8:def.tipo==='aranha'?6:def.tipo==='piranha'?5:3;for(let i=0;i<n;i++)inimigos.push({...def,x:5+Math.random()*(MW-10),y:5+Math.random()*(MH-10),vidaAtual:def.vida,vx:0,vy:0,fase:Math.random()*Math.PI*2,alertado:false,atqCD:0,morto:false});});}
-function gerarVagalumes(){vagalumes=[];for(let i=0;i<90;i++)vagalumes.push({x:Math.random()*MW,y:Math.random()*MH,vx:(Math.random()-.5)*.004,vy:-Math.random()*.007-.001,vida:Math.random(),maxVida:.5+Math.random()*1.8,sz:1+Math.random()*2.5,ph:Math.random()*Math.PI*2,tipo:Math.random()<.65?'vaga':'esporo'});}
-function gerarChuva(){chuva=[];for(let i=0;i<280;i++)chuva.push({x:Math.random(),y:Math.random(),vy:.005+Math.random()*.008,op:.15+Math.random()*.4,vx:-.0015});}
+function gerarVagalumes(){vagalumes=[];for(let i=0;i<40;i++)vagalumes.push({x:Math.random()*MW,y:Math.random()*MH,vx:(Math.random()-.5)*.004,vy:-Math.random()*.007-.001,vida:Math.random(),maxVida:.5+Math.random()*1.8,sz:1+Math.random()*2.5,ph:Math.random()*Math.PI*2,tipo:Math.random()<.65?'vaga':'esporo'});}
+function gerarChuva(){chuva=[];for(let i=0;i<90;i++)chuva.push({x:Math.random(),y:Math.random(),vy:.005+Math.random()*.008,op:.15+Math.random()*.4,vx:-.0015});}
 
 // ══════════════════════════════════════════════════════════
 //  INICIAR / REINICIAR
@@ -2834,9 +2834,10 @@ function voltarMenu(){
 // ══════════════════════════════════════════════════════════
 //  LOOP
 // ══════════════════════════════════════════════════════════
+let _hudAcc=0,_hudFullAcc=0,_miniAcc=0,_lastTileKey='',_lastDir='';
 function loop(ts){
   if(pausado)return;
-  const dt=Math.min((ts-tsAnt)/1000,.08);tsAnt=ts;tempo+=dt;
+  const dt=Math.min((ts-tsAnt)/1000,.05);tsAnt=ts;tempo+=dt;
   moverJogador(dt);
   if(modo2P&&E2&&!E2.morto)moverP2(dt);
   moverEntidades(dt);moverInimigos(dt);
@@ -2844,7 +2845,13 @@ function loop(ts){
   atualizarStats(dt);atualizarDiaClima(dt);
   atualizarLanterna(dt);atualizarVagalumes(dt);atualizarParticles(dt);atualizarPeixes(dt);
   verificarConquistas();
-  renderizar();atualizarHUD();
+  renderizar();
+  // HUD leve a cada ~120ms; rebuild pesado (ações/inv/lendas) só quando muda tile/dir ou a cada ~400ms
+  _hudAcc+=dt;_hudFullAcc+=dt;
+  const tileKey=Math.floor(E.x)+','+Math.floor(E.y);
+  const needsFull=tileKey!==_lastTileKey||E.dir!==_lastDir||_hudFullAcc>0.4;
+  if(_hudAcc>0.12){_hudAcc=0;atualizarHUDBarras();}
+  if(needsFull){_lastTileKey=tileKey;_lastDir=E.dir;_hudFullAcc=0;atualizarHUD();}
   if(E.vida<=0){fimJogo();return;}
   // CORREÇÃO: as 10 lendas foram encontradas. Só dispara a transição para Manaus
   // quando o modal da última lenda já tiver sido fechado pelo jogador — caso contrário
@@ -3154,7 +3161,7 @@ function atualizarDiaClima(dt){
 // ══════════════════════════════════════════════════════════
 function atualizarVagalumes(dt){vagalumes.forEach(v=>{v.vida+=dt;v.x+=v.vx;v.y+=v.vy;v.ph+=dt*(v.tipo==='vaga'?2.8:1.2);if(v.vida>v.maxVida){v.vida=0;v.x=E.x+(Math.random()-.5)*20;v.y=E.y+(Math.random()-.5)*20;}if(v.x<0)v.x=MW;if(v.x>MW)v.x=0;if(v.y<0)v.y=MH;if(v.y>MH)v.y=0;});}
 function atualizarParticles(dt){particles=particles.filter(p=>{p.vida-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.94;p.vy*=.94;return p.vida>0;});}
-function addParticle(wx,wy,cor,n=6){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=.5+Math.random()*2;particles.push({x:wx,y:wy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,vida:.4+Math.random()*.5,cor,sz:1.5+Math.random()*2.5});}}
+function addParticle(wx,wy,cor,n=6){if(particles.length>50)return;n=Math.min(n,8);for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=.5+Math.random()*2;particles.push({x:wx,y:wy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,vida:.4+Math.random()*.5,cor,sz:1.5+Math.random()*2.5});}}
 
 // ══════════════════════════════════════════════════════════
 //  CRAFTING
@@ -3390,7 +3397,7 @@ function lendaCanvasGeneric(cv,t,cor,emoji){
 // ══════════════════════════════════════════════════════════
 function msg(txt){const el=document.getElementById('msg-atual');el.style.opacity='0';setTimeout(()=>{el.textContent=txt;el.style.opacity='1';},200);}
 function toast(txt){const el=document.getElementById('toast');el.textContent=txt;el.classList.add('vis');clearTimeout(toastTmr);toastTmr=setTimeout(()=>el.classList.remove('vis'),2000);}
-function atualizarHUD(){
+function atualizarHUDBarras(){
   [['vida','b-vida','n-vida','row-vida'],['fome','b-fome','n-fome','row-fome'],['sede','b-sede','n-sede','row-sede'],['energia','b-ener','n-ener','row-ener'],['sanidade','b-san','n-san','row-san']].forEach(([k,bid,nid,rid])=>{const v=Math.round(E[k]);document.getElementById(bid).style.width=v+'%';document.getElementById(nid).textContent=v;document.getElementById(rid).classList.toggle('stat-crit',v<18);});
   const tp=Math.round(E.temperatura*10)/10;document.getElementById('b-temp').style.width=((E.temperatura-34)/6*100)+'%';document.getElementById('n-temp').textContent=tp+'°';document.getElementById('row-temp').classList.toggle('stat-crit',E.temperatura<35.5);
   if(modo2P&&E2){
@@ -3401,6 +3408,9 @@ function atualizarHUD(){
     document.getElementById('b-p2-ener').style.width=(E2.morto?0:p2e)+'%';document.getElementById('n-p2-ener').textContent=E2.morto?'—':p2e;
     document.getElementById('p2-estado').textContent=E2.morto?(isMobile?'💀 Reviva próximo (2 Ervas)':'💀 Reviva com [B] (2 Ervas)'):E2.veneno?(isMobile?'☠ Envenenado — use ação':'☠ Envenenado — [M] para agir'):'';
   }
+}
+function atualizarHUD(){
+  atualizarHUDBarras();
   const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
   document.getElementById('loc-txt').textContent=(BLOCOS[tile?.tipo??0]?.nm??'Floresta').toUpperCase();
   const dirs={N:'↑ Norte',S:'↓ Sul',L:'→ Leste',O:'← Oeste'};
@@ -3634,8 +3644,8 @@ function renderizar(){
   }else{
     renderizarViewport(ctx,0,0,W,H,E,E);
   }
-  renderMiniMapa();
-  if(modo2P && E2) renderMiniMapaP2();
+  _miniAcc=(_miniAcc||0)+1;
+  if(_miniAcc%2===0){renderMiniMapa();if(modo2P&&E2)renderMiniMapaP2();}
 }
 
 // Desenha uma "câmera"/viewport centrada em camAlvo, dentro do retângulo (vx,vy,vw,vh) do canvas.
@@ -3725,7 +3735,7 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
       // solo sombreado + grama baixa
       ctx.fillStyle='rgba(20,40,12,.3)';
       ctx.fillRect(sx,sy+tH-10,TILE,10);
-      for(let g=0;g<8;g++){
+      for(let g=0;g<4;g++){
         const seed=((tv*71+g*19)%100)/100;
         const gx=sx+2+((tv*41+g*9)%(TILE-4));
         const gh=3+seed*5;
@@ -3758,7 +3768,7 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
       break;}
     case T.BAMBU:case T.BAMBU_DENSO:{
       const denso=tile.tipo===T.BAMBU_DENSO;
-      const nc=denso?7:5;
+      const nc=denso?5:3;
       const sway=Math.sin(tempo*1.1+ta)*.6;
       // solo/musgo na base
       ctx.fillStyle='rgba(20,50,12,.55)';
@@ -3861,7 +3871,7 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
       }
       // camadas de grama realista (fundo escuro -> frente clara)
       for(let layer=0;layer<3;layer++){
-        const count=layer===0?10:layer===1?14:12;
+        const count=layer===0?6:layer===1?8:7;
         for(let g=0;g<count;g++){
           const seed=((tv*97+g*37+layer*53)%100)/100;
           const gx=sx+1.5+((tv*53+g*13+layer*7)%(TILE-4));
