@@ -4089,87 +4089,293 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
 }
 
 function desenharJogador(ctx,px,py,isP2=false){
-  const cor=isP2?'rgba(255,110,199,.6)':'rgba(0,255,136,.07)';
-  const mov=Math.sqrt(E.vx*E.vx+E.vy*E.vy),bob=mov>0.5?Math.sin(tempo*11)*2.5:Math.sin(tempo*1.5)*.5,by=py+bob;
+  const moving=Math.abs((E.x||0)-(E.xAnt||E.x))>0.001||Math.abs((E.y||0)-(E.yAnt||E.y))>0.001;
+  const bob=moving?Math.sin(tempo*12)*2.2:Math.sin(tempo*1.6)*0.6;
+  const by=py+bob;
+  const legS=moving?Math.sin(tempo*12)*5:0;
+  const armS=moving?Math.sin(tempo*12+Math.PI)*4.5:0;
+  const dir=E.dir||'N';
+  const crit=E.vida<25||E.fome<12||E.sede<12;
   ctx.save();
-  ctx.globalAlpha=.07+Math.sin(tempo*2.2)*.025;const hg=ctx.createRadialGradient(px,by,0,px,by,30);hg.addColorStop(0,cor);hg.addColorStop(1,'transparent');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(px,by,30,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-  ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(px+2,py+18,mov>0.5?14:10,4,0,0,Math.PI*2);ctx.fill();
-  const legS=mov>0.5?Math.sin(tempo*11)*4.5:0;
-  ctx.fillStyle='#221408';ctx.fillRect(px-7,by+10,6,9+legS*.15);ctx.fillRect(px+1,by+10,6,9-legS*.15);
-  ctx.fillStyle='#3a2c18';ctx.fillRect(px-6,by+8,12,4);
-  ctx.fillStyle='#2a5e28';ctx.fillRect(px-9,by-4,18,14);ctx.fillStyle='#1e4a1e';ctx.fillRect(px-4,by-3,8,11);
-  ctx.fillStyle='#c8a020';ctx.fillRect(px-2,by,4,2);ctx.fillRect(px-2,by+4,4,2);
-  const armS=mov>0.5?Math.sin(tempo*11+Math.PI)*5:0;
-  ctx.fillStyle='#e0b878';ctx.fillRect(px-13,by-3-armS*.25,5,10);ctx.fillRect(px+8,by-3+armS*.25,5,10);
-  ctx.fillStyle='#2a5e28';ctx.fillRect(px-12,by-4,5,5);ctx.fillRect(px+7,by-4,5,5);
-  ctx.fillStyle='#e0b878';ctx.fillRect(px-8,by-18,16,14);
-  ctx.fillStyle='#3a2010';ctx.fillRect(px-11,by-21,22,5);ctx.fillStyle='#4a3018';ctx.fillRect(px-7,by-26,14,6);
-  ctx.fillStyle='#8a6030';ctx.fillRect(px-7,by-22,14,2);
-  ctx.fillStyle='#180c00';
-  if(E.dir==='L')ctx.fillRect(px+2,by-14,3,3);else if(E.dir==='O')ctx.fillRect(px-5,by-14,3,3);else{ctx.fillRect(px-5,by-14,3,3);ctx.fillRect(px+2,by-14,3,3);}
-  if(E.arma!=='mãos'){ctx.font='14px serif';ctx.fillText(E.armaEmoji,px+12,by);}
+
+  // Aura verde explorador
+  ctx.globalAlpha=0.1+Math.sin(tempo*2)*0.03;
+  const aura=ctx.createRadialGradient(px,by,0,px,by,34);
+  aura.addColorStop(0,crit?'rgba(255,60,40,.9)':'rgba(0,255,120,.85)');
+  aura.addColorStop(1,'transparent');
+  ctx.fillStyle=aura;ctx.beginPath();ctx.arc(px,by,34,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
+
+  // Sombra no chão
+  ctx.fillStyle='rgba(0,0,0,.38)';
+  ctx.beginPath();ctx.ellipse(px+1,py+19,moving?13:10,3.8,0,0,Math.PI*2);ctx.fill();
+
+  // Botas
+  ctx.fillStyle='#1a1008';
+  ctx.fillRect(px-8,by+14,7,5+legS*0.12);
+  ctx.fillRect(px+1,by+14,7,5-legS*0.12);
+  // solado
+  ctx.fillStyle='#0c0804';
+  ctx.fillRect(px-8.5,by+18+legS*0.12,8,2);
+  ctx.fillRect(px+0.5,by+18-legS*0.12,8,2);
+
+  // Pernas (calça cáqui)
+  ctx.fillStyle='#5a4a28';
+  ctx.fillRect(px-7,by+8,6,8+legS*0.15);
+  ctx.fillRect(px+1,by+8,6,8-legS*0.15);
+  // cinto
+  ctx.fillStyle='#2a1c0c';
+  ctx.fillRect(px-8,by+7,16,3);
+  ctx.fillStyle='#c8a020';
+  ctx.fillRect(px-1.5,by+7.5,3,2);
+
+  // Mochila (atrás)
+  if(dir!=='S'){
+    ctx.fillStyle='#3a2a14';
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(px-11,by-6,6,12,2):(ctx.fillRect(px-11,by-6,6,12));
+    ctx.fill();
+    ctx.fillStyle='#5a4020';
+    ctx.fillRect(px-10,by-4,4,3);
+  }
+
+  // Torso — colete explorador verde
+  const bodyG=ctx.createLinearGradient(px-10,by-5,px+10,by+8);
+  bodyG.addColorStop(0,'#1e6a2a');bodyG.addColorStop(0.5,'#2a8a38');bodyG.addColorStop(1,'#145020');
+  ctx.fillStyle=bodyG;
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(px-10,by-5,20,13,3);}
+  else{ctx.rect(px-10,by-5,20,13);}
+  ctx.fill();
+  // camisa por baixo
+  ctx.fillStyle='#d8c090';
+  ctx.fillRect(px-4,by-4,8,10);
+  // bolsos do colete
+  ctx.strokeStyle='rgba(10,40,15,.5)';ctx.lineWidth=1;
+  ctx.strokeRect(px-9,by-1,5,5);
+  ctx.strokeRect(px+4,by-1,5,5);
+  // botões dourados
+  ctx.fillStyle='#e8c040';
+  ctx.beginPath();ctx.arc(px,by-1,1.3,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(px,by+3,1.3,0,Math.PI*2);ctx.fill();
+
+  // Braços
+  ctx.fillStyle='#e0b878';
+  ctx.fillRect(px-14,by-2-armS*0.3,5,10);
+  ctx.fillRect(px+9,by-2+armS*0.3,5,10);
+  // mangas do colete
+  ctx.fillStyle='#1a5a24';
+  ctx.fillRect(px-13.5,by-3-armS*0.25,5.5,5);
+  ctx.fillRect(px+8,by-3+armS*0.25,5.5,5);
+  // mãos
+  ctx.fillStyle='#d4a870';
+  ctx.beginPath();ctx.arc(px-11.5,by+8-armS*0.3,2.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(px+11.5,by+8+armS*0.3,2.5,0,Math.PI*2);ctx.fill();
+
+  // Cabeça
+  ctx.fillStyle='#e8bc8a';
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(px-8,by-19,16,14,4);}
+  else{ctx.rect(px-8,by-19,16,14);}
+  ctx.fill();
+  // orelhas
+  ctx.fillStyle='#d4a878';
+  ctx.beginPath();ctx.arc(px-8.5,by-12,2.2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(px+8.5,by-12,2.2,0,Math.PI*2);ctx.fill();
+
+  // Chapéu explorador
+  ctx.fillStyle='#3a2810';
+  ctx.beginPath();
+  ctx.ellipse(px,by-18,13,4,0,0,Math.PI*2);ctx.fill(); // aba
+  ctx.fillStyle='#4a3420';
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(px-7,by-27,14,10,3);}
+  else{ctx.rect(px-7,by-27,14,10);}
+  ctx.fill();
+  // faixa do chapéu
+  ctx.fillStyle='#00c060';
+  ctx.fillRect(px-7,by-20,14,2.5);
+  // brilho no chapéu
+  ctx.fillStyle='rgba(255,255,200,.12)';
+  ctx.fillRect(px-5,by-26,6,4);
+
+  // Olhos conforme direção
+  ctx.fillStyle='#1a1008';
+  if(dir==='L'){
+    ctx.beginPath();ctx.arc(px+3,by-13,2.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px+3.6,by-13.5,0.8,0,Math.PI*2);ctx.fill();
+  }else if(dir==='O'){
+    ctx.beginPath();ctx.arc(px-3,by-13,2.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px-2.4,by-13.5,0.8,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.beginPath();ctx.arc(px-3.2,by-13,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(px+3.2,by-13,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(px-2.6,by-13.5,0.7,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(px+3.8,by-13.5,0.7,0,Math.PI*2);ctx.fill();
+  }
+  // boca sutil
+  ctx.strokeStyle='#b08060';ctx.lineWidth=1.2;ctx.lineCap='round';
+  ctx.beginPath();ctx.arc(px,by-9.5,2.5,0.15,Math.PI-0.15);ctx.stroke();
+
+  // Label P1
+  ctx.fillStyle=crit?'#ff5050':'#00ff88';
+  ctx.font='bold 9px "Share Tech Mono",monospace';
+  ctx.textAlign='center';
+  ctx.shadowColor=crit?'#ff2020':'#00ff88';
+  ctx.shadowBlur=crit?8:4;
+  ctx.fillText(crit?'⚠ P1':'P1',px,by-32);
+  ctx.shadowBlur=0;
+
+  // Arma
+  if(E.arma&&E.arma!=='mãos'){
+    ctx.font='15px serif';ctx.textAlign='center';
+    ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=3;
+    ctx.fillText(E.armaEmoji||'',px+14,by+2);
+    ctx.shadowBlur=0;
+  }
   ctx.restore();
 }
 
 function desenharP2(ctx,sx,sy){
   if(!E2||E2.morto)return;
-  const mov=Math.sqrt((E2.vx||0)*(E2.vx||0)+(E2.vy||0)*(E2.vy||0));
+  const moving=Math.abs((E2.x||0)-(E2.xAnt||E2.x))>0.001||Math.abs((E2.y||0)-(E2.yAnt||E2.y))>0.001;
   const critico=E2.vida<30||E2.fome<15||E2.sede<15;
-  const bob=mov>0.5?Math.sin(tempo*10)*2.2:Math.sin(tempo*1.6)*.7,by=sy+bob;
+  const bob=moving?Math.sin(tempo*11)*2.2:Math.sin(tempo*1.7)*0.6;
+  const by=sy+bob;
+  const legS=moving?Math.sin(tempo*11)*4.8:0;
+  const armS=moving?Math.sin(tempo*11+Math.PI)*4.2:0;
+  const dir=E2.dir||'N';
   ctx.save();
 
-  // Aura de companheirismo — pulsa em rosa, fica vermelha se crítico
-  const auraCor=critico?'rgba(255,60,60,.85)':'rgba(255,110,199,.85)';
-  ctx.globalAlpha=.1+Math.sin(tempo*2.4)*.04;
-  const hg=ctx.createRadialGradient(sx,by,0,sx,by,32);hg.addColorStop(0,auraCor);hg.addColorStop(1,'transparent');
-  ctx.fillStyle=hg;ctx.beginPath();ctx.arc(sx,by,32,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+  // Aura rosa / crítica
+  ctx.globalAlpha=0.12+Math.sin(tempo*2.5)*0.04;
+  const aura=ctx.createRadialGradient(sx,by,0,sx,by,34);
+  aura.addColorStop(0,critico?'rgba(255,50,50,.95)':'rgba(255,110,199,.9)');
+  aura.addColorStop(1,'transparent');
+  ctx.fillStyle=aura;ctx.beginPath();ctx.arc(sx,by,34,0,Math.PI*2);ctx.fill();
+  ctx.globalAlpha=1;
 
   // Sombra
-  ctx.fillStyle='rgba(0,0,0,.32)';ctx.beginPath();ctx.ellipse(sx+2,sy+17,mov>0.5?13:10,3.5,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(0,0,0,.36)';
+  ctx.beginPath();ctx.ellipse(sx+1,sy+19,moving?12:9.5,3.6,0,0,Math.PI*2);ctx.fill();
 
-  // Pernas
-  const legS=mov>0.5?Math.sin(tempo*10)*4.2:0;
-  ctx.fillStyle='#180a28';ctx.fillRect(sx-6,by+10,5,8+legS*.12);ctx.fillRect(sx+1,by+10,5,8-legS*.12);
-  ctx.fillStyle='#2a1040';ctx.fillRect(sx-5,by+8,10,4);
+  // Botas
+  ctx.fillStyle='#1a0820';
+  ctx.fillRect(sx-7.5,by+14,6.5,5+legS*0.12);
+  ctx.fillRect(sx+1,by+14,6.5,5-legS*0.12);
+  ctx.fillStyle='#0c0410';
+  ctx.fillRect(sx-8,by+18+legS*0.12,7.5,2);
+  ctx.fillRect(sx+0.5,by+18-legS*0.12,7.5,2);
 
-  // Corpo — gradiente rosa/roxo
-  const bodyGrad=ctx.createLinearGradient(sx-8,by-4,sx+8,by+9);
-  bodyGrad.addColorStop(0,'#6a2478');bodyGrad.addColorStop(1,'#3a0a4a');
-  ctx.fillStyle=bodyGrad;ctx.fillRect(sx-8,by-4,16,13);
-  ctx.fillStyle='#ff6ec7';ctx.globalAlpha=.75;ctx.fillRect(sx-3,by-3,6,10);ctx.globalAlpha=1;
-  ctx.fillStyle='#ffd83c';ctx.fillRect(sx-2,by,4,2);
+  // Pernas (calça roxa)
+  ctx.fillStyle='#3a1850';
+  ctx.fillRect(sx-6.5,by+8,5.5,8+legS*0.15);
+  ctx.fillRect(sx+1,by+8,5.5,8-legS*0.15);
+  // cinto
+  ctx.fillStyle='#1a0830';
+  ctx.fillRect(sx-8,by+7,16,3);
+  ctx.fillStyle='#ff6ec7';
+  ctx.fillRect(sx-1.5,by+7.5,3,2);
+
+  // Torso — jaqueta magenta
+  const bodyG=ctx.createLinearGradient(sx-10,by-5,sx+10,by+8);
+  bodyG.addColorStop(0,'#8a2888');bodyG.addColorStop(0.45,'#c040a0');bodyG.addColorStop(1,'#5a1868');
+  ctx.fillStyle=bodyG;
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(sx-10,by-5,20,13,3);}
+  else{ctx.rect(sx-10,by-5,20,13);}
+  ctx.fill();
+  // camisa
+  ctx.fillStyle='#f0d0e8';
+  ctx.fillRect(sx-4,by-4,8,10);
+  // faixa diagonal decorativa
+  ctx.fillStyle='rgba(255,110,199,.55)';
+  ctx.beginPath();
+  ctx.moveTo(sx-8,by+6);ctx.lineTo(sx-4,by-4);ctx.lineTo(sx-1,by-4);ctx.lineTo(sx-5,by+6);ctx.closePath();ctx.fill();
+  // botão
+  ctx.fillStyle='#ffd83c';
+  ctx.beginPath();ctx.arc(sx,by,1.4,0,Math.PI*2);ctx.fill();
 
   // Braços
-  const armS2=mov>0.5?Math.sin(tempo*10+Math.PI)*4.5:0;
-  ctx.fillStyle='#e8bd94';ctx.fillRect(sx-12,by-3-armS2*.2,5,9);ctx.fillRect(sx+7,by-3+armS2*.2,5,9);
-  ctx.fillStyle='#5a1a68';ctx.fillRect(sx-11,by-4,5,5);ctx.fillRect(sx+6,by-4,5,5);
+  ctx.fillStyle='#e8bd94';
+  ctx.fillRect(sx-14,by-2-armS*0.3,5,10);
+  ctx.fillRect(sx+9,by-2+armS*0.3,5,10);
+  // mangas
+  ctx.fillStyle='#7a2078';
+  ctx.fillRect(sx-13.5,by-3-armS*0.25,5.5,5);
+  ctx.fillRect(sx+8,by-3+armS*0.25,5.5,5);
+  // mãos
+  ctx.fillStyle='#d4a870';
+  ctx.beginPath();ctx.arc(sx-11.5,by+8-armS*0.3,2.5,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(sx+11.5,by+8+armS*0.3,2.5,0,Math.PI*2);ctx.fill();
 
   // Cabeça
-  ctx.fillStyle='#e8bd94';ctx.fillRect(sx-7,by-17,14,13);
-  // Bandana/headband rosa em vez de chapéu comum
-  ctx.fillStyle='#cc0060';ctx.fillRect(sx-10,by-21,20,4);
-  ctx.fillStyle='#ff6ec7';ctx.fillRect(sx-10,by-19,20,1.5);
-  // laço atrás
-  ctx.fillStyle='#cc0060';ctx.fillRect(sx+9,by-20,4,6);
-  // olhos
-  ctx.fillStyle='#180a10';
-  if(E2.dir==='L'){ctx.fillRect(sx+2,by-14,2.5,2.5);}
-  else if(E2.dir==='O'){ctx.fillRect(sx-4.5,by-14,2.5,2.5);}
-  else{ctx.fillRect(sx-4.5,by-14,2.5,2.5);ctx.fillRect(sx+2,by-14,2.5,2.5);}
+  ctx.fillStyle='#e8bc8a';
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(sx-8,by-19,16,14,4);}
+  else{ctx.rect(sx-8,by-19,16,14);}
+  ctx.fill();
+  // orelhas
+  ctx.fillStyle='#d4a878';
+  ctx.beginPath();ctx.arc(sx-8.5,by-12,2.2,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(sx+8.5,by-12,2.2,0,Math.PI*2);ctx.fill();
 
-  // Etiqueta P2 flutuante
+  // Bandana rosa com laço
+  ctx.fillStyle='#cc0060';
+  ctx.beginPath();
+  if(ctx.roundRect){ctx.roundRect(sx-11,by-22,22,5,2);}
+  else{ctx.rect(sx-11,by-22,22,5);}
+  ctx.fill();
+  // faixa brilhante
+  ctx.fillStyle='#ff6ec7';
+  ctx.fillRect(sx-11,by-20,22,1.8);
+  // nó / laço atrás
+  ctx.fillStyle='#a00050';
+  ctx.beginPath();
+  ctx.moveTo(sx+10,by-21);ctx.lineTo(sx+16,by-24);ctx.lineTo(sx+14,by-18);ctx.closePath();ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(sx+10,by-19);ctx.lineTo(sx+15,by-15);ctx.lineTo(sx+11,by-17);ctx.closePath();ctx.fill();
+  // cabelo saindo da bandana
+  ctx.fillStyle='#2a1020';
+  ctx.fillRect(sx-7,by-18,3,3);
+  ctx.fillRect(sx+4,by-18,3,3);
+
+  // Olhos
+  ctx.fillStyle='#1a0810';
+  if(dir==='L'){
+    ctx.beginPath();ctx.arc(sx+3,by-13,2.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx+3.6,by-13.5,0.8,0,Math.PI*2);ctx.fill();
+  }else if(dir==='O'){
+    ctx.beginPath();ctx.arc(sx-3,by-13,2.2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(sx-2.4,by-13.5,0.8,0,Math.PI*2);ctx.fill();
+  }else{
+    ctx.beginPath();ctx.arc(sx-3.2,by-13,2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(sx+3.2,by-13,2,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.beginPath();ctx.arc(sx-2.6,by-13.5,0.7,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.arc(sx+3.8,by-13.5,0.7,0,Math.PI*2);ctx.fill();
+  }
+  // boca
+  ctx.strokeStyle='#b07080';ctx.lineWidth=1.2;ctx.lineCap='round';
+  ctx.beginPath();ctx.arc(sx,by-9.5,2.5,0.15,Math.PI-0.15);ctx.stroke();
+
+  // Label P2
   ctx.fillStyle=critico?'#ff5050':'#ff6ec7';
-  ctx.font='bold 9px "Share Tech Mono",monospace';ctx.textAlign='center';
-  ctx.shadowColor=critico?'#ff2020':'#ff6ec7';ctx.shadowBlur=critico?10:5;
-  ctx.fillText(critico?'⚠ P2':'P2',sx,by-30);
+  ctx.font='bold 9px "Share Tech Mono",monospace';
+  ctx.textAlign='center';
+  ctx.shadowColor=critico?'#ff2020':'#ff6ec7';
+  ctx.shadowBlur=critico?10:5;
+  ctx.fillText(critico?'⚠ P2':'P2',sx,by-32);
   ctx.shadowBlur=0;
 
   // Arma
-  if(E2.arma&&E2.arma!=='mãos'){ctx.font='13px serif';ctx.fillText(E2.armaEmoji||'',sx+11,by);}
-
-  // Brilho de contorno sutil (rim light)
-  ctx.globalAlpha=.35;ctx.strokeStyle='#ff9edb';ctx.lineWidth=.6;ctx.strokeRect(sx-8,by-17,16,13);ctx.globalAlpha=1;
-
+  if(E2.arma&&E2.arma!=='mãos'){
+    ctx.font='15px serif';ctx.textAlign='center';
+    ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=3;
+    ctx.fillText(E2.armaEmoji||'',sx+14,by+2);
+    ctx.shadowBlur=0;
+  }
   ctx.restore();
 }
 
