@@ -2119,23 +2119,6 @@ input:focus-visible{
 // ══════════════════════════════════════════════════════════
 //  LOGIN / PERFIL / RANKING GLOBAL
 // ══════════════════════════════════════════════════════════
-// Polyfill: window.storage (ambiente Claude/Artifacts) → localStorage no navegador comum
-if(!window.storage){
-  window.storage={
-    async get(key,_shared){
-      try{
-        const v=localStorage.getItem('amazonia_'+key);
-        return v==null?null:{value:v};
-      }catch(e){return null;}
-    },
-    async set(key,value,_shared){
-      try{localStorage.setItem('amazonia_'+key,typeof value==='string'?value:JSON.stringify(value));}catch(e){}
-    },
-    async delete(key,_shared){
-      try{localStorage.removeItem('amazonia_'+key);}catch(e){}
-    }
-  };
-}
 let jogadorNome='';
 let continuarFlag=false;
 
@@ -3435,15 +3418,15 @@ function atualizarAcoes(){
   // Ações contextuais (sempre úteis)
   if(tile?.tipo===T.AGUA||tile?.tipo===T.LIRIO){
     btn('💧 Beber',beberAgua);
+  if(animais.some(a=>!a.ajudado&&Math.hypot(a.x-E.x,a.y-E.y)<3.5))btn('🐒 Ajudar Animal',interagirAnimal,'ac-esp');
+  if(tile?.ruina&&tile?.loot)btn('🏚 Saquear Ruína',saquearRuina,'ac-esp');
+  if(tile?.tipo===T.ABRIGO&&E.temBau)btn('📦 Abrir Baú',abrirBau,'ac-esp');
     const temVara=E.temVara||contarItem('Vara de Pesca')>0;
     const temBambu=contarItem('Bambu')>0;
     if(temVara)btn('🎣 Pescar',()=>pescar(true),'dest');
     else if(temBambu)btn('🎋 Pescar com Bambu',()=>pescar(false));
     else btn('🎣 Pescar (precisa Bambu)',()=>msg('Precisa de Bambu ou Vara de Pesca para pescar.'));
   }
-  if(animais.some(a=>!a.ajudado&&Math.hypot(a.x-E.x,a.y-E.y)<3.5))btn('🐒 Ajudar Animal',interagirAnimal,'ac-esp');
-  if(tile?.ruina&&tile?.loot)btn('🏚 Saquear Ruína',saquearRuina,'ac-esp');
-  if(tile?.tipo===T.ABRIGO&&E.temBau)btn('📦 Abrir Baú',abrirBau,'ac-esp');
   if(tile?.tipo===T.FRUTAS||tile?.tipo===T.COGUMELO)btn('🍊 Colher',colherFrutas);
   if(tile?.tipo===T.ABRIGO)btn('🏕 Descansar',descansar);
   if(tile?.tipo===T.FOGO)btn('🔥 Fogueira',sentarFogueira);
