@@ -2215,7 +2215,7 @@ async function salvarProgresso(){
     const dados={x:E.x,y:E.y,vida:E.vida,fome:E.fome,sede:E.sede,energia:E.energia,sanidade:E.sanidade,
       temperatura:E.temperatura,lendas:E.lendas,diaNum,craftados:E.craftados,inv:E.inv,
       inimigosVencidos:E.inimigosVencidos,arma:E.arma,armaDano:E.armaDano,armaEmoji:E.armaEmoji,
-      temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,jangada:E.jangada,temVara:E.temVara,curas:E.curas,
+      temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,baseNivel:E.baseNivel,baseX:E.baseX,baseY:E.baseY,jangada:E.jangada,temVara:E.temVara,curas:E.curas,
       noitesSobrevividas:E.noitesSobrevividas,modo2P:modo2P};
     await storage.set('save_'+jogadorNome,JSON.stringify(dados),false);
   }catch(e){console.error('Erro ao salvar progresso',e);}
@@ -2445,6 +2445,18 @@ const RECEITAS=[
 // ══════════════════════════════════════════════════════════
 //  INIMIGOS
 // ══════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════
+//  BASE / ABRIGO — UPGRADES
+// ══════════════════════════════════════════════════════════
+const BASE_NIVEIS=[
+  {nivel:0,nome:'Sem base',emoji:'❌',desc:'Durma ao relento — perigoso.'},
+  {nivel:1,nome:'Abrigo Simples',emoji:'⛺',desc:'Proteção básica. Descanso fraco.',custo:{},restEnergia:55,restSan:20,restVida:0,protNoite:0.45,regen:0},
+  {nivel:2,nome:'Abrigo Reforçado',emoji:'🛖',desc:'Paredes firmes. Bom descanso.',custo:{Bambu:4,Pederneira:1},restEnergia:70,restSan:30,restVida:8,protNoite:0.15,regen:0.15},
+  {nivel:3,nome:'Acampamento',emoji:'🏕',desc:'Fogueira + estoque. Regenera perto.',custo:{Bambu:6,Pederneira:2,'Erva Medicinal':2},restEnergia:85,restSan:40,restVida:15,protNoite:0.05,regen:0.35},
+  {nivel:4,nome:'Base Fortificada',emoji:'🏰',desc:'Máxima proteção e recuperação.',custo:{Bambu:8,Pederneira:3,Couro:1},restEnergia:100,restSan:50,restVida:25,protNoite:0,regen:0.6},
+];
+
 const INIMIGO_DEF=[
   {tipo:'cobra',emoji:'🐍',nome:'Sucuri',cor:'#205020',vida:30,dano:22,vel:.018,raio:1.4,dist:1.2,xp:15,drop:{nome:'Erva Medicinal',emoji:'🌿',ef:'vida',val:22},veneno:true},
   {tipo:'onca',emoji:'🐆',nome:'Onça-Pintada',cor:'#c88020',vida:70,dano:45,vel:.025,raio:3.5,dist:1.8,xp:40,drop:{nome:'Couro',emoji:'🧶',ef:'mat',val:0}},
@@ -2660,7 +2672,7 @@ function gerarChuva(){
 // ══════════════════════════════════════════════════════════
 function criarEstadoJogador(x,y){
   return {x,y,vida:100,fome:100,sede:100,energia:100,sanidade:100,temperatura:37,
-    inv:[],temFogo:false,temAbrigo:false,passos:0,lendas:[],dir:'S',vx:0,vy:0,xAnt:x,yAnt:y,
+    inv:[],temFogo:false,temAbrigo:false,baseNivel:0,baseX:null,baseY:null,passos:0,lendas:[],dir:'S',vx:0,vy:0,xAnt:x,yAnt:y,
     veneno:false,venCD:0,repelente:0,jangada:false,temVara:false,temFiltro:false,craftados:[],
     curas:0,inimigosVencidos:0,noitesSobrevividas:0,diaNum:1,
     arma:'mãos',armaDano:10,armaEmoji:'✊',veneno_def:false,
@@ -3220,12 +3232,22 @@ function atualizarStats(dt){
   E.fome=Math.max(0,E.fome-dt*.32*mult);E.sede=Math.max(0,E.sede-dt*.48*mult);
   const noite=perIdx===0||perIdx===4,tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)],naAgua=tile&&(tile.tipo===T.AGUA||tile.tipo===T.LIRIO);
   E.temperatura+=((E.temFogo?38:noite?34.5:naAgua?34:37)-E.temperatura)*dt*.08;
-  if(noite&&!E.temAbrigo)E.sanidade=Math.max(0,E.sanidade-dt*.3);
+  if(noite&&(E.baseNivel||0)<2){const pen=(E.baseNivel||0)===1?0.12:0.3;E.sanidade=Math.max(0,E.sanidade-dt*pen);}
   if(noite&&!lanterna.ativa&&!tocha.ativa&&!E.temFogo)E.sanidade=Math.max(0,E.sanidade-dt*.5);
   if(E.sanidade>50&&perIdx===1)E.sanidade=Math.min(100,E.sanidade+dt*.8);
-  if(noite&&!E.temAbrigo){E.energia=Math.max(0,E.energia-dt*.55);if(Math.random()<.003)dano(6);}
+  if(noite&&(E.baseNivel||0)<1){E.energia=Math.max(0,E.energia-dt*.55);if(Math.random()<.003)dano(6);}else if(noite&&(E.baseNivel||0)===1){E.energia=Math.max(0,E.energia-dt*.2);}
   if(E.veneno){E.venCD-=dt;if(E.venCD<=0){E.venCD=1.5;dano(8);msg("☠ O veneno corrói...");}}
   if(E.repelente>0)E.repelente-=dt;
+  // Regeneração perto da base (nível 3+)
+  if((E.baseNivel||0)>=3&&E.baseX!=null){
+    const dBase=Math.hypot(E.x-E.baseX,E.y-E.baseY);
+    if(dBase<4.5){
+      const r=(BASE_NIVEIS[E.baseNivel]||{}).regen||0.3;
+      E.vida=Math.min(100,E.vida+dt*r);
+      E.energia=Math.min(100,E.energia+dt*r*0.8);
+      if((E.baseNivel||0)>=4)E.sanidade=Math.min(100,E.sanidade+dt*r*0.5);
+    }
+  }
   if(E.fome<12){E.vida=Math.max(0,E.vida-dt*.65);}
   if(E.sede<12){E.vida=Math.max(0,E.vida-dt*1.1);}
   if(E.temperatura<35.5){E.vida=Math.max(0,E.vida-dt*.5);document.getElementById('overlay-frio').style.opacity=String(Math.min(.7,(35.5-E.temperatura)*.25));}
@@ -3300,7 +3322,7 @@ function executarCraft(rec){
     case 'filtro_agua':E.temFiltro=true;if(modo2P&&E2)E2.temFiltro=true;msg("🫙 Filtro criado!");break;
     case 'antidoto':E.veneno=false;E.vida=Math.min(100,E.vida+15);sfx.remedio();E.curas++;msg("💊 Veneno neutralizado.");break;
     case 'bandagem':E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg("🩹 +35 de vida.");break;
-    case 'abrigo_reforcado':E.temAbrigo=true;if(modo2P&&E2)E2.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx.conquista();msg("⛺ Abrigo construído!");break;
+    case 'abrigo_reforcado':E.temAbrigo=true;E.baseNivel=Math.max(E.baseNivel||0,2);E.baseX=Math.floor(E.x);E.baseY=Math.floor(E.y);if(modo2P&&E2)E2.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;mapa[Math.floor(E.y)][Math.floor(E.x)].baseNivel=2;sfx.conquista();msg('🛖 Abrigo Reforçado (Nível 2)!');break;
     case 'armadilha':const tx=Math.round(E.x),ty=Math.round(E.y);if(mapa[ty]?.[tx])mapa[ty][tx].armadilha=true;msg("🪤 Armadilha posicionada.");break;
     case 'jangada':E.jangada=true;if(modo2P&&E2)E2.jangada=true;msg("🛶 Jangada! Explore os rios.");break;
     case 'vara_pesca':E.temVara=true;E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';addInv('Vara de Pesca','🎣','ferr');msg("🎣 Vara de Pesca na mão! Vá até um rio e use Pescar.");break;
@@ -3435,7 +3457,19 @@ function atualizarAcoes(){
     else btn('🎣 Pescar (precisa Vara ou Bambu)',()=>msg('Craft uma Vara de Pesca (2 Bambus) ou leve Bambu até o rio.'));
   }
   if(tile?.tipo===T.FRUTAS||tile?.tipo===T.COGUMELO)btn('🍊 Colher',colherFrutas);
-  if(tile?.tipo===T.ABRIGO)btn('🏕 Descansar',descansar);
+  if(tile?.tipo===T.ABRIGO){
+    const nv=E.baseNivel||1;
+    const b=BASE_NIVEIS[nv]||BASE_NIVEIS[1];
+    btn((b.emoji||'🏕')+' Descansar Nv.'+nv,descansar);
+    if(nv<4){
+      const prox=BASE_NIVEIS[nv+1];
+      const pode=podeUpgradeBase();
+      const custo=infoCustoUpgrade();
+      btn((pode?'⬆ ':'🔒 ')+'Upgrade → '+(prox?prox.nome:'Max')+(custo?' ('+custo+')':''),upgradeBase,pode?'dest':'');
+    }else{
+      btn('🏰 Base Máxima',()=>msg('🏰 Sua base está no nível máximo!'));
+    }
+  }
   if(tile?.tipo===T.FOGO)btn('🔥 Fogueira',sentarFogueira);
   if(tile?.tipo===T.BAMBU||tile?.tipo===T.BAMBU_DENSO)btn('🎋 Bambu',cortarBambu);
   if(tile?.tipo===T.PEDRA||tile?.tipo===T.PENHASCO)btn('🪨 Pedra',()=>{addInv('Pederneira','🪨','ferr');sfx.coletar();msg("🪨 Pederneira!");atualizarAcoes();});
@@ -3493,11 +3527,91 @@ function pescar(comVara){
   atualizarAcoes();
 }
 function colherFrutas(){const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];if(tile?.tipo===T.COGUMELO){if(Math.random()<.5){sfx.coletar();E.vida=Math.min(100,E.vida+15);msg("Cogumelo comestível!");}else if(!E.temFiltro){dano(18);E.veneno=true;msg("⚠ Cogumelo venenoso!");}}else{sfx.coletar();E.fome=Math.min(100,E.fome+32);msg("🍊 Frutas!");}}
-function descansar(){sfx.dormir();E.energia=Math.min(100,E.energia+55);E.sanidade=Math.min(100,E.sanidade+20);E.temAbrigo=true;tempo+=22;lanterna.nivel=Math.min(100,lanterna.nivel+15);if(modo2P&&E2&&!E2.morto){E2.energia=Math.min(100,E2.energia+40);E2.sanidade=Math.min(100,E2.sanidade+15);}msg("🏕 Você descansa no abrigo.");}
+function descansar(){
+  sfx.dormir();
+  const nv=Math.max(E.baseNivel||1,1);
+  const b=BASE_NIVEIS[nv]||BASE_NIVEIS[1];
+  E.energia=Math.min(100,E.energia+(b.restEnergia||55));
+  E.sanidade=Math.min(100,E.sanidade+(b.restSan||20));
+  E.vida=Math.min(100,E.vida+(b.restVida||0));
+  E.temAbrigo=true;
+  tempo+=22;
+  lanterna.nivel=Math.min(100,lanterna.nivel+15+nv*3);
+  if(modo2P&&E2&&!E2.morto){E2.energia=Math.min(100,E2.energia+40+nv*5);E2.sanidade=Math.min(100,E2.sanidade+15+nv*3);E2.vida=Math.min(100,E2.vida+(b.restVida||0)*.6);}
+  msg((b.emoji||'🏕')+' Descanso no '+b.nome+' (Nv.'+nv+').');
+}
 function sentarFogueira(){sfx.fogueira();E.energia=Math.min(100,E.energia+22);E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+15);E.temFogo=true;E.temperatura=Math.min(40,E.temperatura+1.5);lanterna.nivel=Math.min(100,lanterna.nivel+10);if(modo2P&&E2&&!E2.morto&&Math.hypot(E.x-E2.x,E.y-E2.y)<5){E2.energia=Math.min(100,E2.energia+15);E2.vida=Math.min(100,E2.vida+6);}msg("🔥 Fogueira!");}
 function cortarBambu(){sfx.coletar();const qtd=1+Math.floor(Math.random()*2);for(let i=0;i<qtd;i++)addInv('Bambu','🎋','mat');msg("🎋 Cortou "+qtd+" cana(s).");atualizarAcoes();}
-function montarAbrigo(){if(contarItem('Bambu')>=2){removerItem('Bambu',2);E.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx.conquista();msg("⛺ Abrigo construído!");}else msg("Precisa de 2 Bambus.");atualizarAcoes();}
-function tentarDormir(){if(!E.temAbrigo&&Math.random()<.45){dano(35);msg("⚠ Atacado enquanto dormia sem abrigo!");return;}sfx.dormir();E.energia=Math.min(100,E.energia+85);E.sanidade=Math.min(100,E.sanidade+35);tempo+=32;addDiario("Dormi.");msg("💤 Você adormece.");}
+function montarAbrigo(){
+  if(contarItem('Bambu')<2){msg('Precisa de 2 Bambus.');return;}
+  removerItem('Bambu',2);
+  E.temAbrigo=true;
+  E.baseNivel=Math.max(E.baseNivel||0,1);
+  E.baseX=Math.floor(E.x);E.baseY=Math.floor(E.y);
+  const tile=mapa[E.baseY][E.baseX];
+  tile.tipo=T.ABRIGO;tile.baseNivel=E.baseNivel;
+  sfx.conquista();
+  msg('⛺ Abrigo Simples (Nível 1) construído! Melhore a base com upgrades.');
+  atualizarAcoes();atualizarHUD();
+}
+function podeUpgradeBase(){
+  const nv=E.baseNivel||0;
+  if(nv>=4)return null;
+  const prox=BASE_NIVEIS[nv+1];
+  if(!prox||!prox.custo)return null;
+  for(const [mat,q] of Object.entries(prox.custo)){
+    if(contarItem(mat)<q)return null;
+  }
+  return prox;
+}
+function upgradeBase(){
+  const nv=E.baseNivel||0;
+  if(nv<=0){msg('Construa um abrigo primeiro.');return;}
+  if(nv>=4){msg('🏰 Base já está no nível máximo!');return;}
+  const prox=BASE_NIVEIS[nv+1];
+  if(!prox)return;
+  for(const [mat,q] of Object.entries(prox.custo||{})){
+    if(contarItem(mat)<q){msg('Faltam materiais: '+mat+' ×'+q);return;}
+  }
+  for(const [mat,q] of Object.entries(prox.custo||{}))removerItem(mat,q);
+  E.baseNivel=nv+1;
+  E.temAbrigo=true;
+  // marca tile da base
+  if(E.baseX!=null&&E.baseY!=null&&mapa[E.baseY]?.[E.baseX]){
+    mapa[E.baseY][E.baseX].tipo=T.ABRIGO;
+    mapa[E.baseY][E.baseX].baseNivel=E.baseNivel;
+  }else{
+    E.baseX=Math.floor(E.x);E.baseY=Math.floor(E.y);
+    mapa[E.baseY][E.baseX].tipo=T.ABRIGO;
+    mapa[E.baseY][E.baseX].baseNivel=E.baseNivel;
+  }
+  if(E.baseNivel>=3)E.temFogo=true;
+  sfx.conquista();
+  toast(prox.emoji+' '+prox.nome+'!');
+  msg(prox.emoji+' Base evoluída para '+prox.nome+' (Nível '+E.baseNivel+')!');
+  atualizarAcoes();atualizarHUD();
+}
+function infoCustoUpgrade(){
+  const nv=E.baseNivel||0;
+  if(nv>=4)return 'Nível máximo';
+  const prox=BASE_NIVEIS[nv+1];
+  if(!prox)return '';
+  return Object.entries(prox.custo||{}).map(([k,v])=>k+' ×'+v).join(', ')||'—';
+}
+function tentarDormir(){
+  const nv=E.baseNivel||0;
+  const prot=(BASE_NIVEIS[nv]||{}).protNoite;
+  const risco=nv<=0?0.45:(prot!=null?prot:0.2);
+  if(Math.random()<risco){dano(35-nv*6);msg('⚠ Atacado enquanto dormia'+(nv?' (proteção parcial)!':' sem abrigo!'));return;}
+  sfx.dormir();
+  const b=BASE_NIVEIS[Math.max(nv,1)]||BASE_NIVEIS[1];
+  E.energia=Math.min(100,E.energia+(b.restEnergia||85)+10);
+  E.sanidade=Math.min(100,E.sanidade+(b.restSan||35)+5);
+  E.vida=Math.min(100,E.vida+(b.restVida||0));
+  tempo+=32;
+  addDiario('Dormi'+(nv?' na base nv.'+nv:'.'));
+  msg('💤 Você adormece'+(nv?' protegido na base.':'.'));
+}
 function usarAntidoto(){if(contarItem('Antídoto')>0){removerItem('Antídoto',1);E.veneno=false;sfx.remedio();E.curas++;msg("💊 Antídoto!");}else msg("Não tem Antídoto.");}
 function explorarGruta(){sfx.botao();const r=Math.random();if(r<.25){addInv('Pederneira','🪨','ferr');addInv('Pederneira','🪨','ferr');sfx.coletar();msg("💎 Pederneiras raras!");}else if(r<.45){dano(28);msg("⚠ Algo te atacou!");}else if(r<.6){E.sanidade=Math.max(0,E.sanidade-25);msg("👁 Visões perturbadoras.");}else msg("A gruta está vazia.")}
 function verInv(){abrirInv();}
@@ -3613,6 +3727,7 @@ function atualizarHUD(){
   if(E.veneno)efDiv.innerHTML+='<span class="efeit-chip" style="color:#88ff88;border-color:rgba(0,255,0,.3)">☠ Envenenado</span>';
   if(E.repelente>0)efDiv.innerHTML+='<span class="efeit-chip" style="color:#aaffaa">🌿 Repelente</span>';
   if(E.jangada)efDiv.innerHTML+='<span class="efeit-chip" style="color:#88ddff">🛶 Jangada</span>';
+  if((E.baseNivel||0)>0){const b=BASE_NIVEIS[E.baseNivel]||{};efDiv.innerHTML+='<span class="efeit-chip" style="color:#e8c040">'+(b.emoji||'⛺')+' Base Nv.'+E.baseNivel+'</span>';}
   if(E.temVara||contarItem('Vara de Pesca')>0)efDiv.innerHTML+='<span class="efeit-chip" style="color:#5ab0e0">🎣 Vara</span>';
   if(tocha.ativa)efDiv.innerHTML+='<span class="efeit-chip" style="color:#ffaa44">🔥 Tocha</span>';
   if(E.arma!=='mãos')efDiv.innerHTML+='<span class="efeit-chip" style="color:#ffddaa">'+E.armaEmoji+'</span>';
@@ -4318,7 +4433,60 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
       });
       break;}
     case T.COGUMELO:{ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';const mb=Math.sin(tempo*1.2+ta)*1.5;ctx.fillText('🍄',sx+TILE/2,sy+tH/2-4+mb);break;}
-    case T.ABRIGO:{const tg=ctx.createLinearGradient(sx,sy,sx,sy+tH*.7);tg.addColorStop(0,'#8b6832');tg.addColorStop(1,'#5a4020');ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(sx+TILE/2,sy+4);ctx.lineTo(sx+TILE-3,sy+tH-6);ctx.lineTo(sx+3,sy+tH-6);ctx.closePath();ctx.fill();ctx.fillStyle='#2e1a08';ctx.fillRect(sx+TILE/2-5,sy+tH-14,10,14);break;}
+    case T.ABRIGO:{
+      const nv=tile.baseNivel||E.baseNivel||1;
+      // sombra
+      ctx.fillStyle='rgba(0,0,0,.35)';
+      ctx.beginPath();ctx.ellipse(sx+TILE/2,sy+tH+2,TILE*0.4,5,0,0,Math.PI*2);ctx.fill();
+      if(nv<=1){
+        // tenda simples
+        const tg=ctx.createLinearGradient(sx,sy,sx,sy+tH*.7);tg.addColorStop(0,'#8b6832');tg.addColorStop(1,'#5a4020');
+        ctx.fillStyle=tg;ctx.beginPath();ctx.moveTo(sx+TILE/2,sy+4);ctx.lineTo(sx+TILE-3,sy+tH-6);ctx.lineTo(sx+3,sy+tH-6);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#2e1a08';ctx.fillRect(sx+TILE/2-5,sy+tH-14,10,14);
+      }else if(nv===2){
+        // cabana
+        ctx.fillStyle='#5a3a18';ctx.fillRect(sx+6,sy+tH*0.35,TILE-12,tH*0.65);
+        ctx.fillStyle='#3a2410';ctx.fillRect(sx+8,sy+tH*0.45,TILE-16,tH*0.2);
+        // teto
+        ctx.fillStyle='#7a4a20';ctx.beginPath();ctx.moveTo(sx+4,sy+tH*0.38);ctx.lineTo(sx+TILE/2,sy+4);ctx.lineTo(sx+TILE-4,sy+tH*0.38);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#2a1808';ctx.fillRect(sx+TILE/2-4,sy+tH-12,8,12);
+        // janela
+        ctx.fillStyle='rgba(255,200,80,.35)';ctx.fillRect(sx+TILE-16,sy+tH*0.5,6,6);
+      }else if(nv===3){
+        // acampamento com fogueira
+        ctx.fillStyle='#4a3018';ctx.fillRect(sx+4,sy+tH*0.4,TILE-14,tH*0.6);
+        ctx.fillStyle='#6a4420';ctx.beginPath();ctx.moveTo(sx+2,sy+tH*0.42);ctx.lineTo(sx+TILE/2-2,sy+2);ctx.lineTo(sx+TILE-8,sy+tH*0.42);ctx.closePath();ctx.fill();
+        ctx.fillStyle='#1a1008';ctx.fillRect(sx+TILE/2-6,sy+tH-11,7,11);
+        // fogueira ao lado
+        const fl=Math.sin(tempo*7+ta);
+        ctx.font=(12+fl*2)+'px serif';ctx.textAlign='center';
+        ctx.shadowColor='#ff8800';ctx.shadowBlur=10;
+        ctx.fillText('🔥',sx+TILE-8,sy+tH-4+fl);
+        ctx.shadowBlur=0;
+        // bandeira
+        ctx.fillStyle='#00c060';ctx.fillRect(sx+TILE/2+6,sy+8,8,5);
+        ctx.strokeStyle='#3a2810';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(sx+TILE/2+6,sy+8);ctx.lineTo(sx+TILE/2+6,sy+tH*0.4);ctx.stroke();
+      }else{
+        // base fortificada
+        ctx.fillStyle='#3a3a48';ctx.fillRect(sx+3,sy+tH*0.3,TILE-6,tH*0.7);
+        ctx.fillStyle='#5a5a68';ctx.fillRect(sx+5,sy+tH*0.35,TILE-10,8);
+        // torres
+        ctx.fillStyle='#2a2a38';
+        ctx.fillRect(sx+2,sy+tH*0.15,8,tH*0.85);
+        ctx.fillRect(sx+TILE-10,sy+tH*0.15,8,tH*0.85);
+        // teto dourado
+        ctx.fillStyle='#c89010';
+        ctx.beginPath();ctx.moveTo(sx+1,sy+tH*0.18);ctx.lineTo(sx+6,sy+2);ctx.lineTo(sx+11,sy+tH*0.18);ctx.closePath();ctx.fill();
+        ctx.beginPath();ctx.moveTo(sx+TILE-11,sy+tH*0.18);ctx.lineTo(sx+TILE-6,sy+2);ctx.lineTo(sx+TILE-1,sy+tH*0.18);ctx.closePath();ctx.fill();
+        // porta
+        ctx.fillStyle='#1a1008';ctx.fillRect(sx+TILE/2-5,sy+tH-14,10,14);
+        // brilho
+        ctx.fillStyle='rgba(232,192,64,.2)';
+        ctx.fillRect(sx+6,sy+tH*0.45,TILE-12,3);
+        ctx.font='10px serif';ctx.textAlign='center';ctx.fillText('🏰',sx+TILE/2,sy+tH*0.55);
+      }
+      break;}
     case T.FOGO:{const fl=Math.sin(tempo*8+ta);ctx.font=(24+fl*4)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor='#ff8800';ctx.shadowBlur=20;ctx.fillText('🔥',sx+TILE/2,sy+tH/2+fl*3);ctx.shadowBlur=0;break;}
   }
   ctx.restore();
