@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#020802">
+<meta name="description" content="Sobrevivência na Amazônia — descubra as 10 lendas, explore a floresta e chegue a Manaus.">
+<meta name="apple-mobile-web-app-title" content="Amazônia">
+<meta name="application-name" content="Amazônia">
+<link rel="manifest" href="data:application/manifest+json,{\"name\":\"Amaz%C3%B4nia%20%E2%80%94%20Sobreviv%C3%AAncia\",\"short_name\":\"Amaz%C3%B4nia\",\"start_url\":\".\",\"display\":\"standalone\",\"background_color\":\"#020802\",\"theme_color\":\"#020802\",\"lang\":\"pt-BR\"}">
 <title>AMAZÔNIA — Sobrevivência</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap');
@@ -261,7 +265,7 @@ body.critico-alerta{
   letter-spacing:2px;
 }
 .v-badge::after{
-  content:' • v9.5 · Visual+';
+  content:' • v9.6 · Visual+';
   font-size:.4rem;opacity:.8;color:#ffaa00;
 }
 
@@ -1813,15 +1817,15 @@ input:focus-visible{
     <input id="login-input" class="login-input" maxlength="16" placeholder="Seu nome de explorador" autocomplete="off">
     <div class="login-erro" id="login-erro"></div>
     <button class="btn-start" style="width:100%;padding:12px;" onclick="fazerLogin()">Entrar na Floresta</button>
-    <div class="login-info">Seu nome aparecerá no Ranking Global.<br>Sua jornada é salva automaticamente.</div>
+    <div class="login-info">Seu nome aparece no Ranking deste dispositivo.<br>Sua jornada é salva automaticamente.</div>
   </div>
 </div>
 
 <!-- RANKING -->
 <div id="tela-ranking">
   <div class="ranking-box">
-    <div class="ranking-titulo">🏆 RANKING GLOBAL</div>
-    <div class="ranking-sub">Melhores exploradores da Amazônia</div>
+    <div class="ranking-titulo">🏆 RANKING</div>
+    <div class="ranking-sub">Melhores exploradores · neste dispositivo</div>
     <div class="ranking-lista" id="ranking-lista">Carregando...</div>
     <button class="modo-voltar" onclick="fecharRanking()" style="margin-top:1rem;">← Fechar</button>
   </div>
@@ -1854,12 +1858,12 @@ input:focus-visible{
       <button class="btn-start" onclick="selecionarModo()">Entrar na Floresta</button>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:.4rem;">
-      <button class="modo-voltar" onclick="abrirRanking()">🏆 Ranking Global</button>
+      <button class="modo-voltar" onclick="abrirRanking()">🏆 Ranking</button>
       <button class="modo-voltar" id="btn-continuar" style="display:none;" onclick="continuarJogoSalvo()">💾 Continuar Jornada Salva</button>
       <button class="modo-voltar" onclick="trocarJogador()">🔁 Trocar Explorador</button>
     </div>
   </div>
-  <div class="v-badge">v9.5 · AMAZÔNIA + Visual+</div>
+  <div class="v-badge">v9.6 · AMAZÔNIA + Visual+</div>
 </div>
 
 <!-- SELEÇÃO DE MODO -->
@@ -2024,7 +2028,7 @@ input:focus-visible{
     <div class="manaus-acoes">
       <button class="btn-start" onclick="continuarParaFimManaus()" style="border-color:#c89010;color:#c89010;padding:14px 36px;">Ver Fim da Jornada →</button>
     </div>
-    <div style="font-size:.52rem;color:rgba(220,236,212,.25);font-family:'Share Tech Mono',monospace;text-align:center;">A história de Manaus foi gerada pela IA com base em sua jornada</div>
+    <div style="font-size:.52rem;color:rgba(220,236,212,.25);font-family:'Share Tech Mono',monospace;text-align:center;">A história de Manaus é narrada pela própria floresta</div>
   </div>
 </div>
 
@@ -2039,7 +2043,7 @@ input:focus-visible{
       Manaus se abre para você — a cidade do Rio Negro.
     </div>
     <button class="btn-start capitulo-btn" onclick="continuarParaFimManaus()">Ver o Final da Jornada →</button>
-    <div style="margin-top:1.4rem;font-size:.52rem;color:rgba(220,236,212,.25);font-family:'Share Tech Mono',monospace;">Sua jornada foi registrada no Ranking Global</div>
+    <div style="margin-top:1.4rem;font-size:.52rem;color:rgba(220,236,212,.25);font-family:'Share Tech Mono',monospace;">Sua jornada foi salva no Ranking deste dispositivo</div>
   </div>
 </div>
 
@@ -2070,6 +2074,24 @@ input:focus-visible{
 
 <!-- SYNC P2 -->
 <div id="sync-p2"><div class="sync-txt" id="sync-txt">P2 ENTROU NA FLORESTA</div><div class="sync-barra"><div class="sync-fill" id="sync-fill"></div></div></div>
+
+<!-- TUTORIAL (primeira vez) -->
+<div id="tela-tutorial" style="display:none;position:fixed;inset:0;z-index:900;align-items:center;justify-content:center;background:rgba(0,0,0,.92);backdrop-filter:blur(6px);">
+  <div style="max-width:420px;width:92vw;background:linear-gradient(165deg,rgba(3,16,4,.98),rgba(6,24,8,.98));border:1px solid rgba(0,255,127,.28);border-radius:6px;padding:1.8rem 1.6rem;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.9);">
+    <div style="font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--vn);margin-bottom:.6rem;letter-spacing:.1em;">COMO SOBREVIVER</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.55rem;color:rgba(0,255,127,.5);letter-spacing:.25em;margin-bottom:1.2rem;">PRIMEIRA JORNADA</div>
+    <div id="tutorial-lista" style="text-align:left;font-size:.88rem;line-height:1.85;color:rgba(220,236,212,.9);margin-bottom:1.4rem;">
+      <div style="margin-bottom:.55rem;">🧭 <b>Mova-se</b> — <span class="pc-only">WASD</span><span class="mobile-only">Joystick</span></div>
+      <div style="margin-bottom:.55rem;">✋ <b>Ações</b> — botões no rodapé (beber, colher, craft…)</div>
+      <div style="margin-bottom:.55rem;">🔦 <b>Lanterna</b> — essencial à noite</div>
+      <div style="margin-bottom:.55rem;">🍖💧⚡ Cuide de <b>fome, sede e energia</b></div>
+      <div style="margin-bottom:.55rem;">🗺 Encontre as <b>10 lendas</b> para desbloquear Manaus</div>
+      <div>🏕 Construa <b>abrigo</b> e <b>fogueira</b> para passar a noite</div>
+    </div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:.52rem;color:rgba(200,144,16,.7);margin-bottom:1rem;letter-spacing:.08em;">OBJETIVOS: 3 lendas · abrigo · 3 noites · 3 crafts</div>
+    <button class="btn-start" style="width:100%;padding:12px;" onclick="fecharTutorial()">Entendi — Entrar na Floresta</button>
+  </div>
+</div>
 
 <div id="toast"></div>
 <div id="aviso-inimigo"></div>
@@ -2104,10 +2126,46 @@ input:focus-visible{
 <script>
 'use strict';
 // ══════════════════════════════════════════════════════════
-//  LOGIN / PERFIL / RANKING GLOBAL
+//  STORAGE POLYFILL (localStorage fallback — funciona offline)
+// ══════════════════════════════════════════════════════════
+const storage = (typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function')
+  ? window.storage
+  : {
+      async get(key, _shared) {
+        try {
+          const v = localStorage.getItem(key);
+          return v != null ? { value: v } : null;
+        } catch (e) { return null; }
+      },
+      async set(key, value, _shared) {
+        try { localStorage.setItem(key, value); } catch (e) {}
+      },
+      async delete(key, _shared) {
+        try { localStorage.removeItem(key); } catch (e) {}
+      }
+    };
+
+// ══════════════════════════════════════════════════════════
+//  LOGIN / PERFIL / RANKING (local no dispositivo)
 // ══════════════════════════════════════════════════════════
 let jogadorNome='';
 let continuarFlag=false;
+let tutorialFeito = false;
+try { tutorialFeito = localStorage.getItem('amazonia_tutorial') === '1'; } catch(e) {}
+
+// Objetivos intermediários
+const OBJETIVOS = [
+  { id: 'lendas3',  nome: 'Despertar 3 lendas',   check: () => E.lendas && E.lendas.length >= 3 },
+  { id: 'abrigo',   nome: 'Construir um abrigo',  check: () => E.temAbrigo },
+  { id: 'noite3',   nome: 'Sobreviver 3 noites',  check: () => E.noitesSobrevividas >= 3 },
+  { id: 'craft',    nome: 'Fabricar 3 itens',     check: () => E.craftados && E.craftados.length >= 3 },
+  { id: 'lendas10', nome: 'As 10 lendas + Manaus', check: () => E.lendas && E.lendas.length >= 10 }
+];
+let objetivosCompletos = new Set();
+try {
+  const oj = localStorage.getItem('amazonia_objetivos_'+(jogadorNome||''));
+  if (oj) objetivosCompletos = new Set(JSON.parse(oj));
+} catch(e) {}
 
 function fazerLogin(){
   const inp=document.getElementById('login-input');
@@ -2115,6 +2173,12 @@ function fazerLogin(){
   if(nome.length<2){document.getElementById('login-erro').textContent='Digite um nome com ao menos 2 letras.';return;}
   jogadorNome=nome;
   try{initAudio();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}catch(e){}
+  // Carrega objetivos já cumpridos deste explorador
+  objetivosCompletos = new Set();
+  try {
+    const oj = localStorage.getItem('amazonia_objetivos_'+jogadorNome);
+    if (oj) objetivosCompletos = new Set(JSON.parse(oj));
+  } catch(e) {}
   document.getElementById('tela-login').style.display='none';
   document.getElementById('titulo-boas-vindas').textContent='🌿 Bem-vindo(a), '+jogadorNome+'!';
   const hudNome=document.getElementById('jogador-nome-hud');if(hudNome)hudNome.textContent='👤 '+jogadorNome;
@@ -2140,7 +2204,7 @@ async function verificarSaveESugerirContinuar(){
   const btn=document.getElementById('btn-continuar');
   btn.style.display='none';
   try{
-    const r=await window.storage.get('save_'+jogadorNome,false);
+    const r=await storage.get('save_'+jogadorNome,false);
     if(r&&r.value)btn.style.display='inline-block';
   }catch(e){/* sem save salvo */}
 }
@@ -2153,14 +2217,14 @@ async function salvarProgresso(){
       inimigosVencidos:E.inimigosVencidos,arma:E.arma,armaDano:E.armaDano,armaEmoji:E.armaEmoji,
       temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,jangada:E.jangada,curas:E.curas,
       noitesSobrevividas:E.noitesSobrevividas,modo2P:modo2P};
-    await window.storage.set('save_'+jogadorNome,JSON.stringify(dados),false);
+    await storage.set('save_'+jogadorNome,JSON.stringify(dados),false);
   }catch(e){console.error('Erro ao salvar progresso',e);}
 }
 
 async function carregarProgresso(){
   if(!jogadorNome)return;
   try{
-    const r=await window.storage.get('save_'+jogadorNome,false);
+    const r=await storage.get('save_'+jogadorNome,false);
     if(r&&r.value){
       const d=JSON.parse(r.value);
       Object.assign(E,d);
@@ -2182,7 +2246,7 @@ async function enviarPontuacao(vitoria,stats){
   try{
     const pontos=E.lendas.length*150+diaNum*20+E.inimigosVencidos*10+(vitoria?500:0);
     let lista=[];
-    try{const r=await window.storage.get('leaderboard',true);lista=r&&r.value?JSON.parse(r.value):[];}catch(e){lista=[];}
+    try{const r=await storage.get('leaderboard',true);lista=r&&r.value?JSON.parse(r.value):[];}catch(e){lista=[];}
     lista.push({
       nome: jogadorNome || 'Explorador',
       pontos,
@@ -2195,12 +2259,12 @@ async function enviarPontuacao(vitoria,stats){
     });
     lista.sort((a,b)=>b.pontos-a.pontos);
     lista=lista.slice(0,50);
-    await window.storage.set('leaderboard',JSON.stringify(lista),true);
+    await storage.set('leaderboard',JSON.stringify(lista),true);
     const pos=lista.findIndex(it=>it.pontos===pontos&&it.nome===(jogadorNome||'Explorador'));
     const info=document.getElementById('fim-ranking-info');
-    if(info)info.textContent=pos>=0&&pos<10?('🏆 Você entrou no TOP '+(pos+1)+' do Ranking Global! ('+pontos+' pts)'):('Pontuação registrada: '+pontos+' pts. Confira o Ranking Global!');
+    if(info)info.textContent=pos>=0&&pos<10?('🏆 Você entrou no TOP '+(pos+1)+' do Ranking! ('+pontos+' pts)'):('Pontuação registrada: '+pontos+' pts. Confira o Ranking!');
   }catch(e){console.error('Erro ao enviar pontuação',e);}
-  if(vitoria){try{await window.storage.delete('save_'+jogadorNome,false);}catch(e){}}
+  if(vitoria){try{await storage.delete('save_'+jogadorNome,false);}catch(e){}}
 }
 
 async function abrirRanking(){
@@ -2209,7 +2273,7 @@ async function abrirRanking(){
   const el=document.getElementById('ranking-lista');
   el.innerHTML='Carregando...';
   try{
-    const r=await window.storage.get('leaderboard',true);
+    const r=await storage.get('leaderboard',true);
     const lista=r&&r.value?JSON.parse(r.value):[];
     if(!lista.length){
       el.innerHTML='<div style="text-align:center;opacity:.5;padding:2.5rem 0;">Ninguém completou uma jornada ainda.<br>Seja o primeiro a deixar sua marca na Amazônia!</div>';
@@ -2447,6 +2511,7 @@ function abrirPausa(){
   pausado=true;sfx.pausa();
   salvarProgresso();
   const info=document.getElementById('pausa-info');
+  const objDone = OBJETIVOS.filter(o => objetivosCompletos.has(o.id)).length;
   info.innerHTML=`
     <div class="pausa-info-row"><span>Explorador</span><span class="pausa-info-val">${jogadorNome||'—'}</span></div>
     <div class="pausa-info-row"><span>Dia</span><span class="pausa-info-val">${diaNum}</span></div>
@@ -2455,6 +2520,7 @@ function abrirPausa(){
     <div class="pausa-info-row"><span>Lendas</span><span class="pausa-info-val">${E.lendas.length}/10</span></div>
     <div class="pausa-info-row"><span>Inimigos</span><span class="pausa-info-val">${E.inimigosVencidos}</span></div>
     <div class="pausa-info-row"><span>Conquistas</span><span class="pausa-info-val">${conquistasObtidas.size}/${CONQUISTAS_DEF.length}</span></div>
+    <div class="pausa-info-row"><span>Objetivos</span><span class="pausa-info-val">${objDone}/${OBJETIVOS.length}</span></div>
   `;
   const muteBtn=document.getElementById('btn-mute');
   if(muteBtn)muteBtn.textContent=audioMuted?'🔇 Som: Mudo':'🔊 Som: Ligado';
@@ -2575,8 +2641,16 @@ function atualizarPeixes(dt){
 }
 function gerarEntidades(){entidades=[];LENDAS.forEach((l,i)=>{entidades.push({lenda:i,x:8+Math.random()*(MW-16),y:8+Math.random()*(MH-16),vx:(Math.random()-.5)*.022,vy:(Math.random()-.5)*.022,raio:3.8+Math.random()*1.8,fase:Math.random()*Math.PI*2,trail:[]});});}
 function gerarInimigos(){inimigos=[];INIMIGO_DEF.forEach(def=>{const n=def.tipo==='cobra'?8:def.tipo==='aranha'?6:def.tipo==='piranha'?5:3;for(let i=0;i<n;i++)inimigos.push({...def,x:5+Math.random()*(MW-10),y:5+Math.random()*(MH-10),vidaAtual:def.vida,vx:0,vy:0,fase:Math.random()*Math.PI*2,alertado:false,atqCD:0,morto:false});});}
-function gerarVagalumes(){vagalumes=[];for(let i=0;i<22;i++)vagalumes.push({x:Math.random()*MW,y:Math.random()*MH,vx:(Math.random()-.5)*.004,vy:-Math.random()*.007-.001,vida:Math.random(),maxVida:.5+Math.random()*1.8,sz:1+Math.random()*2.5,ph:Math.random()*Math.PI*2,tipo:Math.random()<.65?'vaga':'esporo'});}
-function gerarChuva(){chuva=[];for(let i=0;i<45;i++)chuva.push({x:Math.random(),y:Math.random(),vy:.005+Math.random()*.008,op:.15+Math.random()*.4,vx:-.0015});}
+function gerarVagalumes(){
+  vagalumes=[];
+  const n = isMobile ? 10 : 22;
+  for(let i=0;i<n;i++)vagalumes.push({x:Math.random()*MW,y:Math.random()*MH,vx:(Math.random()-.5)*.004,vy:-Math.random()*.007-.001,vida:Math.random(),maxVida:.5+Math.random()*1.8,sz:1+Math.random()*2.5,ph:Math.random()*Math.PI*2,tipo:Math.random()<.65?'vaga':'esporo'});
+}
+function gerarChuva(){
+  chuva=[];
+  const n = isMobile ? 22 : 45;
+  for(let i=0;i<n;i++)chuva.push({x:Math.random(),y:Math.random(),vy:.005+Math.random()*.008,op:.15+Math.random()*.4,vx:-.0015});
+}
 
 // ══════════════════════════════════════════════════════════
 //  INICIAR / REINICIAR
@@ -2621,10 +2695,54 @@ function iniciarJogo(is2P){
   msg(modo2P?(isMobile?"👥 Modo 2P: joystick = P1. P2 precisa de teclado (setas). Toque ✋ para agir.":"👥 Modo 2 Jogadores! Tela dividida — cada um com sua câmera. P1: WASD | P2: Setas. [B] revive P1."):(isMobile?"🌿 Você acorda na floresta. Joystick para andar · ✋ para agir · 🔦 lanterna · encontre as 10 lendas!":"Você acorda na floresta amazônica. Encontre as 10 lendas para desbloquear Manaus!"));
   addDiario("Acordei. Floresta. Não sei como cheguei aqui. Preciso encontrar as lendas."+(modo2P?" Não estou sozinho.":""));
   // Início um pouco mais gentil no 1º dia
-  if(!continuarFlag){E.fome=100;E.sede=100;E.energia=100;E.sanidade=100;E.vida=100;}
+  const veioDeSave = !!continuarFlag;
+  if(!veioDeSave){E.fome=100;E.sede=100;E.energia=100;E.sanidade=100;E.vida=100;}
   if(continuarFlag){continuarFlag=false;carregarProgresso();}
   if(animID)cancelAnimationFrame(animID);
   animID=requestAnimationFrame(loop);
+  // Tutorial só na primeira partida (nunca ao continuar save)
+  if(!tutorialFeito && !veioDeSave){
+    setTimeout(mostrarTutorial, 600);
+  }
+  verificarObjetivos(true);
+}
+
+function mostrarTutorial(){
+  const el = document.getElementById('tela-tutorial');
+  if(!el) return;
+  el.style.display = 'flex';
+  pausado = true;
+}
+function fecharTutorial(){
+  sfx.botao();
+  const el = document.getElementById('tela-tutorial');
+  if(el) el.style.display = 'none';
+  tutorialFeito = true;
+  try { localStorage.setItem('amazonia_tutorial', '1'); } catch(e) {}
+  pausado = false;
+  tsAnt = performance.now();
+  if(animID) cancelAnimationFrame(animID);
+  animID = requestAnimationFrame(loop);
+}
+
+function verificarObjetivos(silent){
+  if(!E || !E.lendas) return;
+  OBJETIVOS.forEach(obj => {
+    if(objetivosCompletos.has(obj.id)) return;
+    try {
+      if(obj.check()){
+        objetivosCompletos.add(obj.id);
+        try {
+          localStorage.setItem('amazonia_objetivos_'+(jogadorNome||'anon'), JSON.stringify([...objetivosCompletos]));
+        } catch(e) {}
+        if(!silent){
+          toast('🎯 Objetivo: ' + obj.nome);
+          sfx.conquista && sfx.conquista();
+          addDiario('Objetivo cumprido: ' + obj.nome);
+        }
+      }
+    } catch(e) {}
+  });
 }
 
 function atualizarLayoutSplitScreen(){
@@ -2834,7 +2952,7 @@ function loop(ts){
   verificarCol();verificarInimigos(dt);
   atualizarStats(dt);atualizarDiaClima(dt);
   atualizarLanterna(dt);atualizarVagalumes(dt);atualizarParticles(dt);atualizarPeixes(dt);
-  if(((tempo)|0)!==(((tempo-dt)|0))) verificarConquistas();
+  if(((tempo)|0)!==(((tempo-dt)|0))){ verificarConquistas(); verificarObjetivos(false); }
   renderizar();
   // HUD leve a cada ~120ms; rebuild pesado (ações/inv/lendas) só quando muda tile/dir ou a cada ~400ms
   _hudAcc+=dt;_hudFullAcc+=dt;
@@ -3151,7 +3269,15 @@ function atualizarDiaClima(dt){
 // ══════════════════════════════════════════════════════════
 function atualizarVagalumes(dt){vagalumes.forEach(v=>{v.vida+=dt;v.x+=v.vx;v.y+=v.vy;v.ph+=dt*(v.tipo==='vaga'?2.8:1.2);if(v.vida>v.maxVida){v.vida=0;v.x=E.x+(Math.random()-.5)*20;v.y=E.y+(Math.random()-.5)*20;}if(v.x<0)v.x=MW;if(v.x>MW)v.x=0;if(v.y<0)v.y=MH;if(v.y>MH)v.y=0;});}
 function atualizarParticles(dt){particles=particles.filter(p=>{p.vida-=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.94;p.vy*=.94;return p.vida>0;});}
-function addParticle(wx,wy,cor,n=6){if(particles.length>50)return;n=Math.min(n,8);for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=.5+Math.random()*2;particles.push({x:wx,y:wy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,vida:.4+Math.random()*.5,cor,sz:1.5+Math.random()*2.5});}}
+function addParticle(wx,wy,cor,n=6){
+  const maxP = isMobile ? 28 : 50;
+  if(particles.length > maxP) return;
+  n = Math.min(n, isMobile ? 4 : 8);
+  for(let i=0;i<n;i++){
+    const a=Math.random()*Math.PI*2,s=.5+Math.random()*2;
+    particles.push({x:wx,y:wy,vx:Math.cos(a)*s,vy:Math.sin(a)*s,vida:.4+Math.random()*.5,cor,sz:1.5+Math.random()*2.5});
+  }
+}
 
 // ══════════════════════════════════════════════════════════
 //  CRAFTING
@@ -3423,7 +3549,7 @@ function atualizarHUD(){
 }
 
 // ══════════════════════════════════════════════════════════
-//  REVELAR MANAUS — Cutscene + IA
+//  REVELAR MANAUS — Cutscene (textos locais, sem API externa)
 // ══════════════════════════════════════════════════════════
 async function revelarManaus(){
   cancelAnimationFrame(animID);stopAmbience();
@@ -3432,66 +3558,61 @@ async function revelarManaus(){
   sfx.manausReveal();
   salvarProgresso();
 
-  // Tela Manaus
   document.getElementById('tela-manaus').classList.add('aberto');
   iniciarAnimManausCanvas();
 
-  const lendaNomes=E.lendas.map(i=>LENDAS[i].nome).join(', ');
+  const lendaNomes = E.lendas.map(i => LENDAS[i].nome).join(', ');
+  const nomeExp = jogadorNome || 'explorador';
 
-  // Gerar história de chegada a Manaus
-  const promptChegada=`Você é o espírito narrador da floresta amazônica. Em português poético e lírico (máximo 3 frases), narre a chegada do explorador à lendária cidade de Manaus após descobrir todas as 10 lendas: ${lendaNomes}. Mencione o Rio Negro, o Teatro Amazonas ou a Belle Époque. Seja épico e emocional.`;
+  // Narrativas locais de alta qualidade (funcionam offline)
+  const textosChegada = [
+    `Após despertar ${lendaNomes}, ${nomeExp} chega a Manaus. O Rio Negro abre caminho como um espelho escuro, e o Teatro Amazonas brilha como uma joia no coração da floresta. A cidade te reconhece como guardião das lendas.`,
+    `As 10 lendas guiaram seus passos até Manaus. O Teatro Amazonas ergue-se entre a névoa dourada da Belle Époque, e o Rio Negro sussurra o nome de ${nomeExp} com reverência. A floresta e a cidade finalmente se encontram.`,
+    `Guardião das lendas (${lendaNomes}), você chega a Manaus. O porto do Rio Negro te recebe com o eco distante das águas, e o Teatro Amazonas ilumina a noite como um farol de civilização no meio da selva eterna.`
+  ];
+  const txt1 = textosChegada[Math.floor(Math.random() * textosChegada.length)];
 
-  // Gerar história da Cabanagem
-  const promptGuerra=`Você é um historiador apaixonado. Narre em português (4 frases dramáticas) a Guerra da Cabanagem (1835-1840) no Amazonas: a revolta dos caboclos, ribeirinhos e indígenas oprimidos contra as elites coloniais portuguesas e brasileiras. Mencione que foi um dos conflitos mais sangrentos do Brasil, com mais de 30 mil mortos — quase 40% da população do Grão-Pará. Conecte com o espírito de resistência das lendas amazônicas.`;
+  const txt2 = 'A Cabanagem (1835–1840) foi o grito de um povo oprimido. Caboclos, indígenas e ribeirinhos pegaram em armas contra séculos de exploração colonial. O Amazonas viu mais de 30 mil almas partirem — quase metade da população do Grão-Pará. Esse sangue derramado fertilizou a terra das lendas que você descobriu. O espírito de resistência vive em cada folha, em cada canto de Iara e em cada olhar do Anhangá.';
 
-  document.getElementById('manaus-historia-txt').textContent='A floresta narra sua chegada...';
-  document.getElementById('manaus-guerra-txt').textContent='Aguardando a história da Cabanagem...';
+  document.getElementById('manaus-historia-txt').textContent = 'A floresta narra sua chegada...';
+  document.getElementById('manaus-guerra-txt').textContent = 'Aguardando a história da Cabanagem...';
 
-  try{
-    const [r1,r2]=await Promise.all([
-      fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:promptChegada}]})}),
-      fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:promptGuerra}]})})
-    ]);
-    const [d1,d2]=await Promise.all([r1.json(),r2.json()]);
+  // Efeito de digitação
+  const el1 = document.getElementById('manaus-historia-txt');
+  el1.style.color = 'rgba(230,215,180,.95)';
+  el1.textContent = '';
+  let ci = 0;
+  await new Promise(res => {
+    const iv = setInterval(() => {
+      if (ci < txt1.length) el1.textContent += txt1[ci++];
+      else { clearInterval(iv); res(); }
+    }, 16);
+  });
 
-    const txt1=d1.content?.[0]?.text?.trim()||'Você chegou a Manaus, guardião das 10 lendas. A cidade te recebe com o rugido do Rio Negro.';
-    const txt2=d2.content?.[0]?.text?.trim()||'A Cabanagem (1835-1840) foi a maior revolta popular do Brasil. Caboclos, indígenas e ribeirinhos ergueram-se contra séculos de opressão colonial. O sangue do Amazonas correu vermelho — mais de 30 mil vidas ceifadas. Mas o espírito dos vencidos vive nas lendas que você descobriu.';
+  await new Promise(r => setTimeout(r, 450));
+  const el2 = document.getElementById('manaus-guerra-txt');
+  el2.style.color = 'rgba(230,200,160,.9)';
+  el2.textContent = '';
+  let ci2 = 0;
+  await new Promise(res => {
+    const iv = setInterval(() => {
+      if (ci2 < txt2.length) el2.textContent += txt2[ci2++];
+      else { clearInterval(iv); res(); }
+    }, 14);
+  });
 
-    // Digitar o texto da chegada
-    const el1=document.getElementById('manaus-historia-txt');
-    el1.style.color='rgba(230,215,180,.95)';
-    el1.textContent='';
-    let ci=0;
-    await new Promise(res=>{const iv=setInterval(()=>{if(ci<txt1.length){el1.textContent+=txt1[ci++];}else{clearInterval(iv);res();}},18);});
-
-    // Digitar o texto da guerra (com pausa)
-    await new Promise(r=>setTimeout(r,400));
-    const el2=document.getElementById('manaus-guerra-txt');
-    el2.style.color='rgba(230,200,160,.9)';
-    el2.textContent='';
-    let ci2=0;
-    await new Promise(res=>{const iv=setInterval(()=>{if(ci2<txt2.length){el2.textContent+=txt2[ci2++];}else{clearInterval(iv);res();}},15);});
-
-    // Após a narração completa da história de Manaus → mostrar "Capítulo 1 Concluído"
-    setTimeout(() => {
-      document.getElementById('tela-manaus').classList.remove('aberto');
-      const cap = document.getElementById('tela-capitulo1');
-      if (cap) {
-        cap.style.display = 'flex';
-        cap.style.opacity = '0';
-        setTimeout(() => {
-          cap.style.transition = 'opacity .7s ease';
-          cap.style.opacity = '1';
-        }, 60);
-      }
-    }, 1400);
-
-  }catch(e){
-    document.getElementById('manaus-historia-txt').style.color='rgba(230,215,180,.95)';
-    document.getElementById('manaus-historia-txt').textContent='Você chegou a Manaus, guardião das 10 lendas da Amazônia. O Teatro Amazonas brilha como uma joia no coração da floresta, e o Rio Negro sussurra seu nome com reverência.';
-    document.getElementById('manaus-guerra-txt').style.color='rgba(230,200,160,.9)';
-    document.getElementById('manaus-guerra-txt').textContent='A Cabanagem (1835-1840) foi o grito de um povo oprimido. Caboclos, indígenas e ribeirinhos pegaram em armas contra séculos de exploração colonial. O Amazonas viu mais de 30 mil almas partirem — quase metade da população. Esse sangue derramado fertilizou a terra das lendas que você descobriu.';
-  }
+  setTimeout(() => {
+    document.getElementById('tela-manaus').classList.remove('aberto');
+    const cap = document.getElementById('tela-capitulo1');
+    if (cap) {
+      cap.style.display = 'flex';
+      cap.style.opacity = '0';
+      setTimeout(() => {
+        cap.style.transition = 'opacity .7s ease';
+        cap.style.opacity = '1';
+      }, 60);
+    }
+  }, 1400);
 }
 
 function iniciarAnimManausCanvas(){
@@ -3499,8 +3620,9 @@ function iniciarAnimManausCanvas(){
   cv.width=window.innerWidth;cv.height=window.innerHeight;
   const ctx=cv.getContext('2d');
   const ps=[];
-  // Partículas douradas para Manaus
-  for(let i=0;i<160;i++)ps.push({x:Math.random()*cv.width,y:cv.height+Math.random()*100,vx:(Math.random()-.5)*.6,vy:-(Math.random()*.5+.15),op:Math.random(),sz:1+Math.random()*3,ph:Math.random()*Math.PI*2,col:Math.random()<.5?'#e8c040':Math.random()<.5?'#00ff7f':'#ff8800'});
+  // Partículas douradas para Manaus (menos no celular)
+  const nManaus = isMobile ? 70 : 160;
+  for(let i=0;i<nManaus;i++)ps.push({x:Math.random()*cv.width,y:cv.height+Math.random()*100,vx:(Math.random()-.5)*.6,vy:-(Math.random()*.5+.15),op:Math.random(),sz:1+Math.random()*3,ph:Math.random()*Math.PI*2,col:Math.random()<.5?'#e8c040':Math.random()<.5?'#00ff7f':'#ff8800'});
   let t=0;
   function frame(){
     if(!document.getElementById('tela-manaus').classList.contains('aberto')){cancelAnimationFrame(manausCanvasRaf);return;}
@@ -3525,28 +3647,28 @@ async function continuarParaFimManaus(){
 }
 
 // ══════════════════════════════════════════════════════════
-//  GERADOR DE FINAIS
+//  GERADOR DE FINAIS (local — sem API externa)
 // ══════════════════════════════════════════════════════════
 async function gerarFimHistoria(vitoria, causa, stats){
-  const lendaNomes=E.lendas.map(i=>LENDAS[i].nome).join(', ')||'nenhuma';
-  const prompt=`Você é o espírito narrador da floresta amazônica. Escreva uma crônica poética e dramática (máximo 4 frases, em português) sobre a jornada deste explorador:
-- Dias sobrevividos: ${stats.dias}
-- Lendas encontradas: ${lendaNomes}
-- Modo: ${modo2P?'2 jogadores (dupla)':'solitário'}
-- Inimigos derrotados: ${stats.inimigos}
-- Causa do fim: ${causa}
-- Resultado: ${vitoria?'VITÓRIA ÉPICA — descobriu todas as 10 lendas e chegou a Manaus':'DERROTA — a floresta venceu'}
-${vitoria?'Mencione Manaus e o Teatro Amazonas nesta vitória épica.':''}
+  const lendaNomes = E.lendas.map(i => LENDAS[i].nome).join(', ') || 'nenhuma';
+  const nomeExp = jogadorNome || 'o explorador';
+  const modoTxt = modo2P ? 'em dupla' : 'sozinho';
 
-Use linguagem lírica, mencione pelo menos uma lenda encontrada se houver, e capture a essência da Amazônia. Seja evocativo.`;
+  if (vitoria) {
+    const vitorias = [
+      `Guardião das 10 lendas (${lendaNomes}), ${nomeExp} chegou a Manaus após ${stats.dias} dias. O Rio Negro abraça a cidade e o Teatro Amazonas ecoa seu nome entre as copas. A floresta reconheceu quem a respeitou.`,
+      `Após despertar todas as lendas e sobreviver ${stats.dias} dias ${modoTxt}, ${nomeExp} entra em Manaus. O Teatro Amazonas brilha como recompensa da jornada. A Amazônia nunca esquece seus guardiões.`,
+      `${nomeExp} desvendou ${lendaNomes} e alcançou Manaus. ${stats.inimigos} ameaças caíram no caminho. O Porto do Rio Negro e a Belle Époque celebram quem ouviu a floresta.`
+    ];
+    return vitorias[Math.floor(Math.random() * vitorias.length)];
+  }
 
-  try{
-    const response=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
-    const data=await response.json();
-    if(data.content&&data.content[0]&&data.content[0].text){return data.content[0].text.trim();}
-  }catch(e){console.error(e);}
-  if(vitoria)return`Guardião das 10 lendas, você chegou a Manaus — a cidade que o Rio Negro abraça. O Teatro Amazonas ecoou seu nome entre as copas da floresta eterna.`;
-  return`A floresta reclamou o que é dela. Após ${stats.dias} dias, ${causa.toLowerCase()} encerrou sua jornada. Mas a Amazônia nunca esquece os que a ousaram explorar.`;
+  const derrotas = [
+    `A floresta reclamou o que é dela. Após ${stats.dias} dias ${modoTxt}, ${causa.toLowerCase()} encerrou a jornada de ${nomeExp}. Lendas encontradas: ${lendaNomes}. A Amazônia nunca esquece quem a ousou explorar.`,
+    `${nomeExp} caiu após ${stats.dias} dias. ${causa} As lendas (${lendaNomes}) ainda sussurram entre as árvores. A selva guarda o resto da história.`,
+    `A jornada de ${nomeExp} terminou em ${stats.dias} dias. Causa: ${causa.toLowerCase()} Mesmo assim, ${E.lendas.length} lendas foram despertadas. A floresta lembra.`
+  ];
+  return derrotas[Math.floor(Math.random() * derrotas.length)];
 }
 
 // ══════════════════════════════════════════════════════════
@@ -3556,7 +3678,8 @@ function animarFimCanvas(vitoria){
   const cv=document.getElementById('fim-canvas');cv.width=window.innerWidth;cv.height=window.innerHeight;
   const ctx=cv.getContext('2d');const ps=[];
   const cor=vitoria?'#00ff7f':'#ff2200',cor2=vitoria?'#e8c040':'#880000';
-  for(let i=0;i<120;i++)ps.push({x:Math.random()*cv.width,y:cv.height+Math.random()*200,vx:(Math.random()-.5)*.5,vy:-(Math.random()*.8+.3),op:Math.random(),sz:1+Math.random()*3,ph:Math.random()*Math.PI*2,col:Math.random()<.6?cor:cor2});
+  const nFim = isMobile ? 55 : 120;
+  for(let i=0;i<nFim;i++)ps.push({x:Math.random()*cv.width,y:cv.height+Math.random()*200,vx:(Math.random()-.5)*.5,vy:-(Math.random()*.8+.3),op:Math.random(),sz:1+Math.random()*3,ph:Math.random()*Math.PI*2,col:Math.random()<.6?cor:cor2});
   let t=0;
   function frame(){t+=0.016;ctx.fillStyle='rgba(0,0,0,.08)';ctx.fillRect(0,0,cv.width,cv.height);
   ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.ph+=.02;if(p.y<-20){p.y=cv.height+10;p.x=Math.random()*cv.width;}
@@ -3603,7 +3726,7 @@ async function fimJogo(vitoriaForce=false){
 
   document.getElementById('tela-fim').classList.add('aberto');
   animarFimCanvas(vitoria);
-  document.getElementById('fim-ranking-info').textContent='Enviando pontuação ao Ranking Global...';
+  document.getElementById('fim-ranking-info').textContent='Registrando pontuação no Ranking...';
   enviarPontuacao(vitoria,stats);
   document.getElementById('fim-historia-txt').textContent='A floresta está narrando sua história...';
   document.getElementById('fim-historia-txt').style.color='rgba(0,255,127,.4)';
@@ -3635,7 +3758,8 @@ function renderizar(){
     renderizarViewport(ctx,0,0,W,H,E,E);
   }
   _miniAcc=(_miniAcc||0)+1;
-  if(_miniAcc%2===0){renderMiniMapa();if(modo2P&&E2)renderMiniMapaP2();}
+  const miniEvery = isMobile ? 4 : 2;
+  if(_miniAcc % miniEvery === 0){renderMiniMapa();if(modo2P&&E2)renderMiniMapaP2();}
 }
 
 // Desenha uma "câmera"/viewport centrada em camAlvo, dentro do retângulo (vx,vy,vw,vh) do canvas.
