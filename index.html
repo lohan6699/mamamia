@@ -1813,7 +1813,7 @@ input:focus-visible{
 <div id="tela-login">
   <div class="login-box">
     <div class="login-logo">AMAZÔNIA</div>
-    <div class="login-sub">identifique-se, explorador</div>
+    <div class="login-sub">Identifique-se, explorador</div>
     <input id="login-input" class="login-input" maxlength="16" placeholder="Seu nome de explorador" autocomplete="off">
     <div class="login-erro" id="login-erro"></div>
     <button class="btn-start" style="width:100%;padding:12px;" onclick="fazerLogin()">Entrar na Floresta</button>
@@ -2215,7 +2215,7 @@ async function salvarProgresso(){
     const dados={x:E.x,y:E.y,vida:E.vida,fome:E.fome,sede:E.sede,energia:E.energia,sanidade:E.sanidade,
       temperatura:E.temperatura,lendas:E.lendas,diaNum,craftados:E.craftados,inv:E.inv,
       inimigosVencidos:E.inimigosVencidos,arma:E.arma,armaDano:E.armaDano,armaEmoji:E.armaEmoji,
-      temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,jangada:E.jangada,curas:E.curas,
+      temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,jangada:E.jangada,temVara:E.temVara,curas:E.curas,
       noitesSobrevividas:E.noitesSobrevividas,modo2P:modo2P};
     await storage.set('save_'+jogadorNome,JSON.stringify(dados),false);
   }catch(e){console.error('Erro ao salvar progresso',e);}
@@ -2230,6 +2230,9 @@ async function carregarProgresso(){
       Object.assign(E,d);
       if(d.diaNum){diaNum=d.diaNum;tempo=Math.max(tempo,(diaNum-1)*65*PERIODOS.length);E.diaNum=diaNum;}
       d.lendas?.forEach(i=>legendasVistas.add(i));
+      // Restaura vara se estiver no inventário
+      if(E.inv&&E.inv.some(i=>i.nome==='Vara de Pesca')){E.temVara=true;}
+      if(E.temVara&&(!E.arma||E.arma==='mãos')){E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';}
       msg('💾 Jornada anterior restaurada, '+jogadorNome+'! Dia '+diaNum+', '+E.lendas.length+'/10 lendas.');
       toast('💾 Progresso carregado!');
     }
@@ -3048,7 +3051,7 @@ function p2Reviver(){
   if(!E2||!E2.morto)return;
   const dist=Math.hypot(E.x-E2.x,E.y-E2.y);
   if(dist>6){msg("⚠ Aproxime-se de P2 para revivê-lo!");return;}
-  if(contarItem('Erva Medicinal')>=2){removerItem('Erva Medicinal',2);E2.morto=false;E2.vida=35;E2.fome=40;E2.sede=40;E2.energia=30;E.p2Revivido=(E.p2Revivido||0)+1;sfx.reviver();toast("💕 P2 revivido!");msg("P2 voltou!");addDiario("Reviví meu companheiro.");}
+  if(contarItem('Erva Medicinal')>=2){removerItem('Erva Medicinal',2);E2.morto=false;E2.vida=35;E2.fome=40;E2.sede=40;E2.energia=30;E.p2Revivido=(E.p2Revivido||0)+1;sfx.reviver();toast("💕 P2 revivido!");msg("P2 voltou!");addDiario("Revivi meu companheiro.");}
   else msg("⚠ Precisa de 2 Ervas Medicinais para reviver P2.");
 }
 
@@ -3300,7 +3303,7 @@ function executarCraft(rec){
     case 'abrigo_reforcado':E.temAbrigo=true;if(modo2P&&E2)E2.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;sfx.conquista();msg("⛺ Abrigo construído!");break;
     case 'armadilha':const tx=Math.round(E.x),ty=Math.round(E.y);if(mapa[ty]?.[tx])mapa[ty][tx].armadilha=true;msg("🪤 Armadilha posicionada.");break;
     case 'jangada':E.jangada=true;if(modo2P&&E2)E2.jangada=true;msg("🛶 Jangada! Explore os rios.");break;
-    case 'vara_pesca':E.temVara=true;addInv('Vara de Pesca','🎣','ferr');msg("🎣 Vara de Pesca pronta! Vá aos rios.");break;
+    case 'vara_pesca':E.temVara=true;E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';addInv('Vara de Pesca','🎣','ferr');msg("🎣 Vara de Pesca na mão! Vá até um rio e use Pescar.");break;
     case 'repelente':E.repelente=300;msg("🌿 Repelente ativo.");break;
     case 'veneno_def':E.veneno_def=true;if(modo2P&&E2)E2.veneno_def=true;msg("☠ Veneno de Defesa ativo.");break;
   }
@@ -3324,15 +3327,79 @@ function abrirInv(){
   if(E.inv.length===0){
     grid.innerHTML='<div class="inv-vazio"><span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Explore a floresta para coletar itens.</div>';
   }else{
-    E.inv.forEach(item=>{
+    E.inv.forEach((item,idx)=>{
       const slot=document.createElement('div');
       slot.className='inv-slot';
       const qtd=item.qtd||1;
-      slot.innerHTML=`${qtd>1?`<span class="inv-slot-qtd">×${qtd}</span>`:''}<span class="inv-slot-emoji">${item.emoji}</span><span class="inv-slot-nome">${item.nome}</span>`;
+      const equipado=(item.nome==='Vara de Pesca'&&E.temVara)||(item.tipo==='arma'&&E.armaEmoji===item.emoji);
+      if(equipado)slot.style.borderColor='rgba(0,255,127,.7)';
+      slot.innerHTML=`${qtd>1?`<span class="inv-slot-qtd">×${qtd}</span>`:''}<span class="inv-slot-emoji">${item.emoji}</span><span class="inv-slot-nome">${item.nome}${equipado?' ✓':''}</span>`;
+      slot.title='Toque para usar / equipar';
+      slot.style.cursor='pointer';
+      slot.onclick=()=>usarItemInv(idx);
       grid.appendChild(slot);
     });
   }
   document.getElementById('painel-inv').classList.add('aberto');
+}
+function usarItemInv(idx){
+  const item=E.inv[idx];
+  if(!item)return;
+  sfx.botao();
+  const nome=item.nome;
+  // Comidas e consumíveis
+  if(item.tipo==='comida'||item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida'||item.ef==='vida'||item.ef==='sede'){
+    if(item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida')E.fome=Math.min(100,E.fome+(item.val||25));
+    if(item.ef==='fome_sede'||item.ef==='sede')E.sede=Math.min(100,E.sede+(item.val||20)*.6);
+    if(item.ef==='fome_vida'||item.ef==='vida')E.vida=Math.min(100,E.vida+(item.val||20));
+    if(!item.ef){E.fome=Math.min(100,E.fome+25);}
+    removerItem(nome,1);
+    sfx.coletar();
+    msg(item.emoji+' Você usou: '+nome);
+    fecharInv();atualizarHUD();
+    return;
+  }
+  if(nome==='Antídoto'||item.ef==='antidoto'){
+    if(E.veneno){removerItem('Antídoto',1);E.veneno=false;sfx.remedio();E.curas++;msg('💊 Antídoto usado!');}
+    else msg('Você não está envenenado.');
+    fecharInv();atualizarHUD();return;
+  }
+  if(nome==='Bandagem'||item.ef==='bandagem'){
+    removerItem(nome,1);E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg('🩹 +35 de vida.');
+    fecharInv();atualizarHUD();return;
+  }
+  if(nome==='Erva Medicinal'){
+    E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+8);removerItem(nome,1);sfx.remedio();msg('🌿 Erva usada. +vida e sanidade.');
+    fecharInv();atualizarHUD();return;
+  }
+  // Equipar armas
+  if(nome==='Machado'||nome==='Machado de Pedra'||item.emoji==='🪓'){
+    E.arma='arma_machado';E.armaDano=28;E.armaEmoji='🪓';msg('🪓 Machado equipado na mão!');sfx.conquista();
+    fecharInv();atualizarHUD();return;
+  }
+  if(nome==='Faca de Bambu'||nome==='Faca'||item.emoji==='🔪'){
+    E.arma='arma_faca';E.armaDano=18;E.armaEmoji='🔪';msg('🔪 Faca equipada na mão!');sfx.conquista();
+    fecharInv();atualizarHUD();return;
+  }
+  if(nome==='Arco e Flecha'||item.emoji==='🏹'){
+    E.arma='arco';E.armaDano=22;E.armaEmoji='🏹';msg('🏹 Arco equipado na mão!');sfx.conquista();
+    fecharInv();atualizarHUD();return;
+  }
+  // Equipar vara de pesca na mão
+  if(nome==='Vara de Pesca'||item.emoji==='🎣'){
+    E.temVara=true;
+    E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';
+    msg('🎣 Vara de Pesca na mão! Vá até um rio e use Pescar.');
+    sfx.conquista();
+    fecharInv();atualizarHUD();atualizarAcoes();
+    return;
+  }
+  if(nome==='Tocha'||item.emoji==='🔥'&&item.tipo!=='mat'){
+    msg('🔥 Use o botão de lanterna/tocha para acender.');
+    return;
+  }
+  // Materiais e outros — só informa
+  msg(item.emoji+' '+nome+(item.tipo==='mat'?' — material de craft.':' — no inventário.'));
 }
 function fecharInv(){document.getElementById('painel-inv').classList.remove('aberto');sfx.botao();}
 
@@ -3349,13 +3416,23 @@ function atualizarAcoes(){
   const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];const noite=perIdx===0||perIdx===4;
   const btn=(label,fn,cls='')=>{const b=document.createElement('button');b.className='btn-ac'+(cls?' '+cls:'');b.textContent=label;b.onclick=()=>{sfx.botao();fn();};div.appendChild(b);return b;};
   // Ações contextuais (sempre úteis)
-  if(tile?.tipo===T.AGUA||tile?.tipo===T.LIRIO){
-    btn('💧 Beber',beberAgua);
-    const temVara=E.temVara||contarItem('Vara de Pesca')>0;
+  // Água: no tile atual OU em tile vizinho (permite pescar da margem)
+  const px=Math.floor(E.x),py=Math.floor(E.y);
+  const nearWater=(()=>{ 
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      const tt=mapa[py+dy]?.[px+dx];
+      if(tt&&(tt.tipo===T.AGUA||tt.tipo===T.LIRIO))return true;
+    }
+    return false;
+  })();
+  const onWater=tile?.tipo===T.AGUA||tile?.tipo===T.LIRIO;
+  if(onWater||nearWater){
+    if(onWater)btn('💧 Beber',beberAgua);
+    const temVara=E.temVara||contarItem('Vara de Pesca')>0||E.arma==='vara';
     const temBambu=contarItem('Bambu')>0;
     if(temVara)btn('🎣 Pescar',()=>pescar(true),'dest');
     else if(temBambu)btn('🎋 Pescar com Bambu',()=>pescar(false));
-    else btn('🎣 Pescar (precisa Bambu)',()=>msg('Precisa de Bambu ou Vara de Pesca para pescar.'));
+    else btn('🎣 Pescar (precisa Vara ou Bambu)',()=>msg('Craft uma Vara de Pesca (2 Bambus) ou leve Bambu até o rio.'));
   }
   if(tile?.tipo===T.FRUTAS||tile?.tipo===T.COGUMELO)btn('🍊 Colher',colherFrutas);
   if(tile?.tipo===T.ABRIGO)btn('🏕 Descansar',descansar);
