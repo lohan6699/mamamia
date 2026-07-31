@@ -3815,20 +3815,82 @@ function renderizarNoite(ctx,vw,vh,sx1,sy1,sx2,sy2,hasP2){
   const lc=lightCtx;lc.clearRect(0,0,vw,vh);lc.fillStyle='rgba(1,3,14,.96)';lc.fillRect(0,0,vw,vh);
   function lighten(cx,cy,r,a){const ag=lc.createRadialGradient(cx,cy,0,cx,cy,r);ag.addColorStop(0,`rgba(0,0,0,${a})`);ag.addColorStop(.65,`rgba(0,0,0,${a*.5})`);ag.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.fillStyle=ag;lc.beginPath();lc.arc(cx,cy,r,0,Math.PI*2);lc.fill();}
   if(sx1!==null){
-    lighten(sx1,sy1,lanterna.ativa||tocha.ativa?55:38,.6);
+    // Luz ambiente maior quando lanterna/tocha está ligada
+    lighten(sx1,sy1,lanterna.ativa||tocha.ativa?70:38,.65);
     if(E.temFogo){const flk=.92+Math.sin(tempo*9)*.08;lighten(sx1,sy1,185*flk,.9);}
-    if(lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual*(1+lanterna.flickAmp*.05);const cg=lc.createRadialGradient(sx1,sy1,0,sx1,sy1,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(sx1,sy1);lc.arc(sx1,sy1,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();}
-    if(tocha.ativa){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;lc.globalCompositeOperation='destination-out';const cg=lc.createRadialGradient(sx1,sy1,0,sx1,sy1,r);cg.addColorStop(0,'rgba(0,0,0,0)');cg.addColorStop(.65,'rgba(0,0,0,.4)');cg.addColorStop(1,'rgba(0,0,0,0)');lc.beginPath();lc.moveTo(sx1,sy1);lc.arc(sx1,sy1,r,ang-hc,ang+hc);lc.closePath();lc.fillStyle=cg;lc.fill();}
+    // Cone da lanterna — alpha alto no centro para abrir a escuridão corretamente
+    if(lanterna.ativa&&lanterna.nivel>0){
+      const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual*(1+lanterna.flickAmp*.05);
+      const cg=lc.createRadialGradient(sx1,sy1,0,sx1,sy1,r);
+      cg.addColorStop(0,'rgba(0,0,0,0.88)');
+      cg.addColorStop(0.45,'rgba(0,0,0,0.55)');
+      cg.addColorStop(1,'rgba(0,0,0,0)');
+      lc.globalCompositeOperation='destination-out';
+      lc.beginPath();lc.moveTo(sx1,sy1);lc.arc(sx1,sy1,r,ang-hc,ang+hc);lc.closePath();
+      lc.fillStyle=cg;lc.fill();
+    }
+    // Cone da tocha
+    if(tocha.ativa){
+      const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;
+      const cg=lc.createRadialGradient(sx1,sy1,0,sx1,sy1,r);
+      cg.addColorStop(0,'rgba(0,0,0,0.85)');
+      cg.addColorStop(0.5,'rgba(0,0,0,0.5)');
+      cg.addColorStop(1,'rgba(0,0,0,0)');
+      lc.globalCompositeOperation='destination-out';
+      lc.beginPath();lc.moveTo(sx1,sy1);lc.arc(sx1,sy1,r,ang-hc,ang+hc);lc.closePath();
+      lc.fillStyle=cg;lc.fill();
+    }
   }
   if(hasP2&&sx2!==null){
     lighten(sx2,sy2,lanterna2.ativa?95:35,.55);
-    if(lanterna2.ativa&&lanterna2.nivel>0){const ang2=lanterna2.angulo,hc2=Math.PI*.5,r2=lanterna2.raioAtual;const cg2=lc.createRadialGradient(sx2,sy2,0,sx2,sy2,r2);cg2.addColorStop(0,'rgba(0,0,0,0)');cg2.addColorStop(.65,'rgba(0,0,0,.35)');cg2.addColorStop(1,'rgba(0,0,0,0)');lc.globalCompositeOperation='destination-out';lc.beginPath();lc.moveTo(sx2,sy2);lc.arc(sx2,sy2,r2,ang2-hc2,ang2+hc2);lc.closePath();lc.fillStyle=cg2;lc.fill();}
+    if(lanterna2.ativa&&lanterna2.nivel>0){
+      const ang2=lanterna2.angulo,hc2=Math.PI*.5,r2=lanterna2.raioAtual;
+      const cg2=lc.createRadialGradient(sx2,sy2,0,sx2,sy2,r2);
+      cg2.addColorStop(0,'rgba(0,0,0,0.82)');
+      cg2.addColorStop(0.45,'rgba(0,0,0,0.48)');
+      cg2.addColorStop(1,'rgba(0,0,0,0)');
+      lc.globalCompositeOperation='destination-out';
+      lc.beginPath();lc.moveTo(sx2,sy2);lc.arc(sx2,sy2,r2,ang2-hc2,ang2+hc2);lc.closePath();
+      lc.fillStyle=cg2;lc.fill();
+    }
   }
   ctx.drawImage(lightCanvas,0,0);
   ctx.save();
   if(sx1!==null&&E.temFogo){const wg=ctx.createRadialGradient(sx1,sy1,0,sx1,sy1,195);wg.addColorStop(0,'rgba(255,120,30,.09)');wg.addColorStop(1,'transparent');ctx.fillStyle=wg;ctx.fillRect(0,0,vw,vh);}
-  if(sx1!==null&&lanterna.ativa&&lanterna.nivel>0){const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;ctx.globalAlpha=.025+Math.sin(lanterna.pulsar)*.008;for(let ri=0;ri<3;ri++){const sa=ang+(ri-1)*(hc*.28),rl=r*.9;const vg=ctx.createLinearGradient(sx1,sy1,sx1+Math.cos(sa)*rl,sy1+Math.sin(sa)*rl);vg.addColorStop(0,'rgba(255,240,180,.85)');vg.addColorStop(1,'transparent');ctx.beginPath();ctx.moveTo(sx1,sy1);ctx.arc(sx1,sy1,rl,sa-hc*.07,sa+hc*.07);ctx.closePath();ctx.fillStyle=vg;ctx.fill();}ctx.globalAlpha=1;}
-  if(hasP2&&sx2!==null&&lanterna2.ativa&&lanterna2.nivel>0){const ang2=lanterna2.angulo,hc2=Math.PI*.5,r2=lanterna2.raioAtual*.9;ctx.globalAlpha=.02+Math.sin(tempo*2.5)*.008;const vg2=ctx.createLinearGradient(sx2,sy2,sx2+Math.cos(ang2)*r2,sy2+Math.sin(ang2)*r2);vg2.addColorStop(0,'rgba(255,180,230,.8)');vg2.addColorStop(1,'transparent');ctx.beginPath();ctx.moveTo(sx2,sy2);ctx.arc(sx2,sy2,r2,ang2-hc2*.4,ang2+hc2*.4);ctx.closePath();ctx.fillStyle=vg2;ctx.fill();ctx.globalAlpha=1;}
+  // Visual do feixe da lanterna (brilho amarelo) — alpha corrigido
+  if(sx1!==null&&lanterna.ativa&&lanterna.nivel>0){
+    const ang=lanterna.angulo,hc=lanterna.cone/2,r=lanterna.raioAtual;
+    ctx.globalAlpha=.16+Math.sin(lanterna.pulsar)*.05;
+    for(let ri=0;ri<3;ri++){
+      const sa=ang+(ri-1)*(hc*.28),rl=r*.92;
+      const vg=ctx.createLinearGradient(sx1,sy1,sx1+Math.cos(sa)*rl,sy1+Math.sin(sa)*rl);
+      vg.addColorStop(0,'rgba(255,240,180,.9)');
+      vg.addColorStop(0.55,'rgba(255,220,120,.35)');
+      vg.addColorStop(1,'transparent');
+      ctx.beginPath();ctx.moveTo(sx1,sy1);ctx.arc(sx1,sy1,rl,sa-hc*.1,sa+hc*.1);ctx.closePath();
+      ctx.fillStyle=vg;ctx.fill();
+    }
+    // núcleo mais forte perto do jogador
+    ctx.globalAlpha=.12+Math.sin(lanterna.pulsar)*.04;
+    const core=ctx.createRadialGradient(sx1,sy1,0,sx1,sy1,r*0.35);
+    core.addColorStop(0,'rgba(255,250,200,.7)');
+    core.addColorStop(1,'transparent');
+    ctx.fillStyle=core;
+    ctx.beginPath();ctx.arc(sx1,sy1,r*0.35,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+  }
+  // Visual do feixe P2
+  if(hasP2&&sx2!==null&&lanterna2.ativa&&lanterna2.nivel>0){
+    const ang2=lanterna2.angulo,hc2=Math.PI*.5,r2=lanterna2.raioAtual*.9;
+    ctx.globalAlpha=.14+Math.sin(tempo*2.5)*.04;
+    const vg2=ctx.createLinearGradient(sx2,sy2,sx2+Math.cos(ang2)*r2,sy2+Math.sin(ang2)*r2);
+    vg2.addColorStop(0,'rgba(255,180,230,.85)');
+    vg2.addColorStop(0.5,'rgba(255,140,200,.3)');
+    vg2.addColorStop(1,'transparent');
+    ctx.beginPath();ctx.moveTo(sx2,sy2);ctx.arc(sx2,sy2,r2,ang2-hc2*.45,ang2+hc2*.45);ctx.closePath();
+    ctx.fillStyle=vg2;ctx.fill();
+    ctx.globalAlpha=1;
+  }
   ctx.restore();
 }
 
