@@ -580,7 +580,7 @@ span.pc-only,span.mobile-only{display:inline;}
   width:580px;max-width:96vw;
   background:linear-gradient(165deg,rgba(3,16,4,.98),rgba(6,24,8,.98));
   border:1px solid rgba(0,255,127,.22);
-  z-index:450;display:none;
+  z-index:700;display:none;pointer-events:all;
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
   border-radius:5px;
@@ -694,13 +694,15 @@ span.pc-only,span.mobile-only{display:inline;}
   width:580px;max-width:96vw;
   background:linear-gradient(165deg,rgba(3,12,16,.98),rgba(5,18,22,.98));
   border:1px solid rgba(0,200,255,.22);
-  z-index:450;display:none;
+  z-index:700;display:none;
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
   border-radius:5px;
   box-shadow:0 24px 80px rgba(0,0,0,.9),0 0 40px rgba(0,180,255,.06);
+  pointer-events:all;
 }
-#painel-inv.aberto{display:block;animation:mentrada .35s var(--ease-out);}
+#painel-inv.aberto{display:block;animation:mentrada .35s var(--ease-out);pointer-events:all;}
+#painel-inv *{pointer-events:all;}
 .inv-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:15px 20px;
@@ -4472,27 +4474,35 @@ function fecharDiario(){document.getElementById('painel-diario').classList.remov
 //  INVENTÁRIO VISUAL (NOVO)
 // ══════════════════════════════════════════════════════════
 function desequiparArma(){
-  E.arma='mãos';
-  E.armaDano=10;
-  E.armaEmoji='✊';
-  // temVara permanece true se ainda tiver a vara no inventário (pode reequipar)
-  if(contarItem('Vara de Pesca')<=0)E.temVara=false;
+  try{
+    E.arma='mãos';
+    E.armaDano=10;
+    E.armaEmoji='✊';
+    if(typeof contarItem==='function' && contarItem('Vara de Pesca')<=0)E.temVara=false;
+  }catch(err){console.error(err);}
 }
 
 function dadosEquipavel(item){
   if(!item)return null;
-  const n=item.nome||'', e=item.emoji||'';
-  if(n==='Machado'||n==='Machado de Pedra'||e==='🪓')return {id:'arma_machado',dano:28,emoji:'🪓',label:'Machado'};
-  if(n==='Faca de Bambu'||n==='Faca'||e==='🔪')return {id:'arma_faca',dano:18,emoji:'🔪',label:'Faca'};
-  if(n==='Arco e Flecha'||e==='🏹')return {id:'arco',dano:22,emoji:'🏹',label:'Arco'};
-  if(n==='Vara de Pesca'||e==='🎣')return {id:'vara',dano:10,emoji:'🎣',label:'Vara de Pesca',vara:true};
+  const n=String(item.nome||'');
+  const e=String(item.emoji||'');
+  const t=String(item.tipo||'');
+  if(n==='Machado'||n==='Machado de Pedra'||e==='🪓'||(t==='arma'&&e==='🪓'))return {id:'arma_machado',dano:28,emoji:'🪓',label:'Machado'};
+  if(n==='Faca de Bambu'||n==='Faca'||e==='🔪'||(t==='arma'&&e==='🔪'))return {id:'arma_faca',dano:18,emoji:'🔪',label:'Faca'};
+  if(n==='Arco e Flecha'||e==='🏹'||(t==='arma'&&e==='🏹'))return {id:'arco',dano:22,emoji:'🏹',label:'Arco'};
+  if(n==='Vara de Pesca'||e==='🎣'||t==='ferr'&&e==='🎣')return {id:'vara',dano:10,emoji:'🎣',label:'Vara de Pesca',vara:true};
+  if(t==='arma'){
+    // fallback genérico para qualquer arma
+    return {id:n||'arma',dano:item.dano||18,emoji:e||'⚔',label:n||'Arma'};
+  }
   return null;
 }
 
 function itemEstaEquipado(item){
   const d=dadosEquipavel(item);
-  if(!d)return false;
-  return E.arma===d.id && E.armaEmoji===d.emoji;
+  if(!d||!E)return false;
+  if(d.vara)return E.arma==='vara'||(E.armaEmoji==='🎣'&&E.arma!=='mãos');
+  return (E.arma===d.id)||(E.armaEmoji===d.emoji&&E.arma&&E.arma!=='mãos');
 }
 
 function itemEhConsumivel(item){
@@ -4501,137 +4511,219 @@ function itemEhConsumivel(item){
   if(item.tipo==='comida'||item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida'||item.ef==='vida'||item.ef==='sede')return true;
   if(n==='Antídoto'||item.ef==='antidoto')return true;
   if(n==='Bandagem'||item.ef==='bandagem')return true;
-  if(n==='Erva Medicinal')return true;
-  if(n==='Mel Silvestre'||n==='Peixe Seco'||n==='Peixe Fresco'||n==='Fruta Silvestre'||n==='Raiz Nutritiva'||n==='Castanha-do-Pará'||n==='Água Limpa')return true;
+  if(n==='Erva Medicinal'||n==='Mel Silvestre'||n==='Peixe Seco'||n==='Peixe Fresco'||n==='Fruta Silvestre'||n==='Raiz Nutritiva'||n==='Castanha-do-Pará'||n==='Água Limpa')return true;
   return false;
 }
 
 function equiparItem(item){
   const d=dadosEquipavel(item);
   if(!d)return false;
-  // Se já tem outra arma, troca automaticamente
   E.arma=d.id;
   E.armaDano=d.dano;
   E.armaEmoji=d.emoji;
   if(d.vara)E.temVara=true;
-  sfx.conquista();
-  msg(d.emoji+' '+d.label+' equipado!');
+  try{sfx.conquista();}catch(e){}
+  msg(d.emoji+' '+d.label+' equipado na mão!');
   return true;
 }
 
-function abrirInv(){
-  sfx.botao();
+function nomeArmaAtual(){
+  if(!E||!E.arma||E.arma==='mãos')return '✊ Mãos livres';
+  if(E.arma==='arma_machado')return '🪓 Machado';
+  if(E.arma==='arma_faca')return '🔪 Faca';
+  if(E.arma==='arco')return '🏹 Arco';
+  if(E.arma==='vara')return '🎣 Vara';
+  return (E.armaEmoji||'⚔')+' Equipado';
+}
+function atualizarChipArma(){
+  try{
+    const efDiv=document.getElementById('status-efeitos');
+    if(!efDiv)return;
+    // remove chip de arma antigo
+    Array.from(efDiv.querySelectorAll('[data-chip="arma"]')).forEach(n=>n.remove());
+    if(E.arma&&E.arma!=='mãos'){
+      const sp=document.createElement('span');
+      sp.className='efeit-chip';
+      sp.dataset.chip='arma';
+      sp.style.color='#ffddaa';
+      sp.style.cursor='pointer';
+      sp.title='Clique para desequipar';
+      sp.textContent=E.armaEmoji||'⚔';
+      sp.onclick=function(){
+        desequiparArma();
+        msg('✊ Desequipado.');
+        atualizarChipArma();
+        if(document.getElementById('painel-inv')?.classList.contains('aberto'))abrirInv(true);
+        try{atualizarAcoes();}catch(e){}
+      };
+      efDiv.appendChild(sp);
+    }
+  }catch(e){}
+}
+
+function abrirInv(silencioso){
+  if(!silencioso)try{sfx.botao();}catch(e){}
   const grid=document.getElementById('inv-grid');
+  if(!grid||!E)return;
   grid.innerHTML='';
-  // barra do que está na mão
+
+  // Barra: o que está na mão + botão desequipar
   const bar=document.createElement('div');
   bar.className='inv-equip-bar';
-  bar.style.gridColumn='1/-1';
-  const armaTxt=(E.arma&&E.arma!=='mãos')?((E.armaEmoji||'')+' '+(E.arma==='arma_machado'?'Machado':E.arma==='arma_faca'?'Faca':E.arma==='arco'?'Arco':E.arma==='vara'?'Vara':'Arma')):'✊ Mãos livres';
-  bar.innerHTML='Na mão: <strong>'+armaTxt+'</strong> · toque no item para equipar / desequipar';
+  bar.style.cssText='grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:10px 12px;margin-bottom:4px;';
+  const temArma=E.arma&&E.arma!=='mãos';
+  bar.innerHTML='<span style="font-family:Share Tech Mono,monospace;font-size:.55rem;color:rgba(180,200,170,.7);letter-spacing:.06em;">Na mão: <strong style="color:var(--vn)">'+(nomeArmaAtual())+'</strong></span>';
+  if(temArma){
+    const btnOff=document.createElement('button');
+    btnOff.type='button';
+    btnOff.textContent='⬇ Desequipar';
+    btnOff.style.cssText='font-family:Share Tech Mono,monospace;font-size:.55rem;letter-spacing:.08em;padding:6px 12px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,160,60,.5);background:rgba(255,120,40,.15);color:#ffcc88;text-transform:uppercase;pointer-events:all;';
+    btnOff.onpointerdown=function(ev){ev.preventDefault();ev.stopPropagation();};
+    btnOff.onclick=function(ev){
+      ev.preventDefault();ev.stopPropagation();
+      desequiparArma();
+      msg('✊ Item desequipado. Mãos livres.');
+      try{sfx.botao();}catch(e){}
+      abrirInv(true);
+      try{atualizarHUDBarras();}catch(e){}
+      try{atualizarAcoes();}catch(e){}
+      try{atualizarChipArma();}catch(e){}
+      // atualiza chips sem reabrir inv em loop
+      try{
+        const invDiv=document.getElementById('inv-wrap');
+        if(invDiv){
+          const counts={};
+          E.inv.forEach(i=>{if(!counts[i.nome])counts[i.nome]={e:i.emoji,n:0};counts[i.nome].n+=(i.qtd||1);});
+          invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>'<span class="inv-chip" onclick="abrirInv()">'+d.e+' '+nm+(d.n>1?' ×'+d.n:'')+'</span>').join('');
+        }
+      }catch(e){}
+    };
+    bar.appendChild(btnOff);
+  }
   grid.appendChild(bar);
 
-  if(E.inv.length===0){
+  if(!E.inv||E.inv.length===0){
     const vazio=document.createElement('div');
     vazio.className='inv-vazio';
-    vazio.innerHTML='<span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Explore a floresta para coletar itens.';
+    vazio.innerHTML='<span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Explore e fabrique itens para equipar.';
     grid.appendChild(vazio);
   }else{
-    E.inv.forEach((item,idx)=>{
+    E.inv.forEach(function(item,idx){
       const slot=document.createElement('div');
       const equipavel=dadosEquipavel(item);
       const equipado=itemEstaEquipado(item);
       const consumivel=itemEhConsumivel(item);
       slot.className='inv-slot'+(equipado?' equipado':'');
       const qtd=item.qtd||1;
-      let acaoLabel='', acaoClass='';
-      if(equipavel){
-        if(equipado){acaoLabel='Desequipar';acaoClass='desequipar';}
-        else{acaoLabel='Equipar';acaoClass='equipar';}
-      }else if(consumivel){
-        acaoLabel='Usar';acaoClass='usar';
-      }else{
-        acaoLabel='Item';acaoClass='';
-      }
+      let acaoLabel='Item', acaoClass='';
+      if(equipavel){acaoLabel=equipado?'Desequipar':'Equipar';acaoClass=equipado?'desequipar':'equipar';}
+      else if(consumivel){acaoLabel='Usar';acaoClass='usar';}
       slot.innerHTML=
-        (qtd>1?`<span class="inv-slot-qtd">×${qtd}</span>`:'')+
-        `<span class="inv-slot-emoji">${item.emoji||'📦'}</span>`+
-        `<span class="inv-slot-nome">${item.nome||'?'}</span>`+
-        `<span class="inv-slot-acao ${acaoClass}">${acaoLabel}</span>`;
-      slot.title=equipado?'Clique para desequipar':(equipavel?'Clique para equipar':(consumivel?'Clique para usar':item.nome));
+        (qtd>1?'<span class="inv-slot-qtd">×'+qtd+'</span>':'')+
+        '<span class="inv-slot-emoji">'+(item.emoji||'📦')+'</span>'+
+        '<span class="inv-slot-nome">'+(item.nome||'?')+'</span>'+
+        '<span class="inv-slot-acao '+acaoClass+'">'+acaoLabel+'</span>';
       slot.style.cursor='pointer';
-      slot.onclick=()=>usarItemInv(idx);
+      slot.style.pointerEvents='all';
+      const handle=function(ev){
+        if(ev){ev.preventDefault();ev.stopPropagation();}
+        usarItemInv(idx);
+      };
+      slot.onclick=handle;
+      slot.onpointerup=function(ev){
+        // mobile: pointerup é mais confiável que click em alguns browsers
+        if(ev.pointerType==='touch'){handle(ev);}
+      };
       grid.appendChild(slot);
     });
   }
-  document.getElementById('painel-inv').classList.add('aberto');
+  const painel=document.getElementById('painel-inv');
+  if(painel){
+    painel.classList.add('aberto');
+    painel.style.display='block';
+    painel.style.pointerEvents='all';
+  }
 }
 
 function usarItemInv(idx){
-  const item=E.inv[idx];
-  if(!item)return;
-  sfx.botao();
-  const nome=item.nome;
+  try{
+    if(!E||!E.inv)return;
+    const item=E.inv[idx];
+    if(!item)return;
+    try{sfx.botao();}catch(e){}
+    const nome=item.nome;
 
-  // —— Equipáveis: toque alterna equipar / desequipar ——
-  const eq=dadosEquipavel(item);
-  if(eq){
-    if(itemEstaEquipado(item)){
-      desequiparArma();
-      msg((item.emoji||'')+' '+eq.label+' desequipado. Mãos livres.');
-      sfx.botao();
-    }else{
-      equiparItem(item);
+    // Equipáveis — alterna
+    const eq=dadosEquipavel(item);
+    if(eq){
+      if(itemEstaEquipado(item)){
+        desequiparArma();
+        msg((item.emoji||'')+' '+eq.label+' desequipado. Mãos livres.');
+      }else{
+        equiparItem(item);
+      }
+      abrirInv(true);
+      try{atualizarAcoes();}catch(e){}
+      try{atualizarChipArma();}catch(e){}
+      try{
+        const invDiv=document.getElementById('inv-wrap');
+        if(invDiv){
+          const counts={};
+          E.inv.forEach(i=>{if(!counts[i.nome])counts[i.nome]={e:i.emoji,n:0};counts[i.nome].n+=(i.qtd||1);});
+          invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>'<span class="inv-chip" onclick="abrirInv()">'+d.e+' '+nm+(d.n>1?' ×'+d.n:'')+'</span>').join('');
+        }
+      }catch(e){}
+      try{atualizarHUDBarras();}catch(e){}
+      return;
     }
-    abrirInv(); // atualiza visual sem fechar
-    atualizarHUD();
-    atualizarAcoes();
-    return;
-  }
 
-  // —— Consumíveis ——
-  if(item.tipo==='comida'||item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida'||item.ef==='vida'||item.ef==='sede'){
-    if(item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida')E.fome=Math.min(100,E.fome+(item.val||25));
-    if(item.ef==='fome_sede'||item.ef==='sede')E.sede=Math.min(100,E.sede+(item.val||20)*.6);
-    if(item.ef==='fome_vida'||item.ef==='vida')E.vida=Math.min(100,E.vida+(item.val||20));
-    if(!item.ef){E.fome=Math.min(100,E.fome+25);}
-    removerItem(nome,1);
-    sfx.coletar();
-    msg(item.emoji+' Você usou: '+nome);
-    abrirInv();atualizarHUD();
-    return;
+    // Consumíveis
+    if(item.tipo==='comida'||item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida'||item.ef==='vida'||item.ef==='sede'){
+      if(item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida')E.fome=Math.min(100,E.fome+(item.val||25));
+      if(item.ef==='fome_sede'||item.ef==='sede')E.sede=Math.min(100,E.sede+(item.val||20)*.6);
+      if(item.ef==='fome_vida'||item.ef==='vida')E.vida=Math.min(100,E.vida+(item.val||20));
+      if(!item.ef)E.fome=Math.min(100,E.fome+25);
+      removerItem(nome,1);sfx.coletar();msg(item.emoji+' Você usou: '+nome);
+      abrirInv(true);try{atualizarHUDBarras();}catch(e){}return;
+    }
+    if(nome==='Antídoto'||item.ef==='antidoto'){
+      if(E.veneno){removerItem('Antídoto',1);E.veneno=false;sfx.remedio();E.curas++;msg('💊 Antídoto usado!');}
+      else msg('Você não está envenenado.');
+      abrirInv(true);try{atualizarHUDBarras();}catch(e){}return;
+    }
+    if(nome==='Bandagem'||item.ef==='bandagem'){
+      removerItem(nome,1);E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg('🩹 +35 de vida.');
+      abrirInv(true);try{atualizarHUDBarras();}catch(e){}return;
+    }
+    if(nome==='Erva Medicinal'){
+      E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+8);removerItem(nome,1);sfx.remedio();msg('🌿 Erva usada.');
+      abrirInv(true);try{atualizarHUDBarras();}catch(e){}return;
+    }
+    if(nome==='Mel Silvestre'||nome==='Peixe Seco'||nome==='Peixe Fresco'||nome==='Fruta Silvestre'||nome==='Raiz Nutritiva'||nome==='Castanha-do-Pará'){
+      E.fome=Math.min(100,E.fome+(item.val||28));
+      if(nome.indexOf('Peixe')>=0)E.sede=Math.min(100,E.sede+10);
+      removerItem(nome,1);sfx.coletar();msg(item.emoji+' Você comeu: '+nome);
+      abrirInv(true);try{atualizarHUDBarras();}catch(e){}return;
+    }
+    if(nome==='Água Limpa'){
+      E.sede=Math.min(100,E.sede+(item.val||38));removerItem(nome,1);sfx.beber();msg('💧 Água bebida.');
+      abrirInv(true);try{atualizarHUDBarras();}catch(e){}return;
+    }
+    if(nome==='Tocha'||(item.emoji==='🔥'&&item.tipo!=='mat')){
+      msg('🔥 Use o botão de lanterna/tocha para acender.');
+      return;
+    }
+    msg(item.emoji+' '+nome+' — '+(item.tipo==='mat'||item.tipo==='ferr'?'material de craft.':'no inventário.'));
+  }catch(err){
+    console.error('usarItemInv',err);
+    msg('⚠ Erro ao usar item.');
   }
-  if(nome==='Antídoto'||item.ef==='antidoto'){
-    if(E.veneno){removerItem('Antídoto',1);E.veneno=false;sfx.remedio();E.curas++;msg('💊 Antídoto usado!');}
-    else msg('Você não está envenenado.');
-    abrirInv();atualizarHUD();return;
-  }
-  if(nome==='Bandagem'||item.ef==='bandagem'){
-    removerItem(nome,1);E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg('🩹 +35 de vida.');
-    abrirInv();atualizarHUD();return;
-  }
-  if(nome==='Erva Medicinal'){
-    E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+8);removerItem(nome,1);sfx.remedio();msg('🌿 Erva usada. +vida e sanidade.');
-    abrirInv();atualizarHUD();return;
-  }
-  if(nome==='Mel Silvestre'||nome==='Peixe Seco'||nome==='Peixe Fresco'||nome==='Fruta Silvestre'||nome==='Raiz Nutritiva'||nome==='Castanha-do-Pará'){
-    E.fome=Math.min(100,E.fome+(item.val||28));
-    if(nome==='Peixe Seco'||nome==='Peixe Fresco')E.sede=Math.min(100,E.sede+10);
-    removerItem(nome,1);sfx.coletar();msg(item.emoji+' Você comeu: '+nome);
-    abrirInv();atualizarHUD();return;
-  }
-  if(nome==='Água Limpa'){
-    E.sede=Math.min(100,E.sede+(item.val||38));removerItem(nome,1);sfx.beber();msg('💧 Água bebida.');
-    abrirInv();atualizarHUD();return;
-  }
-  if(nome==='Tocha'||(item.emoji==='🔥'&&item.tipo!=='mat')){
-    msg('🔥 Use o botão de lanterna/tocha para acender.');
-    return;
-  }
-  // Materiais e outros
-  msg(item.emoji+' '+nome+(item.tipo==='mat'||item.tipo==='ferr'?' — material de craft.':' — no inventário.'));
 }
-function fecharInv(){document.getElementById('painel-inv').classList.remove('aberto');sfx.botao();}
+function fecharInv(){
+  const p=document.getElementById('painel-inv');
+  if(p){p.classList.remove('aberto');p.style.display='none';}
+  try{sfx.botao();}catch(e){}
+}
 
 // ══════════════════════════════════════════════════════════
 //  CONQUISTAS
@@ -5145,14 +5237,14 @@ function atualizarHUD(){
   if((E.baseNivel||0)>0){const b=BASE_NIVEIS[E.baseNivel]||{};efDiv.innerHTML+='<span class="efeit-chip" style="color:#e8c040">'+(b.emoji||'⛺')+' Base Nv.'+E.baseNivel+'</span>';}
   if(E.temVara||contarItem('Vara de Pesca')>0)efDiv.innerHTML+='<span class="efeit-chip" style="color:#5ab0e0">🎣 Vara</span>';
   if(tocha.ativa)efDiv.innerHTML+='<span class="efeit-chip" style="color:#ffaa44">🔥 Tocha</span>';
-  if(E.arma!=='mãos')efDiv.innerHTML+='<span class="efeit-chip" style="color:#ffddaa">'+E.armaEmoji+'</span>';
+  if(E.arma&&E.arma!=='mãos'){const _ac=document.createElement('span');_ac.className='efeit-chip';_ac.dataset.chip='arma';_ac.style.cssText='color:#ffddaa;cursor:pointer';_ac.title='Clique para desequipar';_ac.textContent=E.armaEmoji||'⚔';_ac.onclick=()=>{desequiparArma();atualizarChipArma();msg('✊ Desequipado.');if(document.getElementById('painel-inv')&&document.getElementById('painel-inv').classList.contains('aberto'))abrirInv(true);try{atualizarAcoes();}catch(e){}};efDiv.appendChild(_ac);}
   if(modo2P)efDiv.innerHTML+='<span class="efeit-chip" style="color:var(--p2)">👥 2P</span>';
   if(E.lendas.length>=8)efDiv.innerHTML+='<span class="efeit-chip" style="color:#e8c040;animation:bdest 1.5s infinite">🏙 Quase!</span>';
   const invDiv=document.getElementById('inv-wrap');const counts={};
   E.inv.forEach(i=>{if(!counts[i.nome])counts[i.nome]={e:i.emoji,n:0};counts[i.nome].n+=(i.qtd||1);});
   invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>`<span class="inv-chip" onclick="abrirInv()">${d.e} ${nm}${d.n>1?' ×'+d.n:''}</span>`).join('');
   atualizarAcoes();
-  if(document.getElementById('painel-inv').classList.contains('aberto'))abrirInv();
+  // inv se atualiza sozinho ao equipar — evita reabrir e perder clique
 }
 
 // ══════════════════════════════════════════════════════════
