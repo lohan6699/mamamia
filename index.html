@@ -722,8 +722,8 @@ span.pc-only,span.mobile-only{display:inline;}
 .inv-slot{
   background:rgba(0,0,0,.42);
   border:1px solid rgba(255,255,255,.07);
-  border-radius:5px;padding:14px 6px;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
+  border-radius:5px;padding:12px 6px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:5px;
   transition:all .25s var(--ease-out);position:relative;
 }
 .inv-slot:hover{
@@ -731,6 +731,11 @@ span.pc-only,span.mobile-only{display:inline;}
   background:rgba(0,200,255,.08);
   box-shadow:0 0 18px rgba(0,200,255,.15);
   transform:translateY(-3px);
+}
+.inv-slot.equipado{
+  border-color:rgba(0,255,127,.65)!important;
+  background:rgba(0,255,127,.1);
+  box-shadow:0 0 16px rgba(0,255,127,.2),inset 0 0 12px rgba(0,255,127,.05);
 }
 .inv-slot-emoji{
   font-size:1.9rem;
@@ -749,6 +754,37 @@ span.pc-only,span.mobile-only{display:inline;}
   padding:1px 5px;border-radius:8px;
   border:1px solid rgba(0,200,255,.3);
 }
+.inv-slot-acao{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.42rem;letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:2px 7px;border-radius:10px;
+  margin-top:2px;
+  border:1px solid rgba(255,255,255,.12);
+  color:rgba(220,236,212,.55);
+}
+.inv-slot-acao.equipar{
+  color:var(--vn);
+  border-color:rgba(0,255,127,.35);
+  background:rgba(0,255,127,.08);
+}
+.inv-slot-acao.desequipar{
+  color:#ffaa66;
+  border-color:rgba(255,160,60,.4);
+  background:rgba(255,120,40,.1);
+}
+.inv-slot-acao.usar{
+  color:#5cd8ff;
+  border-color:rgba(0,200,255,.3);
+  background:rgba(0,180,255,.08);
+}
+.inv-equip-bar{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:8px 16px 0;font-family:'Share Tech Mono',monospace;
+  font-size:.52rem;color:rgba(180,200,170,.55);letter-spacing:.06em;
+}
+.inv-equip-bar strong{color:var(--vn);}
+
 .inv-vazio{
   grid-column:1/-1;text-align:center;
   padding:2.8rem 1rem;
@@ -4435,21 +4471,94 @@ function fecharDiario(){document.getElementById('painel-diario').classList.remov
 // ══════════════════════════════════════════════════════════
 //  INVENTÁRIO VISUAL (NOVO)
 // ══════════════════════════════════════════════════════════
+function desequiparArma(){
+  E.arma='mãos';
+  E.armaDano=10;
+  E.armaEmoji='✊';
+  // temVara permanece true se ainda tiver a vara no inventário (pode reequipar)
+  if(contarItem('Vara de Pesca')<=0)E.temVara=false;
+}
+
+function dadosEquipavel(item){
+  if(!item)return null;
+  const n=item.nome||'', e=item.emoji||'';
+  if(n==='Machado'||n==='Machado de Pedra'||e==='🪓')return {id:'arma_machado',dano:28,emoji:'🪓',label:'Machado'};
+  if(n==='Faca de Bambu'||n==='Faca'||e==='🔪')return {id:'arma_faca',dano:18,emoji:'🔪',label:'Faca'};
+  if(n==='Arco e Flecha'||e==='🏹')return {id:'arco',dano:22,emoji:'🏹',label:'Arco'};
+  if(n==='Vara de Pesca'||e==='🎣')return {id:'vara',dano:10,emoji:'🎣',label:'Vara de Pesca',vara:true};
+  return null;
+}
+
+function itemEstaEquipado(item){
+  const d=dadosEquipavel(item);
+  if(!d)return false;
+  return E.arma===d.id && E.armaEmoji===d.emoji;
+}
+
+function itemEhConsumivel(item){
+  if(!item)return false;
+  const n=item.nome||'';
+  if(item.tipo==='comida'||item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida'||item.ef==='vida'||item.ef==='sede')return true;
+  if(n==='Antídoto'||item.ef==='antidoto')return true;
+  if(n==='Bandagem'||item.ef==='bandagem')return true;
+  if(n==='Erva Medicinal')return true;
+  if(n==='Mel Silvestre'||n==='Peixe Seco'||n==='Peixe Fresco'||n==='Fruta Silvestre'||n==='Raiz Nutritiva'||n==='Castanha-do-Pará'||n==='Água Limpa')return true;
+  return false;
+}
+
+function equiparItem(item){
+  const d=dadosEquipavel(item);
+  if(!d)return false;
+  // Se já tem outra arma, troca automaticamente
+  E.arma=d.id;
+  E.armaDano=d.dano;
+  E.armaEmoji=d.emoji;
+  if(d.vara)E.temVara=true;
+  sfx.conquista();
+  msg(d.emoji+' '+d.label+' equipado!');
+  return true;
+}
+
 function abrirInv(){
   sfx.botao();
   const grid=document.getElementById('inv-grid');
   grid.innerHTML='';
+  // barra do que está na mão
+  const bar=document.createElement('div');
+  bar.className='inv-equip-bar';
+  bar.style.gridColumn='1/-1';
+  const armaTxt=(E.arma&&E.arma!=='mãos')?((E.armaEmoji||'')+' '+(E.arma==='arma_machado'?'Machado':E.arma==='arma_faca'?'Faca':E.arma==='arco'?'Arco':E.arma==='vara'?'Vara':'Arma')):'✊ Mãos livres';
+  bar.innerHTML='Na mão: <strong>'+armaTxt+'</strong> · toque no item para equipar / desequipar';
+  grid.appendChild(bar);
+
   if(E.inv.length===0){
-    grid.innerHTML='<div class="inv-vazio"><span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Explore a floresta para coletar itens.</div>';
+    const vazio=document.createElement('div');
+    vazio.className='inv-vazio';
+    vazio.innerHTML='<span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Explore a floresta para coletar itens.';
+    grid.appendChild(vazio);
   }else{
     E.inv.forEach((item,idx)=>{
       const slot=document.createElement('div');
-      slot.className='inv-slot';
+      const equipavel=dadosEquipavel(item);
+      const equipado=itemEstaEquipado(item);
+      const consumivel=itemEhConsumivel(item);
+      slot.className='inv-slot'+(equipado?' equipado':'');
       const qtd=item.qtd||1;
-      const equipado=(item.nome==='Vara de Pesca'&&E.temVara)||(item.tipo==='arma'&&E.armaEmoji===item.emoji);
-      if(equipado)slot.style.borderColor='rgba(0,255,127,.7)';
-      slot.innerHTML=`${qtd>1?`<span class="inv-slot-qtd">×${qtd}</span>`:''}<span class="inv-slot-emoji">${item.emoji}</span><span class="inv-slot-nome">${item.nome}${equipado?' ✓':''}</span>`;
-      slot.title='Toque para usar / equipar';
+      let acaoLabel='', acaoClass='';
+      if(equipavel){
+        if(equipado){acaoLabel='Desequipar';acaoClass='desequipar';}
+        else{acaoLabel='Equipar';acaoClass='equipar';}
+      }else if(consumivel){
+        acaoLabel='Usar';acaoClass='usar';
+      }else{
+        acaoLabel='Item';acaoClass='';
+      }
+      slot.innerHTML=
+        (qtd>1?`<span class="inv-slot-qtd">×${qtd}</span>`:'')+
+        `<span class="inv-slot-emoji">${item.emoji||'📦'}</span>`+
+        `<span class="inv-slot-nome">${item.nome||'?'}</span>`+
+        `<span class="inv-slot-acao ${acaoClass}">${acaoLabel}</span>`;
+      slot.title=equipado?'Clique para desequipar':(equipavel?'Clique para equipar':(consumivel?'Clique para usar':item.nome));
       slot.style.cursor='pointer';
       slot.onclick=()=>usarItemInv(idx);
       grid.appendChild(slot);
@@ -4457,12 +4566,30 @@ function abrirInv(){
   }
   document.getElementById('painel-inv').classList.add('aberto');
 }
+
 function usarItemInv(idx){
   const item=E.inv[idx];
   if(!item)return;
   sfx.botao();
   const nome=item.nome;
-  // Comidas e consumíveis
+
+  // —— Equipáveis: toque alterna equipar / desequipar ——
+  const eq=dadosEquipavel(item);
+  if(eq){
+    if(itemEstaEquipado(item)){
+      desequiparArma();
+      msg((item.emoji||'')+' '+eq.label+' desequipado. Mãos livres.');
+      sfx.botao();
+    }else{
+      equiparItem(item);
+    }
+    abrirInv(); // atualiza visual sem fechar
+    atualizarHUD();
+    atualizarAcoes();
+    return;
+  }
+
+  // —— Consumíveis ——
   if(item.tipo==='comida'||item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida'||item.ef==='vida'||item.ef==='sede'){
     if(item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida')E.fome=Math.min(100,E.fome+(item.val||25));
     if(item.ef==='fome_sede'||item.ef==='sede')E.sede=Math.min(100,E.sede+(item.val||20)*.6);
@@ -4471,50 +4598,38 @@ function usarItemInv(idx){
     removerItem(nome,1);
     sfx.coletar();
     msg(item.emoji+' Você usou: '+nome);
-    fecharInv();atualizarHUD();
+    abrirInv();atualizarHUD();
     return;
   }
   if(nome==='Antídoto'||item.ef==='antidoto'){
     if(E.veneno){removerItem('Antídoto',1);E.veneno=false;sfx.remedio();E.curas++;msg('💊 Antídoto usado!');}
     else msg('Você não está envenenado.');
-    fecharInv();atualizarHUD();return;
+    abrirInv();atualizarHUD();return;
   }
   if(nome==='Bandagem'||item.ef==='bandagem'){
     removerItem(nome,1);E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg('🩹 +35 de vida.');
-    fecharInv();atualizarHUD();return;
+    abrirInv();atualizarHUD();return;
   }
   if(nome==='Erva Medicinal'){
     E.vida=Math.min(100,E.vida+12);E.sanidade=Math.min(100,E.sanidade+8);removerItem(nome,1);sfx.remedio();msg('🌿 Erva usada. +vida e sanidade.');
-    fecharInv();atualizarHUD();return;
+    abrirInv();atualizarHUD();return;
   }
-  // Equipar armas
-  if(nome==='Machado'||nome==='Machado de Pedra'||item.emoji==='🪓'){
-    E.arma='arma_machado';E.armaDano=28;E.armaEmoji='🪓';msg('🪓 Machado equipado na mão!');sfx.conquista();
-    fecharInv();atualizarHUD();return;
+  if(nome==='Mel Silvestre'||nome==='Peixe Seco'||nome==='Peixe Fresco'||nome==='Fruta Silvestre'||nome==='Raiz Nutritiva'||nome==='Castanha-do-Pará'){
+    E.fome=Math.min(100,E.fome+(item.val||28));
+    if(nome==='Peixe Seco'||nome==='Peixe Fresco')E.sede=Math.min(100,E.sede+10);
+    removerItem(nome,1);sfx.coletar();msg(item.emoji+' Você comeu: '+nome);
+    abrirInv();atualizarHUD();return;
   }
-  if(nome==='Faca de Bambu'||nome==='Faca'||item.emoji==='🔪'){
-    E.arma='arma_faca';E.armaDano=18;E.armaEmoji='🔪';msg('🔪 Faca equipada na mão!');sfx.conquista();
-    fecharInv();atualizarHUD();return;
+  if(nome==='Água Limpa'){
+    E.sede=Math.min(100,E.sede+(item.val||38));removerItem(nome,1);sfx.beber();msg('💧 Água bebida.');
+    abrirInv();atualizarHUD();return;
   }
-  if(nome==='Arco e Flecha'||item.emoji==='🏹'){
-    E.arma='arco';E.armaDano=22;E.armaEmoji='🏹';msg('🏹 Arco equipado na mão!');sfx.conquista();
-    fecharInv();atualizarHUD();return;
-  }
-  // Equipar vara de pesca na mão
-  if(nome==='Vara de Pesca'||item.emoji==='🎣'){
-    E.temVara=true;
-    E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';
-    msg('🎣 Vara de Pesca na mão! Vá até um rio e use Pescar.');
-    sfx.conquista();
-    fecharInv();atualizarHUD();atualizarAcoes();
-    return;
-  }
-  if(nome==='Tocha'||item.emoji==='🔥'&&item.tipo!=='mat'){
+  if(nome==='Tocha'||(item.emoji==='🔥'&&item.tipo!=='mat')){
     msg('🔥 Use o botão de lanterna/tocha para acender.');
     return;
   }
-  // Materiais e outros — só informa
-  msg(item.emoji+' '+nome+(item.tipo==='mat'?' — material de craft.':' — no inventário.'));
+  // Materiais e outros
+  msg(item.emoji+' '+nome+(item.tipo==='mat'||item.tipo==='ferr'?' — material de craft.':' — no inventário.'));
 }
 function fecharInv(){document.getElementById('painel-inv').classList.remove('aberto');sfx.botao();}
 
