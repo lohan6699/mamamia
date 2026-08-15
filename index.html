@@ -780,13 +780,59 @@ span.pc-only,span.mobile-only{display:inline;}
   border-color:rgba(0,200,255,.3);
   background:rgba(0,180,255,.08);
 }
+.inv-filters{
+  display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 0;
+  border-bottom:1px solid rgba(0,200,255,.08);
+}
+.inv-filter-btn{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 10px;border-radius:12px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(0,0,0,.35);color:rgba(200,220,190,.55);
+  transition:all .2s;
+}
+.inv-filter-btn:hover{border-color:rgba(0,200,255,.4);color:#9fe8ff;}
+.inv-filter-btn.ativo{
+  border-color:rgba(0,200,255,.55);
+  background:rgba(0,180,255,.12);color:#5cd8ff;
+  box-shadow:0 0 12px rgba(0,180,255,.15);
+}
+.inv-dur-bar{
+  width:80%;height:3px;background:rgba(255,255,255,.08);
+  border-radius:2px;overflow:hidden;margin-top:2px;
+}
+.inv-dur-fill{
+  height:100%;border-radius:2px;
+  background:linear-gradient(90deg,#00ff7f,#e8c040);
+  transition:width .3s;
+}
+.inv-dur-fill.baixa{background:linear-gradient(90deg,#ff6040,#ffaa40);}
+.inv-dur-fill.critica{background:#ff4040;}
+.inv-slot-dur-txt{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.38rem;color:rgba(180,200,170,.45);
+}
 .inv-equip-bar{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:8px 16px 0;font-family:'Share Tech Mono',monospace;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;
+  padding:8px 12px;font-family:'Share Tech Mono',monospace;
   font-size:.52rem;color:rgba(180,200,170,.55);letter-spacing:.06em;
+  background:rgba(0,0,0,.25);border-radius:4px;margin:0 12px;
 }
 .inv-equip-bar strong{color:var(--vn);}
-
+.inv-slot.armadura-eq{
+  border-color:rgba(100,180,255,.6)!important;
+  background:rgba(40,100,180,.12);
+}
+.inv-slot.amuleto-eq{
+  border-color:rgba(200,144,255,.55)!important;
+  background:rgba(120,60,180,.1);
+}
+.inv-count-badge{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.45rem;color:rgba(180,200,170,.4);
+  padding:4px 16px 0;text-align:center;
+}
 .inv-vazio{
   grid-column:1/-1;text-align:center;
   padding:2.8rem 1rem;
@@ -2034,6 +2080,14 @@ input:focus-visible{
 <!-- INVENTÁRIO (NOVO) -->
 <div id="painel-inv">
   <div class="inv-header"><div class="inv-titulo">🎒 INVENTÁRIO</div><button class="craft-fechar" onclick="fecharInv()">✕</button></div>
+  <div class="inv-filters" id="inv-filters">
+    <button type="button" class="inv-filter-btn ativo" data-f="todos" onclick="setInvFiltro('todos')">Todos</button>
+    <button type="button" class="inv-filter-btn" data-f="arma" onclick="setInvFiltro('arma')">Armas</button>
+    <button type="button" class="inv-filter-btn" data-f="comida" onclick="setInvFiltro('comida')">Comida</button>
+    <button type="button" class="inv-filter-btn" data-f="mat" onclick="setInvFiltro('mat')">Materiais</button>
+    <button type="button" class="inv-filter-btn" data-f="equip" onclick="setInvFiltro('equip')">Equip.</button>
+    <button type="button" class="inv-filter-btn" data-f="outros" onclick="setInvFiltro('outros')">Outros</button>
+  </div>
   <div class="inv-grid" id="inv-grid"></div>
 </div>
 
@@ -2331,7 +2385,7 @@ async function salvarProgresso(){
   try{
     const dados={x:E.x,y:E.y,vida:E.vida,fome:E.fome,sede:E.sede,energia:E.energia,sanidade:E.sanidade,
       temperatura:E.temperatura,lendas:E.lendas,diaNum,craftados:E.craftados,inv:E.inv,
-      inimigosVencidos:E.inimigosVencidos,arma:E.arma,armaDano:E.armaDano,armaEmoji:E.armaEmoji,
+      inimigosVencidos:E.inimigosVencidos,arma:E.arma,armaDano:E.armaDano,armaEmoji:E.armaEmoji,armadura:E.armadura,armaduraDef:E.armaduraDef,armaduraEmoji:E.armaduraEmoji,amuleto:E.amuleto,amuletoEmoji:E.amuletoEmoji,botas:E.botas,botasEmoji:E.botasEmoji,
       temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,baseNivel:E.baseNivel,baseX:E.baseX,baseY:E.baseY,jangada:E.jangada,temVara:E.temVara,curas:E.curas,
       noitesSobrevividas:E.noitesSobrevividas,modo2P:modo2P};
     await storage.set('save_'+jogadorNome,JSON.stringify(dados),false);
@@ -2344,7 +2398,7 @@ async function carregarProgresso(){
     const r=await storage.get('save_'+jogadorNome,false);
     if(r&&r.value){
       const d=JSON.parse(r.value);
-      Object.assign(E,d);
+      Object.assign(E,d);if(E.armaduraDef==null)E.armaduraDef=0;if(!E.armadura){E.armadura=null;E.armaduraEmoji='';}if(!E.amuleto){E.amuleto=null;E.amuletoEmoji='';}if(!E.botas){E.botas=null;E.botasEmoji='';}
       if(d.diaNum){diaNum=d.diaNum;tempo=Math.max(tempo,(diaNum-1)*65*PERIODOS.length);E.diaNum=diaNum;}
       d.lendas?.forEach(i=>legendasVistas.add(i));
       // Restaura vara se estiver no inventário
@@ -3546,6 +3600,10 @@ const RECEITAS=[
   {id:'repelente',nome:'🌿 Repelente Natural',req:{'Erva Medicinal':2,'Mel Silvestre':1},desc:'Inimigos te evitam por 1 dia.',ef:'repelente'},
   {id:'flecha',nome:'🏹 Arco e Flecha',req:{Bambu:3,'Erva Medicinal':1},desc:'Ataque à distância contra onças.',ef:'arco'},
   {id:'veneno_def',nome:'☠ Veneno de Defesa',req:{Cogumelo:2,'Erva Medicinal':1},desc:'Enfraquece inimigos que atacam.',ef:'veneno_def'},
+  {id:'colete',nome:'🦺 Colete de Couro',req:{Couro:2,Bambu:1},desc:'Reduz dano recebido em 25%. Equipável.',ef:'colete'},
+  {id:'botas',nome:'🥾 Botas de Bambu',req:{Bambu:3,Couro:1},desc:'Gasta menos energia ao andar. Equipável.',ef:'botas'},
+  {id:'amuleto',nome:'🔮 Amuleto da Floresta',req:{'Erva Medicinal':2,Pederneira:1,'Mel Silvestre':1},desc:'+sanidade passiva. Protege a mente. Equipável.',ef:'amuleto'},
+  {id:'mochila',nome:'🎒 Mochila Reforçada',req:{Couro:1,Bambu:2},desc:'Organiza melhor seus itens (visual).',ef:'mochila'},
 ];
 
 // ══════════════════════════════════════════════════════════
@@ -3798,6 +3856,9 @@ function criarEstadoJogador(x,y){
     veneno:false,venCD:0,repelente:0,jangada:false,temVara:false,temFiltro:false,craftados:[],
     curas:0,inimigosVencidos:0,noitesSobrevividas:0,diaNum:1,
     arma:'mãos',armaDano:10,armaEmoji:'✊',veneno_def:false,
+    armadura:null,armaduraDef:0,armaduraEmoji:'',
+    amuleto:null,amuletoEmoji:'',
+    botas:null,botasEmoji:'',
     morto:false,modo2P:false,p2Revivido:0,manausDesbloqueada:false};
 }
 
@@ -4251,7 +4312,7 @@ function moverJogador(dt){
       if((tile.tipo===T.AGUA||tile.tipo===T.LIRIO)&&!E.jangada){E.x=Math.max(.6,Math.min(MW-1.6,E.x+dx*.55));E.y=Math.max(.6,Math.min(MH-1.6,E.y+dy*.55));E.sede=Math.min(100,E.sede+.55);E.temperatura=Math.max(34,E.temperatura-.05);}
       else{E.x=nx;E.y=ny;}
       E.passos++;tile.vis=true;sfxPasso(tile);
-      if(E.passos%55===0){E.fome=Math.max(0,E.fome-1.5);E.sede=Math.max(0,E.sede-2.0);E.energia=Math.max(0,E.energia-.8);}
+      if(E.passos%55===0){E.fome=Math.max(0,E.fome-1.5);E.sede=Math.max(0,E.sede-2.0);E.energia=Math.max(0,E.energia-(E.botas?0.45:0.8));}
       if(tile.tipo===T.FRUTAS&&Math.random()<.007){E.fome=Math.min(100,E.fome+5);msg("Você encontra frutos caídos.");}
       if(tile.tipo===T.PANTANO){E.energia=Math.max(0,E.energia-dt*1.5);}
       if(tile.tipo===T.GRUTA){E.sanidade=Math.max(0,E.sanidade-dt*.8);if(Math.random()<.006)msg("👁 Uma presença observa de dentro da gruta...");}
@@ -4286,11 +4347,12 @@ function moverInimigos(dt){
 function verificarInimigos(dt){
   inimigos.forEach(ini=>{if(ini.morto)return;
   const d1=Math.hypot(ini.x-E.x,ini.y-E.y);
-  if(d1<ini.dist&&ini.atqCD<=0){ini.atqCD=2.2;let dmg=ini.dano;if(E.arma==='arma_machado')dmg=Math.max(0,dmg-18);if(E.arma==='arma_faca')dmg=Math.max(0,dmg-10);if(E.veneno_def){dmg=Math.floor(dmg*.5);if(Math.random()<.3)ini.vidaAtual-=15;}
+  if(d1<ini.dist&&ini.atqCD<=0){ini.atqCD=2.2;let dmg=ini.dano;if(E.arma==='arma_machado')dmg=Math.max(0,dmg-18);if(E.arma==='arma_faca')dmg=Math.max(0,dmg-10);if(E.armaduraDef)dmg=Math.max(1,Math.floor(dmg*(1-E.armaduraDef)));if(E.veneno_def){dmg=Math.floor(dmg*.5);if(Math.random()<.3)ini.vidaAtual-=15;}
   danoJogador(E,dmg);if(ini.veneno&&!E.veneno&&Math.random()<.55){E.veneno=true;msg("🐍 Envenenado! Use Antídoto.");}else msg("⚔ "+ini.nome+" atacou! −"+dmg);
   if(ini.tipo==='cobra')sfx.cobra();else if(ini.tipo==='onca')sfx.onca();else sfx.dano();
   const atqDmg=E.armaDano+(E.arma!=='mãos'?15:0);ini.vidaAtual-=atqDmg;
-  if(ini.vidaAtual<=0){ini.morto=true;E.inimigosVencidos++;sfx.combate();addParticle(ini.x,ini.y,'#cc2200',12);toast("⚔ "+ini.nome+" derrotado!");if(ini.drop){E.inv.push({...ini.drop});sfx.coletar();}}}
+  if(E.arma&&E.arma!=='mãos')gastarDurabilidadeArma(E);
+  if(ini.vidaAtual<=0){ini.morto=true;E.inimigosVencidos++;sfx.combate();addParticle(ini.x,ini.y,'#cc2200',12);toast("⚔ "+ini.nome+" derrotado!");if(ini.drop){const d=ini.drop;addInv(d.nome||'Item',d.emoji||'📦',d.ef==='mat'?'mat':(d.ef==='vida'?'erva':'mat'),1,d);sfx.coletar();}}}
   if(modo2P&&E2&&!E2.morto){
     const d2=Math.hypot(ini.x-E2.x,ini.y-E2.y);
     if(d2<ini.dist&&ini.atqCD<=0){
@@ -4343,7 +4405,65 @@ function coletarItem(item,jogador){
   }
   atualizarAcoes();
 }
-function addInv(nome,emoji,tipo,qtd=1){const ex=E.inv.find(i=>i.nome===nome);if(ex)ex.qtd=(ex.qtd||1)+qtd;else E.inv.push({nome,emoji,tipo,qtd});}
+function itemDurMax(nome,tipo){
+  if(tipo==='arma'||nome==='Machado'||nome==='Machado de Pedra')return 40;
+  if(nome==='Faca de Bambu'||nome==='Faca')return 35;
+  if(nome==='Arco e Flecha')return 30;
+  if(nome==='Vara de Pesca')return 25;
+  if(tipo==='armadura'||nome==='Colete de Couro')return 50;
+  if(nome==='Botas de Bambu')return 45;
+  if(nome==='Amuleto da Floresta')return 60;
+  return 0;
+}
+function addInv(nome,emoji,tipo,qtd=1,extra){
+  const durMax=itemDurMax(nome,tipo);
+  // armas/equipamentos NÃO empilham (cada um tem durabilidade própria)
+  if(durMax>0){
+    for(let i=0;i<qtd;i++){
+      const it={nome,emoji,tipo,qtd:1,dur:durMax,durMax};
+      if(extra)Object.assign(it,extra);
+      E.inv.push(it);
+    }
+    return;
+  }
+  const ex=E.inv.find(i=>i.nome===nome&&!i.durMax);
+  if(ex)ex.qtd=(ex.qtd||1)+qtd;
+  else{
+    const it={nome,emoji,tipo,qtd};
+    if(extra)Object.assign(it,extra);
+    E.inv.push(it);
+  }
+}
+function gastarDurabilidadeArma(jogador){
+  jogador=jogador||E;
+  if(!jogador.arma||jogador.arma==='mãos')return;
+  // acha o item equipado correspondente
+  const emoji=jogador.armaEmoji;
+  const it=jogador.inv.find(i=>{
+    if(!i.durMax)return false;
+    if(jogador.arma==='arma_machado')return i.emoji==='🪓'||i.nome==='Machado'||i.nome==='Machado de Pedra';
+    if(jogador.arma==='arma_faca')return i.emoji==='🔪'||i.nome.indexOf('Faca')>=0;
+    if(jogador.arma==='arco')return i.emoji==='🏹';
+    if(jogador.arma==='vara')return i.emoji==='🎣';
+    return i.emoji===emoji;
+  });
+  if(!it)return;
+  it.dur=Math.max(0,(it.dur||it.durMax)-1);
+  if(it.dur<=0){
+    // quebrou
+    const nome=it.nome;
+    const em=it.emoji;
+    const idx=jogador.inv.indexOf(it);
+    if(idx>=0)jogador.inv.splice(idx,1);
+    if(jogador===E){
+      desequiparArma();
+      msg(em+' '+nome+' quebrou!');
+      toast('💔 Equipamento destruído');
+    }
+  }else if(it.dur<=5&&jogador===E){
+    msg('⚠ '+it.nome+' quase quebrando ('+it.dur+'/'+it.durMax+')');
+  }
+}
 function danoJogador(jogador,qtd){
   jogador.vida=Math.max(0,jogador.vida-qtd);
   sfx.dano();
@@ -4368,6 +4488,8 @@ function atualizarStats(dt){
   if(E.sanidade>50&&perIdx===1)E.sanidade=Math.min(100,E.sanidade+dt*.8);
   if(noite&&(E.baseNivel||0)<1){E.energia=Math.max(0,E.energia-dt*.55);if(Math.random()<.003)dano(6);}else if(noite&&(E.baseNivel||0)===1){E.energia=Math.max(0,E.energia-dt*.2);}
   if(E.veneno){E.venCD-=dt;if(E.venCD<=0){E.venCD=1.5;dano(8);msg("☠ O veneno corrói...");}}
+  if(E.amuleto){E.sanidade=Math.min(100,E.sanidade+dt*0.35);}
+  if(E.botas&&E.energia<100){E.energia=Math.min(100,E.energia+dt*0.08);}
   if(E.repelente>0)E.repelente-=dt;
   // Regeneração perto da base (nível 3+)
   if((E.baseNivel||0)>=3&&E.baseX!=null){
@@ -4459,6 +4581,10 @@ function executarCraft(rec){
     case 'vara_pesca':E.temVara=true;E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';addInv('Vara de Pesca','🎣','ferr');msg("🎣 Vara de Pesca na mão! Vá até um rio e use Pescar.");break;
     case 'repelente':E.repelente=300;msg("🌿 Repelente ativo.");break;
     case 'veneno_def':E.veneno_def=true;if(modo2P&&E2)E2.veneno_def=true;msg("☠ Veneno de Defesa ativo.");break;
+    case 'colete':addInv('Colete de Couro','🦺','armadura');msg('🦺 Colete de Couro criado! Equipe no inventário.');break;
+    case 'botas':addInv('Botas de Bambu','🥾','armadura');msg('🥾 Botas de Bambu criadas! Equipe no inventário.');break;
+    case 'amuleto':addInv('Amuleto da Floresta','🔮','amuleto');msg('🔮 Amuleto da Floresta criado! Equipe no inventário.');break;
+    case 'mochila':addInv('Mochila Reforçada','🎒','ferr');msg('🎒 Mochila reforçada!');break;
   }
   fecharCraft();atualizarAcoes();toast("⚒ "+rec.nome+" fabricado!");
 }
@@ -4475,11 +4601,18 @@ function fecharDiario(){document.getElementById('painel-diario').classList.remov
 // ══════════════════════════════════════════════════════════
 function desequiparArma(){
   try{
-    E.arma='mãos';
-    E.armaDano=10;
-    E.armaEmoji='✊';
-    if(typeof contarItem==='function' && contarItem('Vara de Pesca')<=0)E.temVara=false;
+    E.arma='mãos';E.armaDano=10;E.armaEmoji='✊';
+    if(typeof contarItem==='function'&&contarItem('Vara de Pesca')<=0)E.temVara=false;
   }catch(err){console.error(err);}
+}
+function desequiparArmadura(){
+  E.armadura=null;E.armaduraDef=0;E.armaduraEmoji='';
+}
+function desequiparAmuleto(){
+  E.amuleto=null;E.amuletoEmoji='';
+}
+function desequiparBotas(){
+  E.botas=null;E.botasEmoji='';
 }
 
 function dadosEquipavel(item){
@@ -4487,20 +4620,23 @@ function dadosEquipavel(item){
   const n=String(item.nome||'');
   const e=String(item.emoji||'');
   const t=String(item.tipo||'');
-  if(n==='Machado'||n==='Machado de Pedra'||e==='🪓'||(t==='arma'&&e==='🪓'))return {id:'arma_machado',dano:28,emoji:'🪓',label:'Machado'};
-  if(n==='Faca de Bambu'||n==='Faca'||e==='🔪'||(t==='arma'&&e==='🔪'))return {id:'arma_faca',dano:18,emoji:'🔪',label:'Faca'};
-  if(n==='Arco e Flecha'||e==='🏹'||(t==='arma'&&e==='🏹'))return {id:'arco',dano:22,emoji:'🏹',label:'Arco'};
-  if(n==='Vara de Pesca'||e==='🎣'||t==='ferr'&&e==='🎣')return {id:'vara',dano:10,emoji:'🎣',label:'Vara de Pesca',vara:true};
-  if(t==='arma'){
-    // fallback genérico para qualquer arma
-    return {id:n||'arma',dano:item.dano||18,emoji:e||'⚔',label:n||'Arma'};
-  }
+  if(n==='Machado'||n==='Machado de Pedra'||e==='🪓')return {id:'arma_machado',dano:28,emoji:'🪓',label:'Machado',slot:'arma'};
+  if(n==='Faca de Bambu'||n==='Faca'||e==='🔪')return {id:'arma_faca',dano:18,emoji:'🔪',label:'Faca',slot:'arma'};
+  if(n==='Arco e Flecha'||e==='🏹')return {id:'arco',dano:22,emoji:'🏹',label:'Arco',slot:'arma'};
+  if(n==='Vara de Pesca'||e==='🎣')return {id:'vara',dano:10,emoji:'🎣',label:'Vara de Pesca',vara:true,slot:'arma'};
+  if(n==='Colete de Couro'||e==='🦺'||(t==='armadura'&&e==='🦺'))return {id:'colete',def:0.25,emoji:'🦺',label:'Colete de Couro',slot:'armadura'};
+  if(n==='Botas de Bambu'||e==='🥾')return {id:'botas',emoji:'🥾',label:'Botas de Bambu',slot:'botas'};
+  if(n==='Amuleto da Floresta'||e==='🔮'||t==='amuleto')return {id:'amuleto',emoji:'🔮',label:'Amuleto da Floresta',slot:'amuleto'};
+  if(t==='arma')return {id:n||'arma',dano:item.dano||18,emoji:e||'⚔',label:n||'Arma',slot:'arma'};
   return null;
 }
 
 function itemEstaEquipado(item){
   const d=dadosEquipavel(item);
   if(!d||!E)return false;
+  if(d.slot==='armadura')return E.armadura===d.id;
+  if(d.slot==='amuleto')return E.amuleto===d.id;
+  if(d.slot==='botas')return E.botas===d.id;
   if(d.vara)return E.arma==='vara'||(E.armaEmoji==='🎣'&&E.arma!=='mãos');
   return (E.arma===d.id)||(E.armaEmoji===d.emoji&&E.arma&&E.arma!=='mãos');
 }
@@ -4509,18 +4645,45 @@ function itemEhConsumivel(item){
   if(!item)return false;
   const n=item.nome||'';
   if(item.tipo==='comida'||item.ef==='fome'||item.ef==='fome_sede'||item.ef==='fome_vida'||item.ef==='vida'||item.ef==='sede')return true;
-  if(n==='Antídoto'||item.ef==='antidoto')return true;
-  if(n==='Bandagem'||item.ef==='bandagem')return true;
+  if(n==='Antídoto'||item.ef==='antidoto'||n==='Bandagem'||item.ef==='bandagem')return true;
   if(n==='Erva Medicinal'||n==='Mel Silvestre'||n==='Peixe Seco'||n==='Peixe Fresco'||n==='Fruta Silvestre'||n==='Raiz Nutritiva'||n==='Castanha-do-Pará'||n==='Água Limpa')return true;
   return false;
+}
+
+function categoriaItem(item){
+  if(!item)return 'outros';
+  const d=dadosEquipavel(item);
+  if(d&&d.slot==='arma')return 'arma';
+  if(d&&(d.slot==='armadura'||d.slot==='amuleto'||d.slot==='botas'))return 'equip';
+  if(itemEhConsumivel(item)||item.tipo==='comida'||item.tipo==='erva')return 'comida';
+  if(item.tipo==='mat'||item.tipo==='ferr'||item.nome==='Bambu'||item.nome==='Pederneira'||item.nome==='Couro'||item.nome==='Cogumelo')return 'mat';
+  if(item.tipo==='luz'||item.tipo==='armadura'||item.tipo==='amuleto')return 'equip';
+  return 'outros';
 }
 
 function equiparItem(item){
   const d=dadosEquipavel(item);
   if(!d)return false;
-  E.arma=d.id;
-  E.armaDano=d.dano;
-  E.armaEmoji=d.emoji;
+  if(d.slot==='armadura'){
+    E.armadura=d.id;E.armaduraDef=d.def||0.25;E.armaduraEmoji=d.emoji;
+    try{sfx.conquista();}catch(e){}
+    msg(d.emoji+' '+d.label+' equipado! Defesa +'+Math.round((d.def||0.25)*100)+'%');
+    return true;
+  }
+  if(d.slot==='amuleto'){
+    E.amuleto=d.id;E.amuletoEmoji=d.emoji;
+    try{sfx.conquista();}catch(e){}
+    msg(d.emoji+' '+d.label+' equipado! Sua mente se acalma.');
+    return true;
+  }
+  if(d.slot==='botas'){
+    E.botas=d.id;E.botasEmoji=d.emoji;
+    try{sfx.conquista();}catch(e){}
+    msg(d.emoji+' '+d.label+' equipadas! Menos cansaço ao andar.');
+    return true;
+  }
+  // arma
+  E.arma=d.id;E.armaDano=d.dano;E.armaEmoji=d.emoji;
   if(d.vara)E.temVara=true;
   try{sfx.conquista();}catch(e){}
   msg(d.emoji+' '+d.label+' equipado na mão!');
@@ -4528,37 +4691,54 @@ function equiparItem(item){
 }
 
 function nomeArmaAtual(){
-  if(!E||!E.arma||E.arma==='mãos')return '✊ Mãos livres';
+  if(!E||!E.arma||E.arma==='mãos')return '✊ Mãos';
   if(E.arma==='arma_machado')return '🪓 Machado';
   if(E.arma==='arma_faca')return '🔪 Faca';
   if(E.arma==='arco')return '🏹 Arco';
   if(E.arma==='vara')return '🎣 Vara';
-  return (E.armaEmoji||'⚔')+' Equipado';
+  return (E.armaEmoji||'⚔')+' Arma';
 }
+
 function atualizarChipArma(){
   try{
     const efDiv=document.getElementById('status-efeitos');
     if(!efDiv)return;
-    // remove chip de arma antigo
-    Array.from(efDiv.querySelectorAll('[data-chip="arma"]')).forEach(n=>n.remove());
-    if(E.arma&&E.arma!=='mãos'){
+    Array.from(efDiv.querySelectorAll('[data-chip="arma"],[data-chip="armadura"],[data-chip="amuleto"],[data-chip="botas"]')).forEach(n=>n.remove());
+    const addChip=function(emoji,key,title,onClick){
       const sp=document.createElement('span');
-      sp.className='efeit-chip';
-      sp.dataset.chip='arma';
-      sp.style.color='#ffddaa';
-      sp.style.cursor='pointer';
-      sp.title='Clique para desequipar';
-      sp.textContent=E.armaEmoji||'⚔';
-      sp.onclick=function(){
-        desequiparArma();
-        msg('✊ Desequipado.');
-        atualizarChipArma();
-        if(document.getElementById('painel-inv')?.classList.contains('aberto'))abrirInv(true);
-        try{atualizarAcoes();}catch(e){}
-      };
+      sp.className='efeit-chip';sp.dataset.chip=key;
+      sp.style.cssText='color:#ffddaa;cursor:pointer';
+      sp.title=title;sp.textContent=emoji;
+      sp.onclick=onClick;
       efDiv.appendChild(sp);
-    }
+    };
+    if(E.arma&&E.arma!=='mãos')addChip(E.armaEmoji||'⚔','arma','Arma — clique para desequipar',function(){
+      desequiparArma();msg('✊ Arma desequipada.');atualizarChipArma();
+      if(document.getElementById('painel-inv')?.classList.contains('aberto'))abrirInv(true);
+      try{atualizarAcoes();}catch(e){}
+    });
+    if(E.armadura)addChip(E.armaduraEmoji||'🦺','armadura','Armadura — clique para desequipar',function(){
+      desequiparArmadura();msg('🦺 Armadura desequipada.');atualizarChipArma();
+      if(document.getElementById('painel-inv')?.classList.contains('aberto'))abrirInv(true);
+    });
+    if(E.amuleto)addChip(E.amuletoEmoji||'🔮','amuleto','Amuleto — clique para desequipar',function(){
+      desequiparAmuleto();msg('🔮 Amuleto desequipado.');atualizarChipArma();
+      if(document.getElementById('painel-inv')?.classList.contains('aberto'))abrirInv(true);
+    });
+    if(E.botas)addChip(E.botasEmoji||'🥾','botas','Botas — clique para desequipar',function(){
+      desequiparBotas();msg('🥾 Botas desequipadas.');atualizarChipArma();
+      if(document.getElementById('painel-inv')?.classList.contains('aberto'))abrirInv(true);
+    });
   }catch(e){}
+}
+
+let invFiltroAtual='todos';
+function setInvFiltro(f){
+  invFiltroAtual=f||'todos';
+  document.querySelectorAll('.inv-filter-btn').forEach(b=>{
+    b.classList.toggle('ativo',b.getAttribute('data-f')===invFiltroAtual);
+  });
+  abrirInv(true);
 }
 
 function abrirInv(silencioso){
@@ -4567,82 +4747,95 @@ function abrirInv(silencioso){
   if(!grid||!E)return;
   grid.innerHTML='';
 
-  // Barra: o que está na mão + botão desequipar
+  // Barra de equipamento atual
   const bar=document.createElement('div');
   bar.className='inv-equip-bar';
-  bar.style.cssText='grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;padding:10px 12px;margin-bottom:4px;';
-  const temArma=E.arma&&E.arma!=='mãos';
-  bar.innerHTML='<span style="font-family:Share Tech Mono,monospace;font-size:.55rem;color:rgba(180,200,170,.7);letter-spacing:.06em;">Na mão: <strong style="color:var(--vn)">'+(nomeArmaAtual())+'</strong></span>';
-  if(temArma){
-    const btnOff=document.createElement('button');
-    btnOff.type='button';
-    btnOff.textContent='⬇ Desequipar';
-    btnOff.style.cssText='font-family:Share Tech Mono,monospace;font-size:.55rem;letter-spacing:.08em;padding:6px 12px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,160,60,.5);background:rgba(255,120,40,.15);color:#ffcc88;text-transform:uppercase;pointer-events:all;';
-    btnOff.onpointerdown=function(ev){ev.preventDefault();ev.stopPropagation();};
-    btnOff.onclick=function(ev){
-      ev.preventDefault();ev.stopPropagation();
-      desequiparArma();
-      msg('✊ Item desequipado. Mãos livres.');
-      try{sfx.botao();}catch(e){}
-      abrirInv(true);
-      try{atualizarHUDBarras();}catch(e){}
-      try{atualizarAcoes();}catch(e){}
-      try{atualizarChipArma();}catch(e){}
-      // atualiza chips sem reabrir inv em loop
-      try{
-        const invDiv=document.getElementById('inv-wrap');
-        if(invDiv){
-          const counts={};
-          E.inv.forEach(i=>{if(!counts[i.nome])counts[i.nome]={e:i.emoji,n:0};counts[i.nome].n+=(i.qtd||1);});
-          invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>'<span class="inv-chip" onclick="abrirInv()">'+d.e+' '+nm+(d.n>1?' ×'+d.n:'')+'</span>').join('');
-        }
-      }catch(e){}
-    };
-    bar.appendChild(btnOff);
+  bar.style.gridColumn='1/-1';
+  const partes=[];
+  partes.push('Mão: <strong>'+nomeArmaAtual()+'</strong>');
+  if(E.armadura)partes.push('Corpo: <strong>'+(E.armaduraEmoji||'🦺')+' Colete</strong>');
+  if(E.botas)partes.push('Pés: <strong>'+(E.botasEmoji||'🥾')+' Botas</strong>');
+  if(E.amuleto)partes.push('Amuleto: <strong>'+(E.amuletoEmoji||'🔮')+'</strong>');
+  bar.innerHTML=partes.join(' · ');
+  // botões desequipar
+  if(E.arma&&E.arma!=='mãos'){
+    const b=document.createElement('button');b.type='button';b.textContent='⬇ Arma';
+    b.style.cssText='font-family:Share Tech Mono,monospace;font-size:.48rem;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid rgba(255,160,60,.45);background:rgba(255,120,40,.12);color:#ffcc88;';
+    b.onclick=function(ev){ev.stopPropagation();desequiparArma();msg('✊ Arma desequipada.');abrirInv(true);atualizarChipArma();try{atualizarAcoes();}catch(e){}};
+    bar.appendChild(b);
+  }
+  if(E.armadura){
+    const b=document.createElement('button');b.type='button';b.textContent='⬇ Colete';
+    b.style.cssText='font-family:Share Tech Mono,monospace;font-size:.48rem;padding:4px 8px;border-radius:4px;cursor:pointer;border:1px solid rgba(100,180,255,.45);background:rgba(40,100,180,.12);color:#a8d4ff;';
+    b.onclick=function(ev){ev.stopPropagation();desequiparArmadura();msg('🦺 Colete desequipado.');abrirInv(true);atualizarChipArma();};
+    bar.appendChild(b);
   }
   grid.appendChild(bar);
 
-  if(!E.inv||E.inv.length===0){
+  // filtro
+  const lista=E.inv||[];
+  const filtrados=lista.map(function(it,idx){return {it,idx};}).filter(function(x){
+    if(invFiltroAtual==='todos')return true;
+    return categoriaItem(x.it)===invFiltroAtual;
+  });
+
+  const cont=document.createElement('div');
+  cont.className='inv-count-badge';
+  cont.style.gridColumn='1/-1';
+  cont.textContent=filtrados.length+' item(ns)'+(invFiltroAtual!=='todos'?' · filtro: '+invFiltroAtual:'')+' · total: '+lista.length;
+  grid.appendChild(cont);
+
+  if(filtrados.length===0){
     const vazio=document.createElement('div');
     vazio.className='inv-vazio';
-    vazio.innerHTML='<span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Explore e fabrique itens para equipar.';
+    vazio.style.gridColumn='1/-1';
+    vazio.innerHTML=lista.length===0
+      ?'<span class="inv-vazio-ico">🎒</span>Inventário vazio.<br>Colete e fabrique itens para equipar.'
+      :'<span class="inv-vazio-ico">🔍</span>Nenhum item nesta categoria.';
     grid.appendChild(vazio);
   }else{
-    E.inv.forEach(function(item,idx){
+    filtrados.forEach(function(entry){
+      const item=entry.it, idx=entry.idx;
       const slot=document.createElement('div');
       const equipavel=dadosEquipavel(item);
       const equipado=itemEstaEquipado(item);
       const consumivel=itemEhConsumivel(item);
-      slot.className='inv-slot'+(equipado?' equipado':'');
+      let cls='inv-slot';
+      if(equipado){
+        if(equipavel&&equipavel.slot==='armadura')cls+=' armadura-eq equipado';
+        else if(equipavel&&equipavel.slot==='amuleto')cls+=' amuleto-eq equipado';
+        else cls+=' equipado';
+      }
+      slot.className=cls;
       const qtd=item.qtd||1;
       let acaoLabel='Item', acaoClass='';
       if(equipavel){acaoLabel=equipado?'Desequipar':'Equipar';acaoClass=equipado?'desequipar':'equipar';}
       else if(consumivel){acaoLabel='Usar';acaoClass='usar';}
+
+      let durHtml='';
+      if(item.durMax){
+        const pct=Math.max(0,Math.round((item.dur/item.durMax)*100));
+        const dcls=pct<=20?'critica':(pct<=40?'baixa':'');
+        durHtml='<div class="inv-dur-bar"><div class="inv-dur-fill '+dcls+'" style="width:'+pct+'%"></div></div><span class="inv-slot-dur-txt">'+item.dur+'/'+item.durMax+'</span>';
+      }
+
       slot.innerHTML=
         (qtd>1?'<span class="inv-slot-qtd">×'+qtd+'</span>':'')+
         '<span class="inv-slot-emoji">'+(item.emoji||'📦')+'</span>'+
         '<span class="inv-slot-nome">'+(item.nome||'?')+'</span>'+
+        durHtml+
         '<span class="inv-slot-acao '+acaoClass+'">'+acaoLabel+'</span>';
       slot.style.cursor='pointer';
-      slot.style.pointerEvents='all';
-      const handle=function(ev){
-        if(ev){ev.preventDefault();ev.stopPropagation();}
-        usarItemInv(idx);
-      };
-      slot.onclick=handle;
-      slot.onpointerup=function(ev){
-        // mobile: pointerup é mais confiável que click em alguns browsers
-        if(ev.pointerType==='touch'){handle(ev);}
-      };
+      slot.onclick=function(ev){if(ev){ev.preventDefault();ev.stopPropagation();}usarItemInv(idx);};
       grid.appendChild(slot);
     });
   }
   const painel=document.getElementById('painel-inv');
-  if(painel){
-    painel.classList.add('aberto');
-    painel.style.display='block';
-    painel.style.pointerEvents='all';
-  }
+  if(painel){painel.classList.add('aberto');painel.style.display='block';painel.style.pointerEvents='all';}
+  // sync filter buttons
+  document.querySelectorAll('.inv-filter-btn').forEach(b=>{
+    b.classList.toggle('ativo',b.getAttribute('data-f')===invFiltroAtual);
+  });
 }
 
 function usarItemInv(idx){
@@ -4653,26 +4846,20 @@ function usarItemInv(idx){
     try{sfx.botao();}catch(e){}
     const nome=item.nome;
 
-    // Equipáveis — alterna
+    // Equipáveis
     const eq=dadosEquipavel(item);
     if(eq){
       if(itemEstaEquipado(item)){
-        desequiparArma();
-        msg((item.emoji||'')+' '+eq.label+' desequipado. Mãos livres.');
+        if(eq.slot==='armadura'){desequiparArmadura();msg((item.emoji||'')+' '+eq.label+' desequipado.');}
+        else if(eq.slot==='amuleto'){desequiparAmuleto();msg((item.emoji||'')+' '+eq.label+' desequipado.');}
+        else if(eq.slot==='botas'){desequiparBotas();msg((item.emoji||'')+' '+eq.label+' desequipadas.');}
+        else{desequiparArma();msg((item.emoji||'')+' '+eq.label+' desequipado. Mãos livres.');}
       }else{
         equiparItem(item);
       }
       abrirInv(true);
       try{atualizarAcoes();}catch(e){}
       try{atualizarChipArma();}catch(e){}
-      try{
-        const invDiv=document.getElementById('inv-wrap');
-        if(invDiv){
-          const counts={};
-          E.inv.forEach(i=>{if(!counts[i.nome])counts[i.nome]={e:i.emoji,n:0};counts[i.nome].n+=(i.qtd||1);});
-          invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>'<span class="inv-chip" onclick="abrirInv()">'+d.e+' '+nm+(d.n>1?' ×'+d.n:'')+'</span>').join('');
-        }
-      }catch(e){}
       try{atualizarHUDBarras();}catch(e){}
       return;
     }
@@ -4724,6 +4911,7 @@ function fecharInv(){
   if(p){p.classList.remove('aberto');p.style.display='none';}
   try{sfx.botao();}catch(e){}
 }
+
 
 // ══════════════════════════════════════════════════════════
 //  CONQUISTAS
@@ -5245,6 +5433,7 @@ function atualizarHUD(){
   invDiv.innerHTML=Object.entries(counts).map(([nm,d])=>`<span class="inv-chip" onclick="abrirInv()">${d.e} ${nm}${d.n>1?' ×'+d.n:''}</span>`).join('');
   atualizarAcoes();
   // inv se atualiza sozinho ao equipar — evita reabrir e perder clique
+  try{atualizarChipArma();}catch(e){}
 }
 
 // ══════════════════════════════════════════════════════════
