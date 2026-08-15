@@ -4128,7 +4128,8 @@ const RECEITAS=[
   {id:'bandagem',nome:'🩹 Bandagem',req:{'Erva Medicinal':2},desc:'+35 de vida imediato.',ef:'bandagem'},
   {id:'abrigo',nome:'⛺ Abrigo Reforçado',req:{Bambu:4,Pederneira:1},desc:'Proteção total contra inimigos.',ef:'abrigo_reforcado'},
   {id:'armadilha',nome:'🪤 Armadilha',req:{Bambu:2},desc:'Captura animais automaticamente.',ef:'armadilha'},
-  {id:'jangada',nome:'🛶 Jangada',req:{Bambu:5},desc:'Use na água para navegar rápido. Botão 🛶 perto do rio.',ef:'jangada'},
+  {id:'jangada',nome:'🛶 Jangada',req:{Bambu:5},desc:'Navegue e pesque da embarcação nos rios.',ef:'jangada'},
+  {id:'rede',nome:'🕸️ Rede de Pesca',req:{Bambu:3,Couro:1},desc:'Pesca em cardume da jangada. Alta chance.',ef:'rede_pesca'},
   {id:'vara',nome:'🎣 Vara de Pesca',req:{Bambu:2},desc:'Pesca peixes frescos nos rios.',ef:'vara_pesca'},
   {id:'repelente',nome:'🌿 Repelente Natural',req:{'Erva Medicinal':2,'Mel Silvestre':1},desc:'Inimigos te evitam por 1 dia.',ef:'repelente'},
   {id:'flecha',nome:'🏹 Arco e Flecha',req:{Bambu:3,'Erva Medicinal':1},desc:'Ataque à distância contra onças.',ef:'arco'},
@@ -4686,6 +4687,7 @@ let _hudAcc=0,_hudFullAcc=0,_miniAcc=0,_lastTileKey='',_lastDir='';
 function loop(ts){
   if(pausado)return;
   const dt=Math.min((ts-tsAnt)/1000,.05);tsAnt=ts;tempo+=dt;
+  if(pescaCD>0)pescaCD=Math.max(0,pescaCD-dt);
   moverJogador(dt);
   if(modo2P&&E2&&!E2.morto)moverP2(dt);
   moverEntidades(dt);moverInimigos(dt);
@@ -5186,7 +5188,8 @@ function executarCraft(rec){
     case 'bandagem':E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg("🩹 +35 de vida.");break;
     case 'abrigo_reforcado':E.temAbrigo=true;E.baseNivel=Math.max(E.baseNivel||0,2);E.baseX=Math.floor(E.x);E.baseY=Math.floor(E.y);if(modo2P&&E2)E2.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;mapa[Math.floor(E.y)][Math.floor(E.x)].baseNivel=2;sfx.conquista();msg('🛖 Abrigo Reforçado (Nível 2)!');break;
     case 'armadilha':const tx=Math.round(E.x),ty=Math.round(E.y);if(mapa[ty]?.[tx])mapa[ty][tx].armadilha=true;msg("🪤 Armadilha posicionada.");break;
-    case 'jangada':E.jangada=true;addInv('Jangada','🛶','ferr');if(modo2P&&E2){E2.jangada=true;}msg("🛶 Jangada fabricada! Vá até a água e use o botão 🛶 Jangada.");toast('🛶 Jangada pronta');break;
+    case 'jangada':E.jangada=true;addInv('Jangada','🛶','ferr');if(modo2P&&E2){E2.jangada=true;}msg("🛶 Jangada fabricada! Na água: Usar Jangada → Pescar da Jangada.");toast('🛶 Jangada pronta');break;
+    case 'rede_pesca':addInv('Rede de Pesca','🕸️','ferr');msg("🕸️ Rede de Pesca! Use na jangada para fisgar cardumes.");toast('🕸️ Rede pronta');break;
     case 'vara_pesca':E.temVara=true;E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';addInv('Vara de Pesca','🎣','ferr');msg("🎣 Vara de Pesca na mão! Vá até um rio e use Pescar.");break;
     case 'repelente':E.repelente=300;msg("🌿 Repelente ativo.");break;
     case 'veneno_def':E.veneno_def=true;if(modo2P&&E2)E2.veneno_def=true;msg("☠ Veneno de Defesa ativo.");break;
@@ -5511,6 +5514,11 @@ function usarItemInv(idx){
       abrirInv(true);
       return;
     }
+    if(nome==='Rede de Pesca'||item.emoji==='🕸️'){
+      if(jangadaEmUso(E)){fecharInv();pescarDaEmbarcacao();}
+      else msg('🕸️ Use a Rede em cima da jangada, na água.');
+      return;
+    }
     if(nome==='Tocha'||(item.emoji==='🔥'&&item.tipo!=='mat')){
       msg('🔥 Use o botão de lanterna/tocha para acender.');
       return;
@@ -5555,16 +5563,27 @@ function atualizarAcoes(){
     if(onWater)btn('💧 Beber',beberAgua);
     // Sistema de jangada / barco na água
     if(temJangadaInv(E)){
-      if(jangadaEmUso(E))btn('🛶 Sair da Jangada',desativarJangada,'dest');
+      if(jangadaEmUso(E))btn('🛶 Sair da Jangada',desativarJangada);
       else btn('🛶 Usar Jangada',ativarJangada,'dest');
     }else if(onWater||nearWater){
-      btn('🛶 Jangada (craft 5 Bambus)',()=>msg('⚒ Fabique uma Jangada no Craft (5 Bambus) para navegar rápido.'));
+      btn('🛶 Jangada (craft 5 Bambus)',()=>msg('⚒ Fabique uma Jangada no Craft (5 Bambus) para navegar e pescar.'));
     }
     const temVara=E.temVara||contarItem('Vara de Pesca')>0||E.arma==='vara';
+    const temRede=contarItem('Rede de Pesca')>0;
     const temBambu=contarItem('Bambu')>0;
-    if(temVara)btn('🎣 Pescar',()=>pescar(true),'dest');
-    else if(temBambu)btn('🎋 Pescar com Bambu',()=>pescar(false));
-    else btn('🎣 Pescar (precisa Vara ou Bambu)',()=>msg('Craft uma Vara de Pesca (2 Bambus) ou leve Bambu até o rio.'));
+    // Pesca da embarcação (prioridade quando na jangada)
+    if(jangadaEmUso(E)){
+      if(temVara||temRede||temBambu){
+        const label=temRede?'🕸️ Rede da Jangada':(temVara?'🎣 Pescar da Jangada':'🎋 Pescar da Jangada');
+        btn(label+(pescaCD>0?' ...':''),pescarDaEmbarcacao,'dest');
+      }else{
+        btn('🎣 Precisa Vara/Rede/Bambu',()=>msg('Leve Vara de Pesca, Rede ou Bambu para pescar da jangada.'));
+      }
+    }else{
+      if(temVara)btn('🎣 Pescar',()=>pescar(true),'dest');
+      else if(temBambu)btn('🎋 Pescar com Bambu',()=>pescar(false));
+      else btn('🎣 Pescar (Vara ou Bambu)',()=>msg('Craft uma Vara de Pesca (2 Bambus) ou leve Bambu até o rio.'));
+    }
   }
   if(tile?.tipo===T.FRUTAS||tile?.tipo===T.COGUMELO)btn('🍊 Colher',colherFrutas);
   if(tile?.tipo===T.ABRIGO){
@@ -5607,35 +5626,140 @@ function atualizarAcoes(){
   const bs=document.querySelectorAll('.btn-ac');if(acaoSelIdx>=bs.length)acaoSelIdx=0;bs.forEach((b,i)=>b.classList.toggle('sel',i===acaoSelIdx));
 }
 function beberAgua(){if(E.temFiltro||Math.random()>.28){sfx.beber();E.sede=Math.min(100,E.sede+45);msg("💧 Água fresca!");}else{dano(14);msg("⚠ Água contaminada! Construa um Filtro.");}}
+let pescaCD=0; // cooldown em segundos
+const PEIXES_COMUNS=[
+  {nome:'Peixe Fresco',emoji:'🐟',ef:'fome_sede',val:40,peso:30},
+  {nome:'Peixe Fresco',emoji:'🐠',ef:'fome_sede',val:35,peso:25},
+  {nome:'Camarão',emoji:'🦐',ef:'fome',val:22,peso:20},
+  {nome:'Peixe Seco',emoji:'🐟',ef:'fome_sede',val:30,peso:15}
+];
+const PEIXES_RIO=[
+  {nome:'Tucunaré',emoji:'🐠',ef:'fome_sede',val:55,peso:22},
+  {nome:'Tambaqui',emoji:'🐟',ef:'fome_sede',val:60,peso:18},
+  {nome:'Pacu',emoji:'🐡',ef:'fome',val:45,peso:20},
+  {nome:'Traíra',emoji:'🐟',ef:'fome_sede',val:48,peso:15},
+  {nome:'Camarão Gigante',emoji:'🦐',ef:'fome_vida',val:35,peso:12},
+  {nome:'Pirarucu',emoji:'🐋',ef:'fome_sede',val:80,peso:4} // raro
+];
+
+function sortearPeixe(lista){
+  const total=lista.reduce((s,p)=>s+(p.peso||1),0);
+  let r=Math.random()*total;
+  for(const p of lista){r-=(p.peso||1);if(r<=0)return p;}
+  return lista[0];
+}
+function adicionarPeixeInv(p){
+  const ex=E.inv.find(i=>i.nome===p.nome&&i.tipo==='comida');
+  if(ex)ex.qtd=(ex.qtd||1)+1;
+  else E.inv.push({nome:p.nome,emoji:p.emoji,ef:p.ef,val:p.val,qtd:1,tipo:'comida'});
+  // pequena recuperação imediata (provar)
+  E.fome=Math.min(100,E.fome+Math.min(12,p.val*.25));
+  if(p.ef==='fome_sede'||p.ef==='fome_vida')E.sede=Math.min(100,E.sede+6);
+  if(p.ef==='fome_vida')E.vida=Math.min(100,E.vida+5);
+}
+function removerPeixeProximo(){
+  for(let i=peixes.length-1;i>=0;i--){
+    if(Math.hypot(peixes[i].x-E.x,peixes[i].y-E.y)<3.2){peixes.splice(i,1);break;}
+  }
+}
+
 function pescar(comVara){
+  if(pescaCD>0){msg('🎣 Aguarde um momento... ('+Math.ceil(pescaCD)+'s)');return;}
   if(E.energia<8){msg("⚡ Muito cansado para pescar.");return;}
-  E.energia=Math.max(0,E.energia-(comVara?6:10));
-  const chance=comVara?0.62:0.38;
+  const daJangada=jangadaEmUso(E);
+  E.energia=Math.max(0,E.energia-(comVara?(daJangada?4:6):(daJangada?7:10)));
+  pescaCD=daJangada?2.2:3.0;
   sfx.coletar();
+  // chance melhor na jangada (plataforma estável)
+  let chance=comVara?0.62:0.38;
+  if(daJangada) chance=comVara?0.78:0.50;
   if(Math.random()<chance){
-    const peixesDrop=[
-      {nome:'Peixe Fresco',emoji:'🐟',ef:'fome_sede',val:40},
-      {nome:'Peixe Fresco',emoji:'🐠',ef:'fome_sede',val:35},
-      {nome:'Camarão',emoji:'🦐',ef:'fome',val:22},
-      {nome:'Peixe Seco',emoji:'🐟',ef:'fome_sede',val:30}
-    ];
-    const p=peixesDrop[Math.floor(Math.random()*peixesDrop.length)];
-    E.inv.push({nome:p.nome,emoji:p.emoji,ef:p.ef,val:p.val,qtd:1,tipo:'comida'});
-    E.fome=Math.min(100,E.fome+p.val*.6);
-    E.sede=Math.min(100,E.sede+p.val*.25);
+    const lista=daJangada?(Math.random()<0.55?PEIXES_RIO:PEIXES_COMUNS):PEIXES_COMUNS;
+    const p=sortearPeixe(lista);
+    adicionarPeixeInv(p);
     toast(p.emoji+' '+p.nome+'!');
-    msg((comVara?'🎣':'🎋')+' Você pescou: '+p.nome+'!');
-    addParticle(E.x,E.y,'#5ab0e0',10);
-    for(let i=peixes.length-1;i>=0;i--){
-      if(Math.hypot(peixes[i].x-E.x,peixes[i].y-E.y)<2.5){peixes.splice(i,1);break;}
-    }
-  }else if(Math.random()<.12){
-    dano(8);msg("⚠ Algo mordeu a linha... piranha?!");
+    const local=daJangada?'da jangada':'na margem';
+    msg((comVara?'🎣':'🎋')+' Pescou '+local+': '+p.nome+'!');
+    if(p.nome==='Pirarucu'){toast('🐋 PIRARUCU LENDÁRIO!');msg('🐋 Um Pirarucu enorme! A floresta respeita sua pesca.');}
+    addParticle(E.x,E.y,'#5ab0e0',daJangada?14:10);
+    removerPeixeProximo();
+  }else if(Math.random()<(daJangada?0.06:0.12)){
+    dano(daJangada?5:8);msg("⚠ Algo mordeu a linha... piranha?!");
   }else{
-    msg(comVara?"🎣 Nada fisgou desta vez.":"🎋 O bambu tremeu, mas o peixe escapou.");
+    msg(comVara?(daJangada?"🎣 A linha tremeu, mas o peixe escapou.":"🎣 Nada fisgou desta vez."):(daJangada?"🎋 Quase! O peixe fugiu sob a jangada.":"🎋 O bambu tremeu, mas o peixe escapou."));
   }
   atualizarAcoes();
 }
+
+/** Pesca dedicada da embarcação (jangada) */
+function pescarDaEmbarcacao(){
+  if(!jangadaEmUso(E)){
+    msg('🛶 Entre na jangada (na água) para pescar da embarcação.');
+    return;
+  }
+  const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
+  if(!naAguaTile(tile)){
+    msg('🛶 A jangada precisa estar na água.');
+    return;
+  }
+  if(pescaCD>0){msg('🎣 Recolhendo a linha... ('+Math.ceil(pescaCD)+'s)');return;}
+  if(E.energia<6){msg('⚡ Sem energia para lançar a linha.');return;}
+
+  const temVara=E.temVara||contarItem('Vara de Pesca')>0||E.arma==='vara';
+  const temRede=contarItem('Rede de Pesca')>0;
+  const temBambu=contarItem('Bambu')>0;
+
+  if(!temVara&&!temRede&&!temBambu){
+    msg('🎣 Precisa de Vara de Pesca, Rede ou Bambu para pescar da jangada.');
+    return;
+  }
+
+  // tipo de pesca
+  let modo='bambu', chance=0.48, custo=7, label='🎋';
+  if(temRede){modo='rede';chance=0.88;custo=5;label='🕸️';}
+  else if(temVara){modo='vara';chance=0.80;custo=4;label='🎣';}
+
+  E.energia=Math.max(0,E.energia-custo);
+  pescaCD=modo==='rede'?1.6:2.4;
+  sfx.coletar();
+  msg(label+' Lançando '+ (modo==='rede'?'a rede':'a linha') +' da jangada...');
+
+  // pequena chance de cardume (2 peixes)
+  const cardume=modo==='rede'||Math.random()<0.18;
+  const tentativas=cardume?2:1;
+  let pescados=[];
+
+  for(let t=0;t<tentativas;t++){
+    if(Math.random()<chance){
+      // da embarcação: prioriza peixes de rio
+      const lista=Math.random()<0.7?PEIXES_RIO:PEIXES_COMUNS;
+      const p=sortearPeixe(lista);
+      adicionarPeixeInv(p);
+      pescados.push(p);
+      removerPeixeProximo();
+    }
+  }
+
+  if(pescados.length){
+    addParticle(E.x,E.y,'#4fc3f7',16);
+    addParticle(E.x+0.3,E.y-0.2,'#81d4fa',8);
+    if(pescados.length>1){
+      toast(pescados.map(p=>p.emoji).join('')+' Cardume!');
+      msg(label+' Cardume! '+pescados.map(p=>p.nome).join(' e ')+'!');
+    }else{
+      const p=pescados[0];
+      toast(p.emoji+' '+p.nome+'!');
+      msg(label+' Pescou da jangada: '+p.nome+'!');
+      if(p.nome==='Pirarucu'){toast('🐋 PIRARUCU!');msg('🐋 Pirarucu fisgado da embarcação — pesca de mestre!');}
+    }
+  }else if(Math.random()<0.08){
+    dano(4);msg('⚠ Piranhas rondaram a jangada!');
+  }else{
+    msg(label+' Águas calmas... nenhum peixe desta vez.');
+  }
+  atualizarAcoes();
+}
+
 function colherFrutas(){const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];if(tile?.tipo===T.COGUMELO){if(Math.random()<.5){sfx.coletar();E.vida=Math.min(100,E.vida+15);msg("Cogumelo comestível!");}else if(!E.temFiltro){dano(18);E.veneno=true;msg("⚠ Cogumelo venenoso!");}}else{sfx.coletar();E.fome=Math.min(100,E.fome+32);msg("🍊 Frutas!");}}
 function descansar(){
   sfx.dormir();
@@ -6864,50 +6988,80 @@ function desenharDetalhe(ctx,tile,sx,sy,tH){
 
 function desenharJogador(ctx,px,py,isP2=false){
   const moving=Math.abs((E.x||0)-(E.xAnt||E.x))>0.001||Math.abs((E.y||0)-(E.yAnt||E.y))>0.001;
-  const bob=moving?Math.sin(tempo*12)*2.2:Math.sin(tempo*1.6)*0.6;
-  const by=py+bob;
-  const legS=moving?Math.sin(tempo*12)*5:0;
-  const armS=moving?Math.sin(tempo*12+Math.PI)*4.5:0;
-  const dir=E.dir||'N';
-  const crit=E.vida<25||E.fome<12||E.sede<12;
   const tileJog=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
   const naAgua=tileJog&&(tileJog.tipo===T.AGUA||tileJog.tipo===T.LIRIO);
   const comJangada=naAgua&&typeof jangadaEmUso==='function'&&jangadaEmUso(E);
+  // Na jangada: balanço suave da embarcação (não corrida)
+  const wob=comJangada?Math.sin(tempo*2.2)*1.8:0;
+  const bob=comJangada?wob:(moving?Math.sin(tempo*12)*2.2:Math.sin(tempo*1.6)*0.6);
+  // Personagem sentado/em pé DENTRO da jangada (sobe um pouco no convés)
+  const deckY=comJangada?-6:0;
+  const by=py+bob+deckY;
+  const legS=comJangada?0:(moving?Math.sin(tempo*12)*5:0);
+  const armS=comJangada?(Math.sin(tempo*1.8)*1.5):(moving?Math.sin(tempo*12+Math.PI)*4.5:0);
+  const dir=E.dir||'N';
+  const crit=E.vida<25||E.fome<12||E.sede<12;
   ctx.save();
 
-  // Aura verde explorador
+  // Aura
   ctx.globalAlpha=0.1+Math.sin(tempo*2)*0.03;
   const aura=ctx.createRadialGradient(px,by,0,px,by,34);
-  aura.addColorStop(0,crit?'rgba(255,60,40,.9)':'rgba(0,255,120,.85)');
+  aura.addColorStop(0,crit?'rgba(255,60,40,.9)':(comJangada?'rgba(100,200,255,.7)':'rgba(0,255,120,.85)'));
   aura.addColorStop(1,'transparent');
   ctx.fillStyle=aura;ctx.beginPath();ctx.arc(px,by,34,0,Math.PI*2);ctx.fill();
   ctx.globalAlpha=1;
 
-  // Jangada / barco sob o jogador na água
+  // ===== JANGADA (desenha ANTES do corpo, personagem fica DENTRO) =====
   if(comJangada){
-    const wob=Math.sin(tempo*2.5)*1.5;
+    const jy=py+wob; // base da jangada acompanha a água
     ctx.save();
-    // sombra na água
-    ctx.fillStyle='rgba(0,20,40,.35)';
-    ctx.beginPath();ctx.ellipse(px,py+20,22,7,0,0,Math.PI*2);ctx.fill();
-    // troncos da jangada
-    ctx.fillStyle='#6d4c41';
-    for(let i=-2;i<=2;i++){
-      ctx.beginPath();
-      if(ctx.roundRect)ctx.roundRect(px-16,py+10+i*3.2+wob*0.3,32,2.8,1);
-      else ctx.fillRect(px-16,py+10+i*3.2+wob*0.3,32,2.8);
-      ctx.fill();
+    // sombra / reflexão na água
+    ctx.fillStyle='rgba(0,15,35,.4)';
+    ctx.beginPath();ctx.ellipse(px,jy+24,28,8,0,0,Math.PI*2);ctx.fill();
+    // ondas ao redor
+    ctx.strokeStyle='rgba(120,200,255,.3)';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.ellipse(px,jy+22,26+Math.sin(tempo*3)*2,6,0,0,Math.PI*2);ctx.stroke();
+    ctx.strokeStyle='rgba(120,200,255,.15)';
+    ctx.beginPath();ctx.ellipse(px,jy+20,32,8,0,0,Math.PI*2);ctx.stroke();
+
+    // plataforma de troncos (convés)
+    ctx.fillStyle='#5d4037';
+    ctx.beginPath();
+    if(ctx.roundRect)ctx.roundRect(px-20,jy+8,40,14,3);
+    else ctx.fillRect(px-20,jy+8,40,14);
+    ctx.fill();
+    // tábuas individuais
+    for(let i=0;i<5;i++){
+      const ty=jy+9+i*2.6;
+      ctx.fillStyle=i%2===0?'#6d4c41':'#8d6e63';
+      ctx.fillRect(px-19,ty,38,2.3);
+      // veios da madeira
+      ctx.strokeStyle='rgba(40,25,15,.35)';ctx.lineWidth=0.6;
+      ctx.beginPath();ctx.moveTo(px-17,ty+1);ctx.lineTo(px+17,ty+1.2);ctx.stroke();
     }
-    // cordas
-    ctx.strokeStyle='#8d6e63';ctx.lineWidth=1.2;
-    ctx.beginPath();ctx.moveTo(px-14,py+10+wob);ctx.lineTo(px-14,py+22+wob);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(px+14,py+10+wob);ctx.lineTo(px+14,py+22+wob);ctx.stroke();
-    // ondas
-    ctx.strokeStyle='rgba(100,200,255,.35)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.ellipse(px,py+22+wob,18,4,0,0,Math.PI*2);ctx.stroke();
+    // bordas laterais (para parecer que está DENTRO)
+    ctx.fillStyle='#4e342e';
+    ctx.fillRect(px-21,jy+6,3,16); // esquerda
+    ctx.fillRect(px+18,jy+6,3,16); // direita
+    // proa / popa arredondadas
+    ctx.fillStyle='#3e2723';
+    ctx.beginPath();ctx.ellipse(px-20,jy+14,4,7,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(px+20,jy+14,4,7,0,0,Math.PI*2);ctx.fill();
+    // cordas amarrando
+    ctx.strokeStyle='#a1887f';ctx.lineWidth=1.4;
+    ctx.beginPath();ctx.moveTo(px-18,jy+7);ctx.lineTo(px-18,jy+21);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px+18,jy+7);ctx.lineTo(px+18,jy+21);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px-18,jy+12);ctx.lineTo(px+18,jy+12);ctx.stroke();
+    // mastro pequeno / poste
+    ctx.fillStyle='#5d4037';
+    ctx.fillRect(px+10,jy-6,2.5,16);
+    ctx.strokeStyle='#8d6e63';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(px+11,jy-5);ctx.lineTo(px+16,jy+4);ctx.stroke();
+    // água entre os troncos
+    ctx.fillStyle='rgba(40,120,160,.25)';
+    ctx.fillRect(px-15,jy+20,30,2);
     ctx.restore();
   } else if(naAgua){
-    // nadando — ondulação
     ctx.strokeStyle='rgba(100,180,255,.3)';ctx.lineWidth=1;
     ctx.beginPath();ctx.ellipse(px,py+18,12+Math.sin(tempo*4)*2,3,0,0,Math.PI*2);ctx.stroke();
   }
@@ -6918,19 +7072,29 @@ function desenharJogador(ctx,px,py,isP2=false){
     ctx.beginPath();ctx.ellipse(px+1,py+19,moving?13:10,3.8,0,0,Math.PI*2);ctx.fill();
   }
 
-  // Botas
-  ctx.fillStyle='#1a1008';
-  ctx.fillRect(px-8,by+14,7,5+legS*0.12);
-  ctx.fillRect(px+1,by+14,7,5-legS*0.12);
-  // solado
-  ctx.fillStyle='#0c0804';
-  ctx.fillRect(px-8.5,by+18+legS*0.12,8,2);
-  ctx.fillRect(px+0.5,by+18-legS*0.12,8,2);
-
-  // Pernas (calça cáqui)
-  ctx.fillStyle='#5a4a28';
-  ctx.fillRect(px-7,by+8,6,8+legS*0.15);
-  ctx.fillRect(px+1,by+8,6,8-legS*0.15);
+  // === CORPO: na jangada esconde pernas longas (parece sentado/em pé no convés) ===
+  if(comJangada){
+    // pernas curtas / joelhos no convés
+    ctx.fillStyle='#5a4a28';
+    ctx.fillRect(px-7,by+6,6,5);
+    ctx.fillRect(px+1,by+6,6,5);
+    // botas sobre a madeira
+    ctx.fillStyle='#1a1008';
+    ctx.fillRect(px-8,by+10,7,4);
+    ctx.fillRect(px+1,by+10,7,4);
+  } else {
+    // Botas normais
+    ctx.fillStyle='#1a1008';
+    ctx.fillRect(px-8,by+14,7,5+legS*0.12);
+    ctx.fillRect(px+1,by+14,7,5-legS*0.12);
+    ctx.fillStyle='#0c0804';
+    ctx.fillRect(px-8.5,by+18+legS*0.12,8,2);
+    ctx.fillRect(px+0.5,by+18-legS*0.12,8,2);
+    // Pernas
+    ctx.fillStyle='#5a4a28';
+    ctx.fillRect(px-7,by+8,6,8+legS*0.15);
+    ctx.fillRect(px+1,by+8,6,8-legS*0.15);
+  }
   // cinto
   ctx.fillStyle='#2a1c0c';
   ctx.fillRect(px-8,by+7,16,3);
