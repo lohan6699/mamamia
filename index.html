@@ -2386,7 +2386,7 @@ async function salvarProgresso(){
     const dados={x:E.x,y:E.y,vida:E.vida,fome:E.fome,sede:E.sede,energia:E.energia,sanidade:E.sanidade,
       temperatura:E.temperatura,lendas:E.lendas,diaNum,craftados:E.craftados,inv:E.inv,
       inimigosVencidos:E.inimigosVencidos,arma:E.arma,armaDano:E.armaDano,armaEmoji:E.armaEmoji,armadura:E.armadura,armaduraDef:E.armaduraDef,armaduraEmoji:E.armaduraEmoji,amuleto:E.amuleto,amuletoEmoji:E.amuletoEmoji,botas:E.botas,botasEmoji:E.botasEmoji,
-      temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,baseNivel:E.baseNivel,baseX:E.baseX,baseY:E.baseY,jangada:E.jangada,temVara:E.temVara,curas:E.curas,
+      temFiltro:E.temFiltro,temAbrigo:E.temAbrigo,baseNivel:E.baseNivel,baseX:E.baseX,baseY:E.baseY,jangada:E.jangada,jangadaAtiva:E.jangadaAtiva,temVara:E.temVara,curas:E.curas,
       noitesSobrevividas:E.noitesSobrevividas,modo2P:modo2P};
     await storage.set('save_'+jogadorNome,JSON.stringify(dados),false);
   }catch(e){console.error('Erro ao salvar progresso',e);}
@@ -2566,6 +2566,14 @@ function sfx_vento(){if(!audioCtx)return;makeNoise(1.2,500,.02,'bandpass');makeN
 //  CONSTANTES
 // ══════════════════════════════════════════════════════════
 const TILE=56,MW=88,MH=88,SPLIT_GAP=4;
+// Velocidades (tiles por segundo) — balanceadas
+const VEL_SOLO=4.4;
+const VEL_AGUA=1.9;      // nadando sem jangada
+const VEL_JANGADA=5.2;   // com jangada na água
+const VEL_CANSADO=1.7;
+const VEL_VENENO=2.8;
+const VEL_BOTAS=1.12;    // multiplicador
+const VEL_CHUVA=0.82;
 
 // ── Qualidade gráfica ──
 // 0=Baixo (performance), 1=Médio, 2=Alto (visual+)
@@ -4120,7 +4128,7 @@ const RECEITAS=[
   {id:'bandagem',nome:'🩹 Bandagem',req:{'Erva Medicinal':2},desc:'+35 de vida imediato.',ef:'bandagem'},
   {id:'abrigo',nome:'⛺ Abrigo Reforçado',req:{Bambu:4,Pederneira:1},desc:'Proteção total contra inimigos.',ef:'abrigo_reforcado'},
   {id:'armadilha',nome:'🪤 Armadilha',req:{Bambu:2},desc:'Captura animais automaticamente.',ef:'armadilha'},
-  {id:'jangada',nome:'🛶 Jangada',req:{Bambu:5},desc:'Atravesse rios sem penalidade.',ef:'jangada'},
+  {id:'jangada',nome:'🛶 Jangada',req:{Bambu:5},desc:'Use na água para navegar rápido. Botão 🛶 perto do rio.',ef:'jangada'},
   {id:'vara',nome:'🎣 Vara de Pesca',req:{Bambu:2},desc:'Pesca peixes frescos nos rios.',ef:'vara_pesca'},
   {id:'repelente',nome:'🌿 Repelente Natural',req:{'Erva Medicinal':2,'Mel Silvestre':1},desc:'Inimigos te evitam por 1 dia.',ef:'repelente'},
   {id:'flecha',nome:'🏹 Arco e Flecha',req:{Bambu:3,'Erva Medicinal':1},desc:'Ataque à distância contra onças.',ef:'arco'},
@@ -4378,7 +4386,7 @@ function gerarChuva(){
 function criarEstadoJogador(x,y){
   return {x,y,vida:100,fome:100,sede:100,energia:100,sanidade:100,temperatura:37,
     inv:[],temFogo:false,temAbrigo:false,baseNivel:0,baseX:null,baseY:null,passos:0,lendas:[],dir:'S',vx:0,vy:0,xAnt:x,yAnt:y,
-    veneno:false,venCD:0,repelente:0,jangada:false,temVara:false,temFiltro:false,craftados:[],
+    veneno:false,venCD:0,repelente:0,jangada:false,jangadaAtiva:false,temVara:false,temFiltro:false,craftados:[],
     curas:0,inimigosVencidos:0,noitesSobrevividas:0,diaNum:1,
     arma:'mãos',armaDano:10,armaEmoji:'✊',veneno_def:false,
     armadura:null,armaduraDef:0,armaduraEmoji:'',
@@ -4715,19 +4723,24 @@ function loop(ts){
 // ══════════════════════════════════════════════════════════
 function moverP2(dt){
   if(!E2||E2.morto)return;
-  const vel=(E2.energia<=5?1.5:4.8)*dt;
   let dx=0,dy=0;
   if(teclas['ArrowLeft'])dx-=1;if(teclas['ArrowRight'])dx+=1;
   if(teclas['ArrowUp'])dy-=1;if(teclas['ArrowDown'])dy+=1;
   E2.xAnt=E2.x;E2.yAnt=E2.y;
   if(dx!==0||dy!==0){
+    const tileAtual=mapa[Math.floor(E2.y)]?.[Math.floor(E2.x)];
+    const aguaAtual=naAguaTile(tileAtual);
+    // compartilha jangada do grupo se E tiver
+    if(aguaAtual&&(E.jangada||E2.jangada)&&!E2.jangadaAtiva){E2.jangada=true;E2.jangadaAtiva=true;}
+    if(!aguaAtual)E2.jangadaAtiva=false;
+    const vel=calcularVelocidade(E2,dt,aguaAtual);
     const mag=Math.sqrt(dx*dx+dy*dy);dx=(dx/mag)*vel;dy=(dy/mag)*vel;
     if(Math.abs(dx)>Math.abs(dy))E2.dir=dx>0?'L':'O';else E2.dir=dy>0?'S':'N';
     const nx=Math.max(.6,Math.min(MW-1.6,E2.x+dx)),ny=Math.max(.6,Math.min(MH-1.6,E2.y+dy));
     const tile=mapa[Math.floor(ny)]?.[Math.floor(nx)];
     if(tile&&tile.tipo!==T.PEDRA&&tile.tipo!==T.PENHASCO){
-      if((tile.tipo===T.AGUA||tile.tipo===T.LIRIO)&&!E2.jangada&&!E.jangada){E2.x=Math.max(.6,Math.min(MW-1.6,E2.x+dx*.55));E2.y=Math.max(.6,Math.min(MH-1.6,E2.y+dy*.55));E2.sede=Math.min(100,E2.sede+.55);}
-      else{E2.x=nx;E2.y=ny;}
+      E2.x=nx;E2.y=ny;
+      if(naAguaTile(tile)&&!jangadaEmUso(E2)){E2.energia=Math.max(0,E2.energia-dt*2.2);E2.sede=Math.min(100,E2.sede+dt*1.2);}
       E2.passos++;tile.vis=true;sfxPasso(tile);
       if(E2.passos%55===0){E2.fome=Math.max(0,E2.fome-1.5);E2.sede=Math.max(0,E2.sede-2.0);E2.energia=Math.max(0,E2.energia-.8);}
       if(tile.tipo===T.PANTANO){E2.energia=Math.max(0,E2.energia-dt*1.5);}
@@ -4817,25 +4830,96 @@ function atualizarLanterna(dt){
 //  FÍSICA
 // ══════════════════════════════════════════════════════════
 let acaoSelIdx=0;
+function naAguaTile(tile){
+  return tile&&(tile.tipo===T.AGUA||tile.tipo===T.LIRIO);
+}
+function temJangadaInv(jogador){
+  jogador=jogador||E;
+  return !!(jogador.jangada||(jogador.inv&&jogador.inv.some(i=>i.nome==='Jangada'||i.emoji==='🛶')));
+}
+function jangadaEmUso(jogador){
+  jogador=jogador||E;
+  return !!(jogador.jangadaAtiva&&temJangadaInv(jogador));
+}
+function calcularVelocidade(jogador,dt,naAgua){
+  jogador=jogador||E;
+  let base;
+  if(jogador.energia<=5) base=VEL_CANSADO;
+  else if(jogador.veneno) base=VEL_VENENO;
+  else if(naAgua&&jangadaEmUso(jogador)) base=VEL_JANGADA;
+  else if(naAgua) base=VEL_AGUA;
+  else base=VEL_SOLO;
+  if(jogador.botas&&!naAgua) base*=VEL_BOTAS;
+  if(clima==='chuva'&&!jangadaEmUso(jogador)) base*=VEL_CHUVA;
+  return base*dt;
+}
+function ativarJangada(){
+  if(!temJangadaInv(E)){msg('🛶 Você precisa fabricar uma Jangada (5 Bambus) no craft.');return;}
+  const tile=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
+  const near=(()=>{for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const tt=mapa[Math.floor(E.y)+dy]?.[Math.floor(E.x)+dx];if(naAguaTile(tt))return true;}return false;})();
+  if(!naAguaTile(tile)&&!near){msg('🛶 Vá até a água (rio ou lago) para usar a jangada.');return;}
+  E.jangada=true;
+  E.jangadaAtiva=true;
+  sfx.botao();
+  msg('🛶 Jangada na água! Você navega rápido pelos rios.');
+  toast('🛶 Jangada ativa');
+  atualizarAcoes();
+  try{atualizarChipArma();}catch(e){}
+}
+function desativarJangada(){
+  E.jangadaAtiva=false;
+  // mantém E.jangada=true se tem no inventário (já fabricou)
+  msg('🛶 Você saiu da jangada.');
+  toast('🛶 Jangada guardada');
+  atualizarAcoes();
+}
+function toggleJangada(){
+  if(jangadaEmUso(E)) desativarJangada();
+  else ativarJangada();
+}
+
 function moverJogador(dt){
   if(pausado)return;
-  const velBase=E.energia<=5?1.5:E.veneno?3.5:5.2,velMult=clima==='chuva'?.72:1,vel=velBase*dt*velMult;
   let dx=0,dy=0;
   if(teclas['KeyA'])dx-=1;if(teclas['KeyD'])dx+=1;
   if(teclas['KeyW'])dy-=1;if(teclas['KeyS'])dy+=1;
-  // Entrada touch / joystick virtual
   if(touchMove.ativo&&(Math.abs(touchMove.dx)>.12||Math.abs(touchMove.dy)>.12)){
     dx+=touchMove.dx;dy+=touchMove.dy;
   }
   E.xAnt=E.x;E.yAnt=E.y;
   if(dx!==0||dy!==0){
+    const tileAtual=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
+    const aguaAtual=naAguaTile(tileAtual);
+    // Se saiu da água, desativa modo jangada automaticamente
+    if(!aguaAtual&&E.jangadaAtiva){
+      // só desativa se não estiver entrando em água no próximo passo
+    }
+    const vel=calcularVelocidade(E,dt,aguaAtual);
     const mag=Math.sqrt(dx*dx+dy*dy);dx=(dx/mag)*vel;dy=(dy/mag)*vel;
     if(Math.abs(dx)>Math.abs(dy))E.dir=dx>0?'L':'O';else E.dir=dy>0?'S':'N';
     const nx=Math.max(.6,Math.min(MW-1.6,E.x+dx)),ny=Math.max(.6,Math.min(MH-1.6,E.y+dy));
     const tile=mapa[Math.floor(ny)]?.[Math.floor(nx)];
     if(tile&&tile.tipo!==T.PEDRA&&tile.tipo!==T.PENHASCO){
-      if((tile.tipo===T.AGUA||tile.tipo===T.LIRIO)&&!E.jangada){E.x=Math.max(.6,Math.min(MW-1.6,E.x+dx*.55));E.y=Math.max(.6,Math.min(MH-1.6,E.y+dy*.55));E.sede=Math.min(100,E.sede+.55);E.temperatura=Math.max(34,E.temperatura-.05);}
-      else{E.x=nx;E.y=ny;}
+      const aguaDest=naAguaTile(tile);
+      // Auto-sobe na jangada se já tinha fabricado e entra na água
+      if(aguaDest&&E.jangada&&!E.jangadaAtiva){
+        // não força auto — jogador usa botão; mas se jangada flag antiga true, ativa
+        E.jangadaAtiva=true;
+      }
+      if(!aguaDest&&E.jangadaAtiva){
+        E.jangadaAtiva=false;
+      }
+      E.x=nx;E.y=ny;
+      if(aguaDest&&!jangadaEmUso(E)){
+        // nado: gasta energia e esfria
+        E.energia=Math.max(0,E.energia-dt*2.2);
+        E.temperatura=Math.max(34,E.temperatura-dt*0.8);
+        E.sede=Math.min(100,E.sede+dt*1.2);
+      }
+      if(aguaDest&&jangadaEmUso(E)){
+        // navegando: leve recuperação de sede
+        E.sede=Math.min(100,E.sede+dt*0.4);
+      }
       E.passos++;tile.vis=true;sfxPasso(tile);
       if(E.passos%55===0){E.fome=Math.max(0,E.fome-1.5);E.sede=Math.max(0,E.sede-2.0);E.energia=Math.max(0,E.energia-(E.botas?0.45:0.8));}
       if(tile.tipo===T.FRUTAS&&Math.random()<.007){E.fome=Math.min(100,E.fome+5);msg("Você encontra frutos caídos.");}
@@ -5102,7 +5186,7 @@ function executarCraft(rec){
     case 'bandagem':E.vida=Math.min(100,E.vida+35);sfx.remedio();E.curas++;msg("🩹 +35 de vida.");break;
     case 'abrigo_reforcado':E.temAbrigo=true;E.baseNivel=Math.max(E.baseNivel||0,2);E.baseX=Math.floor(E.x);E.baseY=Math.floor(E.y);if(modo2P&&E2)E2.temAbrigo=true;mapa[Math.floor(E.y)][Math.floor(E.x)].tipo=T.ABRIGO;mapa[Math.floor(E.y)][Math.floor(E.x)].baseNivel=2;sfx.conquista();msg('🛖 Abrigo Reforçado (Nível 2)!');break;
     case 'armadilha':const tx=Math.round(E.x),ty=Math.round(E.y);if(mapa[ty]?.[tx])mapa[ty][tx].armadilha=true;msg("🪤 Armadilha posicionada.");break;
-    case 'jangada':E.jangada=true;if(modo2P&&E2)E2.jangada=true;msg("🛶 Jangada! Explore os rios.");break;
+    case 'jangada':E.jangada=true;addInv('Jangada','🛶','ferr');if(modo2P&&E2){E2.jangada=true;}msg("🛶 Jangada fabricada! Vá até a água e use o botão 🛶 Jangada.");toast('🛶 Jangada pronta');break;
     case 'vara_pesca':E.temVara=true;E.arma='vara';E.armaDano=10;E.armaEmoji='🎣';addInv('Vara de Pesca','🎣','ferr');msg("🎣 Vara de Pesca na mão! Vá até um rio e use Pescar.");break;
     case 'repelente':E.repelente=300;msg("🌿 Repelente ativo.");break;
     case 'veneno_def':E.veneno_def=true;if(modo2P&&E2)E2.veneno_def=true;msg("☠ Veneno de Defesa ativo.");break;
@@ -5421,6 +5505,12 @@ function usarItemInv(idx){
       E.sede=Math.min(100,E.sede+(item.val||38));removerItem(nome,1);sfx.beber();msg('💧 Água bebida.');
       abrirInv(true);try{atualizarHUDBarras();}catch(e){}return;
     }
+    if(nome==='Jangada'||item.emoji==='🛶'){
+      E.jangada=true;
+      toggleJangada();
+      abrirInv(true);
+      return;
+    }
     if(nome==='Tocha'||(item.emoji==='🔥'&&item.tipo!=='mat')){
       msg('🔥 Use o botão de lanterna/tocha para acender.');
       return;
@@ -5463,6 +5553,13 @@ function atualizarAcoes(){
   const onWater=tile?.tipo===T.AGUA||tile?.tipo===T.LIRIO;
   if(onWater||nearWater){
     if(onWater)btn('💧 Beber',beberAgua);
+    // Sistema de jangada / barco na água
+    if(temJangadaInv(E)){
+      if(jangadaEmUso(E))btn('🛶 Sair da Jangada',desativarJangada,'dest');
+      else btn('🛶 Usar Jangada',ativarJangada,'dest');
+    }else if(onWater||nearWater){
+      btn('🛶 Jangada (craft 5 Bambus)',()=>msg('⚒ Fabique uma Jangada no Craft (5 Bambus) para navegar rápido.'));
+    }
     const temVara=E.temVara||contarItem('Vara de Pesca')>0||E.arma==='vara';
     const temBambu=contarItem('Bambu')>0;
     if(temVara)btn('🎣 Pescar',()=>pescar(true),'dest');
@@ -5946,7 +6043,8 @@ function atualizarHUD(){
   const efDiv=document.getElementById('status-efeitos');efDiv.innerHTML='';
   if(E.veneno)efDiv.innerHTML+='<span class="efeit-chip" style="color:#88ff88;border-color:rgba(0,255,0,.3)">☠ Envenenado</span>';
   if(E.repelente>0)efDiv.innerHTML+='<span class="efeit-chip" style="color:#aaffaa">🌿 Repelente</span>';
-  if(E.jangada)efDiv.innerHTML+='<span class="efeit-chip" style="color:#88ddff">🛶 Jangada</span>';
+  if(jangadaEmUso(E))efDiv.innerHTML+='<span class="efeit-chip" style="color:#88ddff;cursor:pointer" title="Sair da jangada" onclick="desativarJangada()">🛶 Navegando</span>';
+  else if(temJangadaInv(E))efDiv.innerHTML+='<span class="efeit-chip" style="color:#88aacc;cursor:pointer" title="Usar jangada na água" onclick="ativarJangada()">🛶 Jangada</span>';
   if((E.baseNivel||0)>0){const b=BASE_NIVEIS[E.baseNivel]||{};efDiv.innerHTML+='<span class="efeit-chip" style="color:#e8c040">'+(b.emoji||'⛺')+' Base Nv.'+E.baseNivel+'</span>';}
   if(E.temVara||contarItem('Vara de Pesca')>0)efDiv.innerHTML+='<span class="efeit-chip" style="color:#5ab0e0">🎣 Vara</span>';
   if(tocha.ativa)efDiv.innerHTML+='<span class="efeit-chip" style="color:#ffaa44">🔥 Tocha</span>';
@@ -6772,6 +6870,9 @@ function desenharJogador(ctx,px,py,isP2=false){
   const armS=moving?Math.sin(tempo*12+Math.PI)*4.5:0;
   const dir=E.dir||'N';
   const crit=E.vida<25||E.fome<12||E.sede<12;
+  const tileJog=mapa[Math.floor(E.y)]?.[Math.floor(E.x)];
+  const naAgua=tileJog&&(tileJog.tipo===T.AGUA||tileJog.tipo===T.LIRIO);
+  const comJangada=naAgua&&typeof jangadaEmUso==='function'&&jangadaEmUso(E);
   ctx.save();
 
   // Aura verde explorador
@@ -6782,9 +6883,40 @@ function desenharJogador(ctx,px,py,isP2=false){
   ctx.fillStyle=aura;ctx.beginPath();ctx.arc(px,by,34,0,Math.PI*2);ctx.fill();
   ctx.globalAlpha=1;
 
-  // Sombra no chão
-  ctx.fillStyle='rgba(0,0,0,.38)';
-  ctx.beginPath();ctx.ellipse(px+1,py+19,moving?13:10,3.8,0,0,Math.PI*2);ctx.fill();
+  // Jangada / barco sob o jogador na água
+  if(comJangada){
+    const wob=Math.sin(tempo*2.5)*1.5;
+    ctx.save();
+    // sombra na água
+    ctx.fillStyle='rgba(0,20,40,.35)';
+    ctx.beginPath();ctx.ellipse(px,py+20,22,7,0,0,Math.PI*2);ctx.fill();
+    // troncos da jangada
+    ctx.fillStyle='#6d4c41';
+    for(let i=-2;i<=2;i++){
+      ctx.beginPath();
+      if(ctx.roundRect)ctx.roundRect(px-16,py+10+i*3.2+wob*0.3,32,2.8,1);
+      else ctx.fillRect(px-16,py+10+i*3.2+wob*0.3,32,2.8);
+      ctx.fill();
+    }
+    // cordas
+    ctx.strokeStyle='#8d6e63';ctx.lineWidth=1.2;
+    ctx.beginPath();ctx.moveTo(px-14,py+10+wob);ctx.lineTo(px-14,py+22+wob);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(px+14,py+10+wob);ctx.lineTo(px+14,py+22+wob);ctx.stroke();
+    // ondas
+    ctx.strokeStyle='rgba(100,200,255,.35)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(px,py+22+wob,18,4,0,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  } else if(naAgua){
+    // nadando — ondulação
+    ctx.strokeStyle='rgba(100,180,255,.3)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(px,py+18,12+Math.sin(tempo*4)*2,3,0,0,Math.PI*2);ctx.stroke();
+  }
+
+  // Sombra no chão (só em terra)
+  if(!naAgua){
+    ctx.fillStyle='rgba(0,0,0,.38)';
+    ctx.beginPath();ctx.ellipse(px+1,py+19,moving?13:10,3.8,0,0,Math.PI*2);ctx.fill();
+  }
 
   // Botas
   ctx.fillStyle='#1a1008';
