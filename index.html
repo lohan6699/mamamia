@@ -2894,86 +2894,302 @@ function desenharInimigo(ctx,sx,sy,ini){
       break;}
 
     case 'onca':{
-      const ly=walk;
-      // cauda balançando
-      ctx.strokeStyle='#c47a20';ctx.lineWidth=5;ctx.lineCap='round';
-      const tx=-16, ty=Math.sin(fase*2.2)*8;
-      ctx.beginPath();ctx.moveTo(-12,2);ctx.quadraticCurveTo(-20,ty-4,-18,ty+10);ctx.stroke();
-      ctx.fillStyle='#3e2723';
-      ctx.beginPath();ctx.arc(-18,ty+10,2.5,0,Math.PI*2);ctx.fill();
-      // pernas com articulação
-      const legs=[[-12,ly],[-4,-ly],[5,-ly],[12,ly]];
-      legs.forEach(function(L,i){
-        ctx.fillStyle=i<2?'#b86e18':'#c47a20';
+      // ═══════════════════════════════════════════
+      //  ONÇA-PINTADA — perfil felino elegante
+      // ═══════════════════════════════════════════
+      const ly = walk * 0.55;
+      const tailPh = Math.sin(fase * 2.2);
+
+      // --- Cauda em S (longa, anelada) ---
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      const tailPts = [
+        [-12, 3],
+        [-17, 1 + tailPh * 2],
+        [-22, 4 + tailPh * 5],
+        [-25, 10 + tailPh * 4],
+        [-23, 15 + tailPh * 2]
+      ];
+      ctx.strokeStyle = '#c87820';
+      ctx.lineWidth = 3.2;
+      ctx.beginPath();
+      ctx.moveTo(tailPts[0][0], tailPts[0][1]);
+      for (let i = 1; i < tailPts.length; i++) {
+        const prev = tailPts[i - 1], cur = tailPts[i];
+        const mx = (prev[0] + cur[0]) / 2, my = (prev[1] + cur[1]) / 2;
+        ctx.quadraticCurveTo(prev[0], prev[1], mx, my);
+      }
+      ctx.lineTo(tailPts[4][0], tailPts[4][1]);
+      ctx.stroke();
+      // anéis escuros na cauda
+      ctx.strokeStyle = '#2c1810';
+      ctx.lineWidth = 2.2;
+      [[-18, 2], [-23, 7], [-24, 13]].forEach(function(p, idx) {
         ctx.beginPath();
-        if(ctx.roundRect)ctx.roundRect(L[0],6+L[1],5.5,11,2);
-        else ctx.fillRect(L[0],6+L[1],5.5,11);
+        ctx.arc(p[0], p[1] + tailPh * (2 - idx * 0.5), 1.8, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+      // ponta
+      ctx.fillStyle = '#1a1008';
+      ctx.beginPath();
+      ctx.arc(-23, 15 + tailPh * 2, 2.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // --- Pernas esguias ---
+      // traseira esquerda / direita
+      const drawLeg = function(hx, topY, footY, lean) {
+        // coxa
+        ctx.fillStyle = '#c47a20';
+        ctx.beginPath();
+        ctx.moveTo(hx - 2.5, topY);
+        ctx.lineTo(hx - 3.5 + lean, topY + 6);
+        ctx.lineTo(hx + 1.5 + lean, topY + 6);
+        ctx.lineTo(hx + 2.5, topY);
+        ctx.closePath();
+        ctx.fill();
+        // canela
+        ctx.fillStyle = '#b86e18';
+        ctx.beginPath();
+        ctx.moveTo(hx - 2.2 + lean, topY + 5.5);
+        ctx.lineTo(hx - 2.8 + lean * 1.2, footY);
+        ctx.lineTo(hx + 1.2 + lean * 1.2, footY);
+        ctx.lineTo(hx + 1.8 + lean, topY + 5.5);
+        ctx.closePath();
         ctx.fill();
         // pata
-        ctx.fillStyle='#1a1008';
-        ctx.beginPath();ctx.ellipse(L[0]+2.7,17+L[1],3.5,2,0,0,Math.PI*2);ctx.fill();
-        // garras se alerta
-        if(alert){
-          ctx.strokeStyle='#ddd';ctx.lineWidth=1;
-          for(let g=0;g<3;g++){
-            ctx.beginPath();ctx.moveTo(L[0]+1+g*1.5,18+L[1]);ctx.lineTo(L[0]+0.5+g*1.5,21+L[1]);ctx.stroke();
+        ctx.fillStyle = '#1a1008';
+        ctx.beginPath();
+        ctx.ellipse(hx - 0.5 + lean * 1.2, footY + 1.2, 3.4, 2.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // almofadas
+        ctx.fillStyle = '#3e2723';
+        ctx.beginPath();
+        ctx.ellipse(hx - 0.5 + lean * 1.2, footY + 1.4, 1.6, 1.1, 0, 0, Math.PI * 2);
+        ctx.fill();
+        if (alert) {
+          ctx.strokeStyle = '#f5f5f5';
+          ctx.lineWidth = 1;
+          ctx.lineCap = 'round';
+          for (let g = 0; g < 3; g++) {
+            ctx.beginPath();
+            ctx.moveTo(hx - 2 + g * 1.4 + lean * 1.2, footY + 2);
+            ctx.lineTo(hx - 2.3 + g * 1.4 + lean * 1.2, footY + 5);
+            ctx.stroke();
           }
         }
-      });
-      // corpo
-      const bg=ctx.createLinearGradient(-14,-8,14,12);
-      bg.addColorStop(0,'#f0b84a');bg.addColorStop(0.35,'#d4892a');bg.addColorStop(1,'#9a6010');
-      ctx.fillStyle=bg;
-      ctx.beginPath();ctx.ellipse(0,0,16,11,0,0,Math.PI*2);ctx.fill();
-      // peito claro
-      ctx.fillStyle='rgba(255,230,180,.4)';
-      ctx.beginPath();ctx.ellipse(2,4,9,6,0,0,Math.PI*2);ctx.fill();
-      // manchas realistas (rosácea)
-      const spots=[
-        [-8,-2,2.8],[-4,3,2.2],[-10,3,1.8],[2,-3,2.5],[6,2,2],[8,-2,1.6],
-        [-1,5,1.5],[10,4,1.4],[-6,-5,1.7],[4,6,1.3],[-12,0,1.5]
+      };
+      drawLeg(-9, 5, 16 + ly, -0.5);
+      drawLeg(-3, 5, 16 - ly, 0.3);
+      drawLeg(5, 4, 16 - ly, -0.3);
+      drawLeg(11, 4, 16 + ly, 0.5);
+
+      // --- Corpo: horizontal, baixo, elegante ---
+      // camada de sombra do corpo
+      ctx.fillStyle = 'rgba(0,0,0,.15)';
+      ctx.beginPath();
+      ctx.ellipse(1, 4, 14, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // corpo principal
+      const bodyGrad = ctx.createLinearGradient(-14, -8, 12, 10);
+      bodyGrad.addColorStop(0, '#f2bc4a');
+      bodyGrad.addColorStop(0.25, '#e8a838');
+      bodyGrad.addColorStop(0.6, '#d4892a');
+      bodyGrad.addColorStop(1, '#a86818');
+      ctx.fillStyle = bodyGrad;
+      ctx.beginPath();
+      ctx.ellipse(0, 0.5, 14.5, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // linha do dorso
+      ctx.strokeStyle = 'rgba(120,70,20,.3)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-12, -5);
+      ctx.quadraticCurveTo(0, -8, 11, -4);
+      ctx.stroke();
+      // peito / barriga clara
+      ctx.fillStyle = 'rgba(255,240,200,.55)';
+      ctx.beginPath();
+      ctx.ellipse(2, 4.5, 9, 4.2, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // --- Rosetas (manchas de onça) ---
+      const rosettes = [
+        [-9, -2, 2.8], [-5, 1.5, 2.3], [-11, 2, 1.9],
+        [1, -3, 2.5], [5, 0.5, 2.2], [8, -2, 1.7],
+        [-2, 2.5, 1.6], [9, 2, 1.5], [-7, -4.5, 1.5],
+        [3, 3.5, 1.4], [-12, -0.5, 1.5], [6, 3.5, 1.2],
+        [-4, -1, 1.3], [2, -0.5, 1.1]
       ];
-      spots.forEach(function(s){
-        ctx.fillStyle='#2a1810';
-        ctx.beginPath();ctx.ellipse(s[0],s[1],s[2],s[2]*0.72,0.15,0,Math.PI*2);ctx.fill();
-        ctx.fillStyle='rgba(80,40,15,.35)';
-        ctx.beginPath();ctx.ellipse(s[0],s[1],s[2]*0.4,s[2]*0.28,0.15,0,Math.PI*2);ctx.fill();
+      rosettes.forEach(function(s) {
+        // anel externo
+        ctx.strokeStyle = '#2a1810';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.ellipse(s[0], s[1], s[2], s[2] * 0.78, 0.25, 0, Math.PI * 2);
+        ctx.stroke();
+        // pontos internos da roseta
+        ctx.fillStyle = '#2a1810';
+        ctx.beginPath();
+        ctx.arc(s[0] - s[2] * 0.25, s[1] - s[2] * 0.1, s[2] * 0.22, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(s[0] + s[2] * 0.2, s[1] + s[2] * 0.15, s[2] * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+        // preenchimento suave
+        ctx.fillStyle = 'rgba(160,90,30,.2)';
+        ctx.beginPath();
+        ctx.ellipse(s[0], s[1], s[2] * 0.55, s[2] * 0.4, 0.25, 0, Math.PI * 2);
+        ctx.fill();
       });
-      // cabeça
-      ctx.fillStyle='#e8a838';
-      ctx.beginPath();ctx.ellipse(15,-6,10,9,0.1,0,Math.PI*2);ctx.fill();
-      // orelhas
-      ctx.fillStyle='#c47a20';
-      ctx.beginPath();ctx.moveTo(10,-13);ctx.lineTo(8,-20);ctx.lineTo(13,-14);ctx.closePath();ctx.fill();
-      ctx.beginPath();ctx.moveTo(17,-13);ctx.lineTo(20,-20);ctx.lineTo(14,-14);ctx.closePath();ctx.fill();
-      ctx.fillStyle='#f5c888';
-      ctx.beginPath();ctx.moveTo(10.5,-14);ctx.lineTo(9.2,-18);ctx.lineTo(12.5,-14.5);ctx.closePath();ctx.fill();
-      ctx.beginPath();ctx.moveTo(16.5,-14);ctx.lineTo(18.2,-18);ctx.lineTo(14.5,-14.5);ctx.closePath();ctx.fill();
-      // focinho
-      ctx.fillStyle='#f8d8b0';
-      ctx.beginPath();ctx.ellipse(22,-3,4.5,3.5,0,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#1a1008';
-      ctx.beginPath();ctx.arc(23,-2.5,1.2,0,Math.PI*2);ctx.fill();
-      // boca
-      ctx.strokeStyle='#8b5a2b';ctx.lineWidth=1.2;
-      ctx.beginPath();ctx.arc(22,-1,2.5,0.1,Math.PI-0.1);ctx.stroke();
-      // olho
-      ctx.fillStyle='#1a1008';
-      ctx.beginPath();ctx.arc(16,-7,2.8,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle=alert?'#ff1744':'#ffc107';
-      ctx.beginPath();ctx.arc(16.6,-7.5,1.3,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle='#fff';
-      ctx.beginPath();ctx.arc(17,-8,0.5,0,Math.PI*2);ctx.fill();
+
+      // --- Cabeça felina compacta ---
+      // pescoço
+      ctx.fillStyle = '#d4892a';
+      ctx.beginPath();
+      ctx.ellipse(10, -1, 5, 5.5, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      // crânio
+      const headG = ctx.createRadialGradient(14, -6, 1, 15, -5, 10);
+      headG.addColorStop(0, '#f0b84a');
+      headG.addColorStop(1, '#d4892a');
+      ctx.fillStyle = headG;
+      ctx.beginPath();
+      ctx.ellipse(15, -5.5, 8, 7.2, 0.05, 0, Math.PI * 2);
+      ctx.fill();
+
+      // orelhas altas e pontudas
+      // esquerda
+      ctx.fillStyle = '#c87820';
+      ctx.beginPath();
+      ctx.moveTo(10, -10);
+      ctx.lineTo(9.2, -18.5);
+      ctx.lineTo(13, -12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#f0b0a0';
+      ctx.beginPath();
+      ctx.moveTo(10.4, -11.5);
+      ctx.lineTo(10, -16.5);
+      ctx.lineTo(12.2, -12.5);
+      ctx.closePath();
+      ctx.fill();
+      // direita
+      ctx.fillStyle = '#c87820';
+      ctx.beginPath();
+      ctx.moveTo(16.5, -10);
+      ctx.lineTo(18.5, -18.5);
+      ctx.lineTo(14.5, -12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#f0b0a0';
+      ctx.beginPath();
+      ctx.moveTo(16.3, -11.5);
+      ctx.lineTo(17.5, -16.5);
+      ctx.lineTo(15.2, -12.5);
+      ctx.closePath();
+      ctx.fill();
+
+      // manchas na cabeça
+      ctx.fillStyle = '#2a1810';
+      [[11.5, -7, 1.1], [14, -9.5, 0.9], [17, -7.5, 1], [12, -4, 0.8]].forEach(function(s) {
+        ctx.beginPath();
+        ctx.ellipse(s[0], s[1], s[2], s[2] * 0.7, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // focinho curto
+      ctx.fillStyle = '#f5dcb8';
+      ctx.beginPath();
+      ctx.ellipse(20.5, -3.8, 3.5, 3, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // nariz
+      ctx.fillStyle = '#3e2723';
+      ctx.beginPath();
+      ctx.moveTo(21, -5);
+      ctx.lineTo(23.2, -3.5);
+      ctx.lineTo(21, -2.5);
+      ctx.closePath();
+      ctx.fill();
+      // boca sutil
+      ctx.strokeStyle = '#8b5a2b';
+      ctx.lineWidth = 1;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(20, -2.2);
+      ctx.quadraticCurveTo(21.5, -0.8, 23, -2.2);
+      ctx.stroke();
+      // philtrum
+      ctx.beginPath();
+      ctx.moveTo(21.5, -2.8);
+      ctx.lineTo(21.5, -1.5);
+      ctx.stroke();
+
+      // olho amendoado + pupila vertical
+      // contorno
+      ctx.fillStyle = '#1a1008';
+      ctx.beginPath();
+      ctx.ellipse(15.5, -6.8, 2.8, 2.3, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      // íris dourada
+      ctx.fillStyle = alert ? '#ff3d00' : '#ffb300';
+      ctx.beginPath();
+      ctx.ellipse(15.8, -7, 1.5, 1.7, 0.15, 0, Math.PI * 2);
+      ctx.fill();
+      // pupila vertical
+      ctx.fillStyle = '#0d0800';
+      ctx.beginPath();
+      ctx.ellipse(15.8, -7, 0.4, 1.4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      // brilho
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(16.2, -7.5, 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      // cílios / canto
+      ctx.strokeStyle = 'rgba(30,15,5,.5)';
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(13.2, -6.5);
+      ctx.quadraticCurveTo(14, -5.5, 15, -5.8);
+      ctx.stroke();
+
       // bigodes
-      ctx.strokeStyle='rgba(40,25,10,.45)';ctx.lineWidth=0.9;
-      [[-1,-3],[0,0],[1,2]].forEach(function(w){
-        ctx.beginPath();ctx.moveTo(20,w[0]);ctx.lineTo(28,w[1]);ctx.stroke();
+      ctx.strokeStyle = 'rgba(60,40,20,.55)';
+      ctx.lineWidth = 0.8;
+      ctx.lineCap = 'round';
+      const whiskers = [
+        [19, -4.5, 28, -6], [19, -3.5, 29, -3], [19, -2.5, 28, 0],
+        [19, -4.2, 27, -7.5], [19, -2.8, 27.5, 1.5]
+      ];
+      whiskers.forEach(function(w) {
+        ctx.beginPath();
+        ctx.moveTo(w[0], w[1]);
+        ctx.lineTo(w[2], w[3]);
+        ctx.stroke();
       });
-      if(alert){
-        ctx.fillStyle='#fffef5';
-        ctx.beginPath();ctx.moveTo(20,1);ctx.lineTo(19,6);ctx.lineTo(21.5,2);ctx.fill();
-        ctx.beginPath();ctx.moveTo(23,1);ctx.lineTo(24.5,6);ctx.lineTo(22,2);ctx.fill();
+
+      // presas
+      if (alert) {
+        ctx.fillStyle = '#fffef8';
+        ctx.beginPath();
+        ctx.moveTo(20, -0.8);
+        ctx.lineTo(19.3, 3.5);
+        ctx.lineTo(20.8, 0);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(22.2, -0.8);
+        ctx.lineTo(23, 3.5);
+        ctx.lineTo(21.5, 0);
+        ctx.closePath();
+        ctx.fill();
       }
+
+      // brilho suave no pelo (beleza)
+      ctx.fillStyle = 'rgba(255,255,220,.12)';
+      ctx.beginPath();
+      ctx.ellipse(-2, -4, 8, 3, -0.2, 0, Math.PI * 2);
+      ctx.fill();
       break;}
 
     case 'piranha':{
